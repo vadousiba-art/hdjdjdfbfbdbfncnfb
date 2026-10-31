@@ -32,3 +32,19 @@ one, an original song cut so every swipe lands on a beat).
 
 Part 2 uses the same engine with `--set slides-part2` (`carousel/slides-part2.json`,
 `carousel/prep-part2.py` to crop its photos, `carousel/audio/song-part2.py` for its song).
+
+## Talking-head reels
+
+For videos he films himself: `reel/` cuts the takes, grades the footage, lays
+B-roll and captions over it, and scores it.
+
+| File | Does |
+| --- | --- |
+| `carousel/transcribe.py` | Word-timed transcripts of the recordings (faster-whisper, CPU) |
+| `reel/grade.py` | Denoise and skin-based colour correction → 30 fps frame sequences |
+| `reel/edl.py` | `plan.json` (beats, ranges, captions, B-roll) → `edit.json`, with long pauses cut |
+| `reel/vscode.mjs` | An editor screenshot of real YORU source, and a broken version |
+| `reel/audio.py` | Voice cut to the edit, a score ducked under it, effects; mastered to -14 LUFS |
+| `reel/edit.js`, `reel/render.mjs` | Draws and encodes the reel → `out/part3-reel.mp4` |
+
+The plan, the edit, the footage and the renders stay local (gitignored).

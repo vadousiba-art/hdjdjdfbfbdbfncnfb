@@ -39,7 +39,8 @@ def clap():
 
 class Band:
     def __init__(self, slides_json, seed):
-        d = json.loads(pathlib.Path(slides_json).read_text())
+        """slides_json: a slides file, or a dict with "bpm" and "slides" (each with "beats")."""
+        d = slides_json if isinstance(slides_json, dict) else json.loads(pathlib.Path(slides_json).read_text())
         self.slides = d["slides"]
         self.beat = 60.0 / d["bpm"]
         self.starts = np.cumsum([0] + [s["beats"] for s in self.slides])  # in beats; the last entry is the end

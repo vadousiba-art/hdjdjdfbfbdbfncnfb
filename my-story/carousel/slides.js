@@ -2,7 +2,9 @@
 // 1080x1920 video of the same slides: full-bleed pictures with stacked white
 // caption boxes. Slides, text and timing come from slides.json.
 
-const D = await (await fetch("/carousel/slides.json")).json();
+// ?set=slides-part2 picks another story; slides.json is the default
+const SET = new URLSearchParams(location.search).get("set") || "slides";
+const D = await (await fetch(`/carousel/${SET}.json`)).json();
 const S = D.slides;
 const BEAT = 60 / D.bpm;
 const cv = document.getElementById("c");

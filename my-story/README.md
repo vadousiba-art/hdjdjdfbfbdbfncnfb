@@ -27,4 +27,8 @@ one, an original song cut so every swipe lands on a beat).
 | `carousel/prep-clips.sh` | Trims and treats the clips into frame sequences; plates, addresses and the people in the haze clips are never readable |
 | `carousel/slides.js` | Draws a slide (1080×1440) or a video frame (1080×1920) |
 | `carousel/audio/song.py` | The song, on the slide timeline → `carousel/audio/song.wav` |
+| `carousel/audio/band.py` | Beat grid and parts shared by the slide songs |
 | `carousel/render.mjs` | `--slides` → `out/carousel/NN.png`; default → `out/story-slides.mp4` |
+
+Part 2 uses the same engine with `--set slides-part2` (`carousel/slides-part2.json`,
+`carousel/prep-part2.py` to crop its photos, `carousel/audio/song-part2.py` for its song).

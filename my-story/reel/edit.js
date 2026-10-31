@@ -7,6 +7,7 @@ const W = 1080, H = 1920;
 const cv = document.getElementById("c");
 const ctx = cv.getContext("2d");
 const E = await (await fetch("/reel/edit.json")).json();
+const EXPO = await (await fetch("/reel/exposure.json")).json();  // per-frame brightness gains (reel/exposure.py)
 
 const load = (src) => new Promise((ok, no) => {
   const i = new Image();
@@ -80,7 +81,8 @@ async function face(g, b, t) {
     const turn = E.captions.find((c) => c.text.startsWith("now i'm doing it")).s;
     mono = 1 - clamp((t - turn + 0.1) / 0.5);
   }
-  g.filter = mono > 0 ? `grayscale(${mono}) contrast(${1 + 0.1 * mono})` : "none";
+  const gain = EXPO[b.src]?.[n - 1] ?? 1;
+  g.filter = `brightness(${gain})` + (mono > 0 ? ` grayscale(${mono}) contrast(${1 + 0.1 * mono})` : "");
   cover(g, img, z, 0.5, 0.4);
   g.filter = "none";
 }
@@ -375,12 +377,15 @@ window.renderFrame = async (t) => {
   }
 
   // captions
-  for (const c of E.captions) {
-    if (t < c.s - 0.02 || t > c.e + 0.08) continue;
-    const a = clamp((t - c.s + 0.02) / 0.07) * clamp((c.e + 0.08 - t) / 0.08);
+  E.captions.forEach((c, i) => {
+    const next = E.captions[i + 1];
+    // back-to-back captions swap cleanly; a caption followed by a pause fades out
+    const end = next && next.s - c.e < 0.15 ? next.s - 0.02 : c.e + 0.08;
+    if (t < c.s - 0.02 || t > end) return;
+    const a = clamp((t - c.s + 0.02) / 0.07) * (end === c.e + 0.08 ? clamp((end - t) / 0.08) : 1);
     const pop = 0.9 + 0.1 * easeOut(clamp((t - c.s) / 0.14));
     boxText(ctx, c.text, 1290, 58, a, pop);
-  }
+  });
 
   const out = clamp((t - (E.duration - 0.5)) / 0.5);
   if (out > 0) {

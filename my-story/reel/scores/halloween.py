@@ -10,7 +10,7 @@ import numpy as np
 import kit
 from band import CH, Band, chords
 from kit import SR, filt, glock, harp, piano, riser, section, sfx, strings, timpani, up
-from sfx import flash_sound, keys, swish
+from sfx import flash_sound, glitch, keys, swish
 
 THEME = [(0, "D6", 0.5), (0.5, "F6", 0.5), (1, "A6", 1), (2, "G6", 0.5), (2.5, "F6", 0.5), (3, "E6", 0.5), (3.5, "C#6", 0.5), (4, "D6", 2)]
 THEME_MAJOR = [(0, "D6", 0.5), (0.5, "F#6", 0.5), (1, "A6", 1), (2, "B6", 0.5), (2.5, "A6", 0.5), (3, "F#6", 0.5), (3.5, "E6", 0.5), (4, "D6", 2)]
@@ -93,9 +93,12 @@ def effects(ctx):
     for item in beat["H2"]["broll"]:
         if item["type"] == "flash":
             put(flash_sound(), item["at"], 0.16)
-    for item in beat["NIGHT"]["broll"]:
+    night = [item for k in ("NIGHT", "V1", "V2", "V3") if k in beat for item in beat[k]["broll"]]
+    for item in night:
         put(swish(), item["at"] - 0.1, 0.05)
-        if item["type"] == "code":
+        if item.get("glitch"):
+            put(glitch(), item["at"], 0.07)
+        elif item["type"] == "code":
             put(filt(keys(item["until"] - item["at"]), "lowpass", 7000), item["at"], 0.035)
     sparkle = sfx(2350)[: int(1.6 * SR)]
     put(sparkle, beat["H7"]["start"] - 0.15, 0.25)

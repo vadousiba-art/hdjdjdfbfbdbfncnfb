@@ -1,9 +1,9 @@
-// Renders the talking-head reel (reel/edit.js) in headless Chromium and encodes
-// it with ffmpeg, with reel/audio/reel.wav.
+// Renders a talking-head reel (reel/edit.js) in headless Chromium and encodes
+// it with ffmpeg, with reel/<project>/audio/reel.wav.
 //
-//   node reel/render.mjs                -> out/part3-reel.mp4
-//   node reel/render.mjs --stills 2,30  -> out/reel-stills/
-//   node reel/render.mjs --preview      -> out/part3-reel-preview.mp4 (540x960)
+//   node reel/render.mjs <project>                -> out/<project>-reel.mp4
+//   node reel/render.mjs <project> --stills 2,30  -> out/<project>-stills/
+//   node reel/render.mjs <project> --preview      -> out/<project>-reel-preview.mp4 (540x960)
 
 import http from "node:http";
 import fs from "node:fs";
@@ -20,6 +20,7 @@ const OUT = path.join(ROOT, "out");
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n, d) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
+const PROJECT = args[0] && !args[0].startsWith("--") ? args[0] : "part3";
 
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2" };
 const server = http.createServer((req, res) => {
@@ -37,12 +38,12 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
 page.on("console", (m) => m.type() === "error" && !m.text().includes("404") && console.log("[page]", m.text()));
 page.on("pageerror", (e) => console.log("[page error]", e.message));
-await page.goto(`http://127.0.0.1:${server.address().port}/reel/index.html`);
+await page.goto(`http://127.0.0.1:${server.address().port}/reel/index.html?p=${PROJECT}`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 180000 });
 const shot = () => page.screenshot({ type: "png", clip: { x: 0, y: 0, width: 1080, height: 1920 } });
 
 if (opt("--stills", null)) {
-  const dir = path.join(OUT, "reel-stills");
+  const dir = path.join(OUT, `${PROJECT}-stills`);
   fs.mkdirSync(dir, { recursive: true });
   for (const t of opt("--stills").split(",").map(Number)) {
     await page.evaluate((x) => window.renderFrame(x), t);
@@ -53,9 +54,9 @@ if (opt("--stills", null)) {
   const preview = flag("--preview");
   const fps = 30;
   const total = Math.round((await page.evaluate(() => window.duration)) * fps);
-  const audio = path.join(HERE, "audio", "reel.wav");
-  if (!fs.existsSync(audio) && !preview) throw new Error("make reel/audio/reel.wav first (python3 reel/audio.py)");
-  const name = `part3-reel${preview ? "-preview" : ""}.mp4`;
+  const audio = path.join(HERE, PROJECT, "audio", "reel.wav");
+  if (!fs.existsSync(audio) && !preview) throw new Error(`make ${audio} first (python3 reel/audio.py ${PROJECT})`);
+  const name = `${PROJECT}-reel${preview ? "-preview" : ""}.mp4`;
   fs.mkdirSync(OUT, { recursive: true });
   const ff = spawn("ffmpeg", [
     "-y", "-loglevel", "error",

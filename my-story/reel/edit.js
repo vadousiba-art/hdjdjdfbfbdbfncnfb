@@ -1,13 +1,15 @@
-// The talking-head reel, drawn from reel/edit.json: graded face footage with
-// punch-ins on every cut, B-roll over the lines (callback flashes, the app on a
-// phone, the code, family photos), captions in the series' white boxes, the
-// hook title, and an end card. Every frame is a function of t.
+// A talking-head reel, drawn from reel/<project>/edit.json (?p=<project>):
+// graded face footage with punch-ins on every cut, B-roll over the lines
+// (callback flashes, the app on a phone, the code, family photos, other
+// footage, a logo), captions in the series' white boxes, the hook title, a
+// camcorder stamp and an end card. Every frame is a function of t.
 
 const W = 1080, H = 1920;
 const cv = document.getElementById("c");
 const ctx = cv.getContext("2d");
-const E = await (await fetch("/reel/edit.json")).json();
-const EXPO = await (await fetch("/reel/exposure.json")).json();  // per-frame brightness gains (reel/exposure.py)
+const PROJ = new URLSearchParams(location.search).get("p") || "part3";
+const E = await (await fetch(`/reel/${PROJ}/edit.json`)).json();
+const EXPO = await (await fetch(`/reel/${PROJ}/exposure.json`)).json();  // per-frame brightness gains (reel/exposure.py)
 
 const load = (src) => new Promise((ok, no) => {
   const i = new Image();
@@ -16,27 +18,31 @@ const load = (src) => new Promise((ok, no) => {
   i.src = src;
 });
 const imgSrc = (name) => {
-  if (name.startsWith("vscode")) return `/photos/part3/broll/${name}.png`;
+  if (name.startsWith("vscode")) return `/photos/${PROJ}/broll/${name}.png`;
+  if (name.startsWith("broll/")) return `/photos/${PROJ}/${name}`;
   if (/^d\d-/.test(name)) return `/photos/dev/${name}.png`;
   if (name.includes("/")) return `/photos/${name}`;
   return `/photos/cropped/${name}.png`;
 };
 const IMG = {};
-for (const b of E.timeline) for (const it of b.broll) if (it.img && !IMG[it.img]) IMG[it.img] = await load(imgSrc(it.img));
-const WORDMARK = await load("/film/wordmark.png");
+for (const b of E.timeline) for (const it of b.broll) for (const k of [it.img, it.icon]) if (k && !IMG[k]) IMG[k] = await load(imgSrc(k));
+const WORDMARK = await load(E.end_card?.wordmark ? imgSrc(E.end_card.wordmark) : "/film/wordmark.png");
 await Promise.all(["600", "700", "800"].map((w) => document.fonts.load(`${w} 50px Inter`)));
 await document.fonts.load("italic 600 50px Inter");
 
-const frameUrl = (src, n) => `/photos/part3/frames/${src}/${String(n).padStart(4, "0")}.jpg`;
+// a clip is "name" (this project) or "project/name" (footage borrowed from another)
+const clipDir = (clip) => (clip.includes("/") ? clip : `${PROJ}/${clip}`);
+const frameUrl = (clip, n) => `/photos/${clipDir(clip).replace("/", "/frames/")}/${String(n).padStart(4, "0")}.jpg`;
 const FRAMES = {};
-for (const b of E.timeline) {
-  if (b.kind !== "face" || FRAMES[b.src]) continue;
+const clips = [...E.timeline.filter((b) => b.kind === "face").map((b) => b.src),
+  ...E.timeline.flatMap((b) => b.broll.filter((x) => x.type === "footage").map((x) => x.clip))];
+for (const clip of new Set(clips)) {
   let n = 1, step = 256;
   while (step >= 1) {  // find the last frame by galloping, then halving
-    if ((await fetch(frameUrl(b.src, n + step), { method: "HEAD" })).ok) n += step;
+    if ((await fetch(frameUrl(clip, n + step), { method: "HEAD" })).ok) n += step;
     else step >>= 1;
   }
-  FRAMES[b.src] = n;
+  FRAMES[clip] = n;
 }
 
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -77,8 +83,8 @@ async function face(g, b, t) {
   const k = clamp((t - p.at) / Math.max(0.5, p.out - p.in));
   const z = (p.punch ? 1.12 : 1.0) * (close ? 1.0 : 1.02) + 0.025 * k;
   let mono = 0;
-  if (b.look.mono_until_word != null) {
-    const turn = E.captions.find((c) => c.text.startsWith("now i'm doing it")).s;
+  if (b.look.mono_until) {  // black and white until this caption, then the colour comes back
+    const turn = E.captions.find((c) => c.text.startsWith(b.look.mono_until)).s;
     mono = 1 - clamp((t - turn + 0.1) / 0.5);
   }
   const gain = EXPO[b.src]?.[n - 1] ?? 1;
@@ -88,6 +94,63 @@ async function face(g, b, t) {
 }
 
 // ------------------------------------------------------------------ B-roll
+async function footage(g, it, t) {
+  // another clip as B-roll, from its own time it.from
+  const n = clamp(Math.round((it.from + (t - it.at)) * 30) + 1, 1, FRAMES[it.clip]);
+  g.filter = "saturate(0.9) contrast(1.05)";
+  cover(g, await load(frameUrl(it.clip, n)), 1.08, 0.5, 0.42);
+  g.filter = "none";
+}
+
+function logo(g, it, t) {
+  // the logo on a dark night sky: it rises into place, glows, bats drift past
+  const k = easeOut(clamp((t - it.at) / 0.6));
+  const sky = g.createRadialGradient(W / 2, H * 0.42, 40, W / 2, H * 0.42, H * 0.7);
+  sky.addColorStop(0, "#2a1208");
+  sky.addColorStop(0.45, "#12070a");
+  sky.addColorStop(1, "#050306");
+  g.fillStyle = sky;
+  g.fillRect(0, 0, W, H);
+  const moon = g.createRadialGradient(W * 0.68, H * 0.26, 10, W * 0.68, H * 0.26, 260);
+  moon.addColorStop(0, `rgba(255,140,40,${0.55 * k})`);
+  moon.addColorStop(1, "rgba(255,140,40,0)");
+  g.fillStyle = moon;
+  g.fillRect(0, 0, W, H);
+  if (it.icon) {
+    const s = 520 * (0.92 + 0.08 * k);
+    g.save();
+    g.globalAlpha = k;
+    g.shadowColor = "rgba(255,90,20,0.55)";
+    g.shadowBlur = 90;
+    g.drawImage(IMG[it.icon], W / 2 - s / 2, H * 0.27 - s / 2 + 40 * (1 - k), s, s);
+    g.restore();
+  }
+  const img = IMG[it.img];
+  const ww = 820, wh = (ww * img.height) / img.width;
+  g.save();
+  g.globalAlpha = k;
+  g.shadowColor = "rgba(255,120,40,0.6)";
+  g.shadowBlur = 50;
+  g.drawImage(img, W / 2 - ww / 2, (it.icon ? H * 0.5 : H * 0.4) - wh / 2 + 30 * (1 - k), ww, wh);
+  g.restore();
+  for (let i = 0; i < 5; i++) {  // a few bats
+    const p = ((t - it.at) * (0.12 + i * 0.03) + i * 0.23) % 1;
+    const x = W * (1.1 - 1.3 * p), y = H * (0.12 + 0.07 * i) + 30 * Math.sin((t + i) * 3);
+    const flap = Math.sin((t + i) * 18) * 0.6;
+    g.save();
+    g.translate(x, y);
+    g.fillStyle = "rgba(10,6,8,0.9)";
+    g.beginPath();
+    g.moveTo(0, 0);
+    g.quadraticCurveTo(-18, -14 * flap - 6, -34, -4 * flap);
+    g.quadraticCurveTo(-20, 2, 0, 6);
+    g.quadraticCurveTo(20, 2, 34, -4 * flap);
+    g.quadraticCurveTo(18, -14 * flap - 6, 0, 0);
+    g.fill();
+    g.restore();
+  }
+}
+
 function flash(g, it, t) {
   const k = clamp((t - it.at) / Math.max(0.3, it.until - it.at));
   g.filter = it.grade === "mono" ? "grayscale(1) contrast(1.1) brightness(0.9)" : "saturate(1.05) contrast(1.04)";
@@ -315,8 +378,10 @@ window.renderFrame = async (t) => {
     prev = b.broll[i - 1] || null;
   }
   if (it && it.type === "face") it = null;
-  if (!it && b.kind === "vo") it = b.broll[0];
+  if (!it && b.kind !== "face") it = b.broll[0];
   if (!it) await face(g, b, tt);
+  else if (it.type === "footage") await footage(g, it, tt);
+  else if (it.type === "logo") logo(g, it, tt);
   else if (it.type === "flash") flash(g, it, tt);
   else if (it.type === "phone") phone(g, it, prev && prev.type === "phone" ? prev : null, tt);
   else if (it.type === "code") code(g, it, tt);
@@ -354,12 +419,34 @@ window.renderFrame = async (t) => {
     ctx.globalAlpha = 1;
   }
 
-  // hook title and series pill
+  // hook title, series pill and camcorder stamp
   for (const ti of E.titles) {
-    const endAt = typeof ti.e === "string" ? E.timeline.find((x) => x.id === ti.e).end : ti.e;
-    if (t < ti.s || t > endAt) continue;
-    const a = Math.min(1, (t - ti.s) / 0.06 + (ti.s === 0 ? 1 : 0)) * clamp((endAt - t) / 0.2);
-    if (ti.pill) {
+    // times are absolute, or (with "beat") offsets from that beat's start; "e" may name a beat to end with
+    const base = ti.beat ? E.timeline.find((x) => x.id === ti.beat) : null;
+    const sAt = (base ? base.start : 0) + (ti.s || 0);
+    const endAt = typeof ti.e === "string" ? E.timeline.find((x) => x.id === ti.e).end
+      : ti.e == null ? base.end : (base ? base.start : 0) + ti.e;
+    if (t < sAt || t > endAt) continue;
+    const a = Math.min(1, (t - sAt) / 0.06 + (sAt === 0 ? 1 : 0)) * clamp((endAt - t) / 0.2);
+    if (ti.stamp) {
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.font = "700 34px 'DejaVu Sans Mono', monospace";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = 8;
+      if (Math.floor(t * 1.6) % 2 === 0) {
+        ctx.fillStyle = "#ff3b30";
+        ctx.beginPath();
+        ctx.arc(84, 214, 13, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#fff";
+      ctx.fillText("REC", 110, 215);  // below the app's top bar
+      ctx.textAlign = "right";
+      ctx.fillText(ti.stamp, W - 70, 215);
+      ctx.restore();
+    } else if (ti.pill) {
       ctx.save();
       ctx.globalAlpha = a;
       ctx.font = "700 30px Inter";

@@ -2,21 +2,28 @@
 which recording plays when, the pauses tightened, what's on screen over each
 line, and the captions timed to the words (from carousel/transcribe.py).
 
-Reads reel/plan.json (the beats, their source ranges, captions and B-roll),
-writes reel/edit.json (the timeline the picture and the sound both read).
+  python3 reel/edl.py <project>
+
+Reads reel/<project>/plan.json (the beats, their source ranges, captions and
+B-roll), writes reel/<project>/edit.json (the timeline the picture and the
+sound both read). A beat of kind "insert" has no recording: it lasts "dur"
+seconds, its B-roll items start at "t" seconds in, and its captions are
+[text, start, end] in seconds from the beat's start.
 
 Pauses longer than GAP inside a line are cut down to a breath, so the speech
 keeps moving; each cut also flips the punch-in on face shots."""
 
 import json
 import pathlib
+import sys
 
 import numpy as np
 from scipy.io import wavfile
 
 HERE = pathlib.Path(__file__).resolve().parent
-P = HERE.parent / "photos" / "part3"
-PLAN = json.loads((HERE / "plan.json").read_text())
+PROJECT = sys.argv[1]
+P = HERE.parent / "photos" / PROJECT
+PLAN = json.loads((HERE / PROJECT / "plan.json").read_text())
 GAP, KEEP_BEFORE, KEEP_AFTER = 0.30, 0.09, 0.12
 HOP = 0.01
 
@@ -58,6 +65,16 @@ words = {p.stem: [w for s in json.loads(p.read_text()) for w in s["words"]] for 
 
 timeline, captions, t = [], [], 0.0
 for beat in PLAN["beats"]:
+    if beat["kind"] == "insert":
+        start, end = t, t + beat["dur"]
+        broll = [{**item, "at": round(start + item.get("t", 0), 3)} for item in beat.get("broll", [])]
+        for j, item in enumerate(broll):
+            item["until"] = broll[j + 1]["at"] if j + 1 < len(broll) else end
+        captions += [{"text": text, "s": round(start + a, 3), "e": round(start + b, 3)} for text, a, b in beat.get("captions", [])]
+        timeline.append({"id": beat["id"], "kind": "insert", "src": None, "start": round(start, 3), "end": round(end, 3),
+                         "pieces": [], "broll": broll, "look": beat.get("look", {})})
+        t = end
+        continue
     cuts = []
     for a, b in beat["ranges"]:
         cuts += speech(beat["src"], a, b)
@@ -108,7 +125,7 @@ for a, b in zip(captions, captions[1:]):
 tail = PLAN.get("tail", 0)
 out = {"fps": 30, "duration": round(t + tail, 3), "speech_end": round(t, 3), "timeline": timeline, "captions": captions,
        "titles": PLAN.get("titles", []), "end_card": PLAN.get("end_card")}
-(HERE / "edit.json").write_text(json.dumps(out, indent=1))
+(HERE / PROJECT / "edit.json").write_text(json.dumps(out, indent=1))
 for b in timeline:
     print(f"{b['id']:8s} {b['start']:6.2f}–{b['end']:6.2f}  {len(b['pieces'])} pieces  broll {[x.get('img') or x.get('type') for x in b['broll']]}")
 print(f"speech {t:.2f}s, total {t + tail:.2f}s, {len(captions)} captions")

@@ -11,7 +11,4 @@ carousel/slides-part2.json
 carousel/audio/song-part2.wav
 PART2.md
 RECORDING-GUIDE.md
-reel/plan.json
-reel/edit.json
-reel/audio/
-reel/exposure.json
+reel/*/

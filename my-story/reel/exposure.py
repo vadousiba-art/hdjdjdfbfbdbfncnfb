@@ -2,16 +2,20 @@
 second of a clip is often dark) and moving under a lamp swings the face a
 stop or more. Measures the face area of every frame, smooths it over half a
 second, and writes the brightness gain that brings each frame back to the
-clip's typical level (limited to 0.85-2.6x) -> reel/exposure.json."""
+clip's typical level (limited to 0.85-2.6x) -> reel/<project>/exposure.json.
+
+  python3 reel/exposure.py <project>"""
 
 import json
 import pathlib
+import sys
 
 import numpy as np
 from PIL import Image
 
 HERE = pathlib.Path(__file__).resolve().parent
-FR = HERE.parent / "photos" / "part3" / "frames"
+PROJECT = sys.argv[1]
+FR = HERE.parent / "photos" / PROJECT / "frames"
 out = {}
 for clip in sorted(p for p in FR.iterdir() if p.is_dir()):
     lum = []
@@ -26,4 +30,4 @@ for clip in sorted(p for p in FR.iterdir() if p.is_dir()):
     gain = np.clip(target / smooth, 0.85, 2.6)
     out[clip.name] = [round(float(g), 3) for g in gain]
     print(f"{clip.name}: face {lum.min():.0f}-{lum.max():.0f}, target {target:.0f}, gain {gain.min():.2f}-{gain.max():.2f}")
-(HERE / "exposure.json").write_text(json.dumps(out))
+(HERE / PROJECT / "exposure.json").write_text(json.dumps(out))

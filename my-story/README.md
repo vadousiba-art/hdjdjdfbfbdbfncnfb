@@ -42,9 +42,14 @@ B-roll and captions over it, and scores it.
 | --- | --- |
 | `carousel/transcribe.py` | Word-timed transcripts of the recordings (faster-whisper, CPU) |
 | `reel/grade.py` | Denoise and skin-based colour correction → 30 fps frame sequences |
-| `reel/edl.py` | `plan.json` (beats, ranges, captions, B-roll) → `edit.json`, with long pauses cut |
+| `reel/exposure.py` | Per-frame brightness gains that even out each clip |
+| `reel/edl.py` | `plan.json` (beats, ranges, captions, B-roll, inserts) → `edit.json`, with long pauses cut |
 | `reel/vscode.mjs` | An editor screenshot of real YORU source, and a broken version |
 | `reel/audio.py` | Voice cut to the edit, a score ducked under it, effects; mastered to -14 LUFS |
-| `reel/edit.js`, `reel/render.mjs` | Draws and encodes the reel → `out/part3-reel.mp4` |
+| `reel/scores/<project>.py`, `reel/sfx.py` | Each reel's score and effects |
+| `reel/edit.js`, `reel/render.mjs` | Draws and encodes the reel → `out/<project>-reel.mp4` |
 
-The plan, the edit, the footage and the renders stay local (gitignored).
+Every script takes the project name (`part3`, `halloween`, …): footage in
+`photos/<project>/`, settings and outputs in `reel/<project>/` (`grade.json`,
+`plan.json`, `edit.json`, `exposure.json`, `audio/`). Those stay local
+(gitignored); so do the renders.

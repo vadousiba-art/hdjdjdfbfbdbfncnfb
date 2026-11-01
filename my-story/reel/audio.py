@@ -101,7 +101,7 @@ music *= rms(voice) * 10 ** (-6 / 20) / rms(music)
 fx *= rms(voice) * 10 ** (-10 / 20) / rms(fx)
 music_gain = 10 ** (-(10 * duck) / 20)
 mix = voice + music * music_gain + fx
-fo = int(1.2 * SR)
+fo = int(min(1.2, max(0.15, DUR - E["speech_end"])) * SR)  # the closing fade never reaches back into the voice
 mix[-fo:] *= np.linspace(1, 0, fo) ** 1.5
 mix = np.stack([mix, mix], 1)
 

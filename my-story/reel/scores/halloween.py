@@ -27,6 +27,7 @@ def music(ctx):
         return int(round(sec / BEAT))
 
     S = {k: bt(v["start"]) for k, v in beat.items()}
+    S.setdefault("NIGHT", S["V1"])  # the night montage starts with the first screenshot when there's no silent insert
     END = bt(E["speech_end"])
 
     def music_box(notes, b0, gain, until=None):

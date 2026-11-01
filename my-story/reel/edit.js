@@ -405,7 +405,7 @@ window.renderFrame = async (t) => {
 
   // end card: the last frame dims and holds
   const endK = clamp((t - E.speech_end) / 0.5);
-  if (endK > 0) {
+  if (E.end_card && endK > 0) {
     ctx.fillStyle = `rgba(0,0,0,${0.6 * endK})`;
     ctx.fillRect(0, 0, W, H);
     const lines = E.end_card.lines;
@@ -475,7 +475,7 @@ window.renderFrame = async (t) => {
   });
 
   const out = clamp((t - (E.duration - 0.5)) / 0.5);
-  if (out > 0) {
+  if (E.fade_out !== false && out > 0) {
     ctx.fillStyle = `rgba(0,0,0,${out})`;
     ctx.fillRect(0, 0, W, H);
   }

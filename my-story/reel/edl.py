@@ -24,19 +24,55 @@ HERE = pathlib.Path(__file__).resolve().parent
 PROJECT = sys.argv[1]
 P = HERE.parent / "photos" / PROJECT
 PLAN = json.loads((HERE / PROJECT / "plan.json").read_text())
-GAP, KEEP_BEFORE, KEEP_AFTER = 0.30, 0.09, 0.12
+GAP, KEEP_BEFORE, KEEP_AFTER = 0.30, 0.12, 0.2
 HOP = 0.01
+
+
+def level(src):
+    """The recording as it will be heard: the cleaned voice when there is one (its compressor lifts word tails)."""
+    path = P / "clean" / f"{src}.wav"
+    sr, x = wavfile.read(path if path.exists() else P / "wav" / f"{src}.wav")
+    return sr, x.astype(np.float64) / 32768
+
+
+def frames_db(src):
+    sr, x = level(src)
+    n = int(len(x) / (HOP * sr))
+    rms = np.array([np.sqrt(np.mean(x[int(i * HOP * sr): int((i + 1) * HOP * sr)] ** 2)) + 1e-9 for i in range(n)])
+    return 20 * np.log10(rms), len(x) / sr
+
+
+def notch(src, t, side, window=0.08):
+    """Move a cut to the quietest 10 ms near it: looking back from a range start, forward from a range end,
+    so the search runs into the pause and never into the words being kept."""
+    db, _ = frames_db(src)
+    lo, hi = (int((t - window) / HOP), int(t / HOP) + 1) if side == "start" else (int(t / HOP), int((t + window) / HOP) + 1)
+    lo, hi = max(0, lo), min(len(db), hi)
+    return round((lo + int(np.argmin(db[lo:hi]))) * HOP, 3)
+
+
+def settle(src, b):
+    """Move a range end forward out of any sound it lands in, so a last syllable is never clipped:
+    to the first 50 ms that sit 30 dB under the speech level, where the word has died away (at most 0.6 s later)."""
+    db, length = frames_db(src)
+    floor = np.percentile(db, 92) - 30
+    i, quiet = int(b / HOP), 0
+    while i < len(db) and i < int((b + 0.6) / HOP):
+        quiet = quiet + 1 if db[i] < floor else 0
+        if quiet >= 5:
+            return round((i - 4) * HOP, 3)
+        i += 1
+    return round(min(length, b + 0.6), 3)
 
 
 def speech(src, a, b):
     """Spoken stretches of src between a and b (seconds), with the long pauses removed."""
-    sr, x = wavfile.read(P / "wav" / f"{src}.wav")
-    x = x.astype(np.float64) / 32768
+    sr, x = level(src)
     seg = x[int(a * sr): int(b * sr)]
     n = int(len(seg) / (HOP * sr))
     rms = np.array([np.sqrt(np.mean(seg[int(i * HOP * sr): int((i + 1) * HOP * sr)] ** 2)) + 1e-9 for i in range(n)])
     db = 20 * np.log10(rms)
-    on = db > np.percentile(db, 92) - 26
+    on = db > np.percentile(db, 92) - 30
     # close tiny gaps and drop clicks
     on = np.convolve(on, np.ones(5), "same") > 0
     runs, i = [], 0
@@ -75,6 +111,11 @@ for beat in PLAN["beats"]:
                          "pieces": [], "broll": broll, "look": beat.get("look", {})})
         t = end
         continue
+    # the beat's last range ends wherever the voice really stops; inner cuts move to the nearest quiet spot
+    rs = planned = beat["ranges"]  # captions take their words from the ranges as planned
+    beat["ranges"] = [[a if a < 0.05 else notch(beat["src"], a, "start"),
+                       settle(beat["src"], b) if k == len(rs) - 1 else notch(beat["src"], b, "end")]
+                      for k, (a, b) in enumerate(rs)]
     cuts = []
     for a, b in beat["ranges"]:
         cuts += speech(beat["src"], a, b)
@@ -98,7 +139,7 @@ for beat in PLAN["beats"]:
         return prev[-1]["at"] + prev[-1]["out"] - prev[-1]["in"] if prev else None
 
     # captions: each phrase takes the next n words of this beat's recording (in order, inside its ranges)
-    ws = [w for w in words[beat["src"]] if any(a - 0.05 <= w["s"] <= b for a, b in beat["ranges"])]
+    ws = [w for w in words[beat["src"]] if any(a - 0.05 <= w["s"] <= b for a, b in planned)]
     i = 0
     for text, n in beat["captions"]:
         chunk = ws[i: i + n]
@@ -124,7 +165,7 @@ for a, b in zip(captions, captions[1:]):
     a["e"] = round(min(max(a["e"], a["s"] + 0.35), b["s"]), 3)
 tail = PLAN.get("tail", 0)
 out = {"fps": 30, "duration": round(t + tail, 3), "speech_end": round(t, 3), "timeline": timeline, "captions": captions,
-       "titles": PLAN.get("titles", []), "end_card": PLAN.get("end_card")}
+       "titles": PLAN.get("titles", []), "end_card": PLAN.get("end_card"), "fade_out": PLAN.get("fade_out", True)}
 (HERE / PROJECT / "edit.json").write_text(json.dumps(out, indent=1))
 for b in timeline:
     print(f"{b['id']:8s} {b['start']:6.2f}–{b['end']:6.2f}  {len(b['pieces'])} pieces  broll {[x.get('img') or x.get('type') for x in b['broll']]}")

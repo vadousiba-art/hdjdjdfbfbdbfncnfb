@@ -1,4 +1,4 @@
-"""Grades a project's phone clips into 1080x1920 30 fps frame sequences
+"""Grades a project's phone clips into 30 fps frame sequences (1080x1920, or "size" in grade.json)
 (photos/<project>/frames/<clip>/0001.jpg…): non-local-means denoise for the
 grain, a white balance taken from the skin rather than the room (grey-world
 turned faces teal), an exposure curve that brings each face to a set
@@ -32,13 +32,13 @@ def look(clip):
     x = min(0.299 * r + 0.587 * g * gg + 0.114 * b * gb, 250) / 255
     y = target / 255
     curve = f"0/0.012 {x * 0.45:.3f}/{y * 0.5:.3f} {x:.3f}/{y:.3f} 1/0.985" if x < y else f"0/0 {x:.3f}/{y:.3f} 1/0.96"
-    return f"colorchannelmixer=rr=1:gg={gg:.3f}:bb={gb:.3f},curves=all='{curve}',eq=saturation=1.05"
+    return f"colorchannelmixer=rr=1:gg={gg:.3f}:bb={gb:.3f},curves=all='{curve}',eq=saturation=1.05:contrast={c.get('contrast', 1.0)}"
 
 
 for clip in sys.argv[2:] or list(G["clips"]):
     out = P / "frames" / clip
     out.mkdir(parents=True, exist_ok=True)
     denoise = G["clips"][clip].get("denoise", "nlmeans=s=4:p=7:r=13")
-    vf = f"fps=30,scale=1080:1920:flags=lanczos,{denoise},{look(clip)},unsharp=5:5:0.45"
+    vf = f"fps=30,scale={G.get('size', '1080:1920')}:flags=lanczos,{denoise},{look(clip)},unsharp=5:5:0.45"
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(P / "raw" / f"{clip}.mp4"), "-vf", vf, "-q:v", "2", str(out / "%04d.jpg")], check=True)
     print(clip, len(list(out.glob("*.jpg"))), "frames")

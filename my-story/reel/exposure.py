@@ -20,8 +20,11 @@ out = {}
 for clip in sorted(p for p in FR.iterdir() if p.is_dir()):
     lum = []
     for f in sorted(clip.glob("*.jpg")):
-        im = Image.open(f).convert("L").resize((108, 192))
-        a = np.asarray(im, dtype=float)[29:106, 27:81]  # the face area: upper-middle of the frame
+        im = Image.open(f).convert("L")
+        if im.width > im.height:  # landscape selfie: the face sits left of centre
+            a = np.asarray(im.resize((192, 108)), dtype=float)[16:81, 40:115]
+        else:
+            a = np.asarray(im.resize((108, 192)), dtype=float)[29:106, 27:81]  # the face area: upper-middle of the frame
         lum.append(np.percentile(a, 70))
     lum = np.array(lum)
     k = np.ones(15) / 15

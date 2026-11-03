@@ -3,7 +3,8 @@
 //
 //   node reel/render.mjs <project>                -> out/<project>-reel.mp4
 //   node reel/render.mjs <project> --stills 2,30  -> out/<project>-stills/
-//   node reel/render.mjs <project> --preview      -> out/<project>-reel-preview.mp4 (540x960)
+//   node reel/render.mjs <project> --preview      -> out/<project>-reel-preview.mp4 (half size)
+//   --page wide.html                              the landscape renderer (reel/wide.js, 1920x1080)
 
 import http from "node:http";
 import fs from "node:fs";
@@ -35,12 +36,14 @@ const browser = await chromium.launch({
   executablePath: fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined,
   args: ["--font-render-hinting=none"],
 });
-const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+const PAGE = opt("--page", "index.html");
+const [VW, VH] = PAGE === "wide.html" ? [1920, 1080] : [1080, 1920];
+const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
 page.on("console", (m) => m.type() === "error" && !m.text().includes("404") && console.log("[page]", m.text()));
 page.on("pageerror", (e) => console.log("[page error]", e.message));
-await page.goto(`http://127.0.0.1:${server.address().port}/reel/index.html?p=${PROJECT}`);
+await page.goto(`http://127.0.0.1:${server.address().port}/reel/${PAGE}?p=${PROJECT}`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 180000 });
-const shot = () => page.screenshot({ type: "png", clip: { x: 0, y: 0, width: 1080, height: 1920 } });
+const shot = () => page.screenshot({ type: "png", clip: { x: 0, y: 0, width: VW, height: VH } });
 
 if (opt("--stills", null)) {
   const dir = path.join(OUT, `${PROJECT}-stills`);
@@ -62,7 +65,7 @@ if (opt("--stills", null)) {
     "-y", "-loglevel", "error",
     "-f", "image2pipe", "-framerate", String(fps), "-i", "-",
     ...(fs.existsSync(audio) ? ["-i", audio] : []),
-    ...(preview ? ["-vf", "scale=540:960:flags=lanczos"] : []),
+    ...(preview ? ["-vf", `scale=${VW / 2}:${VH / 2}:flags=lanczos`] : []),
     "-c:v", "libx264", "-preset", preview ? "veryfast" : "slow", "-crf", preview ? "23" : "18",
     ...(preview ? [] : ["-maxrate", "12M", "-bufsize", "24M"]),
     "-profile:v", "high", "-pix_fmt", "yuv420p", "-r", String(fps),

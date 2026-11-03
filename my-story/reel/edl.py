@@ -147,7 +147,10 @@ for beat in PLAN["beats"]:
         s, e = to_out(chunk[0]["s"]), to_out(chunk[-1]["e"], "prev")
         if s is None or e is None:
             raise SystemExit(f"caption {text!r} falls in a cut")
-        captions.append({"text": text, "s": round(s, 3), "e": round(e, 3)})
+        # each word's start, for word-by-word caption styles
+        times = [to_out(w["s"]) for w in chunk]
+        times = [round(max(s, x if x is not None else s), 3) for x in times]
+        captions.append({"text": text, "s": round(s, 3), "e": round(e, 3), "words": times})
     if i != len(ws):
         raise SystemExit(f"{beat['id']}: captions use {i} words, the recording has {len(ws)}: {[w['w'] for w in ws]}")
     # B-roll: each item starts on a word (by index into this beat's words) or at the beat start
@@ -165,7 +168,8 @@ for a, b in zip(captions, captions[1:]):
     a["e"] = round(min(max(a["e"], a["s"] + 0.35), b["s"]), 3)
 tail = PLAN.get("tail", 0)
 out = {"fps": 30, "duration": round(t + tail, 3), "speech_end": round(t, 3), "timeline": timeline, "captions": captions,
-       "titles": PLAN.get("titles", []), "end_card": PLAN.get("end_card"), "fade_out": PLAN.get("fade_out", True)}
+       "titles": PLAN.get("titles", []), "end_card": PLAN.get("end_card"), "fade_out": PLAN.get("fade_out", True),
+       "style": PLAN.get("style", {})}
 (HERE / PROJECT / "edit.json").write_text(json.dumps(out, indent=1))
 for b in timeline:
     print(f"{b['id']:8s} {b['start']:6.2f}–{b['end']:6.2f}  {len(b['pieces'])} pieces  broll {[x.get('img') or x.get('type') for x in b['broll']]}")

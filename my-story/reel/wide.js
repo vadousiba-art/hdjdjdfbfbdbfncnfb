@@ -394,6 +394,99 @@ function tokens(text) {
   }
   return out;
 }
+const STYLE = E.style || {};
+const CAP = STYLE.captions || "stroke";
+// when each caption token is spoken: the word times from edl.py, spread over the tokens when the counts differ
+function tokenTimes(c, n) {
+  const ws = c.words || [c.s];
+  if (ws.length === n) return ws;
+  return Array.from({ length: n }, (_, i) => ws[0] + ((c.e - ws[0]) * i) / n);
+}
+function captionBox(g, text, a, pop) {
+  // the series look: black words on white boxes, accent in italic
+  const toks = tokens(text);
+  const size = 64, y = 905, pad = 18;
+  const font = (it) => `${it ? "italic 800" : "700"} ${size}px Inter`;
+  g.font = font(false);
+  const space = g.measureText(" ").width;
+  const ws = toks.map((tk) => { g.font = font(tk.it); return { ...tk, width: g.measureText(tk.w).width }; });
+  const total = ws.reduce((s, w) => s + w.width, 0) + space * (ws.length - 1);
+  g.save();
+  g.globalAlpha = a;
+  g.translate(W / 2, y);
+  g.scale(pop, pop);
+  g.fillStyle = "#fff";
+  g.beginPath();
+  g.roundRect(-total / 2 - pad, -size * 0.68, total + pad * 2, size * 1.36, 10);
+  g.fill();
+  let x = -total / 2;
+  g.textBaseline = "middle";
+  for (const w of ws) {
+    g.font = font(w.it);
+    g.fillStyle = w.it ? BRAND : "#111";
+    g.fillText(w.w, x, 2);
+    x += w.width + space;
+  }
+  g.restore();
+}
+function captionKaraoke(g, c, t, a) {
+  // the whole phrase, each word lighting up as it's said
+  const toks = tokens(c.text.toUpperCase());
+  const times = tokenTimes(c, toks.length);
+  const size = 76, y = 905;
+  g.font = `900 ${size}px Inter`;
+  const space = g.measureText(" ").width * 1.7;
+  const ws = toks.map((tk) => ({ ...tk, width: g.measureText(tk.w).width }));
+  const total = ws.reduce((s, w) => s + w.width, 0) + space * (ws.length - 1);
+  g.save();
+  g.globalAlpha = a;
+  g.translate(W / 2, y);
+  let x = -total / 2;
+  g.textBaseline = "middle";
+  g.lineJoin = "round";
+  ws.forEach((w, i) => {
+    const said = t >= times[i] - 0.02, now = said && (i === ws.length - 1 || t < times[i + 1]);
+    const k = clamp((t - times[i]) / 0.12);
+    g.save();
+    g.translate(x + w.width / 2, 0);
+    const sc = now ? 1 + 0.1 * (1 - easeOut(k)) + 0.03 : 1;
+    g.scale(sc, sc);
+    g.font = `900 ${size}px Inter`;
+    g.lineWidth = 14;
+    g.strokeStyle = "rgba(0,0,0,0.9)";
+    g.strokeText(w.w, -w.width / 2, 0);
+    g.fillStyle = now ? "#ffd60a" : said ? "#fff" : "rgba(255,255,255,0.55)";
+    g.fillText(w.w, -w.width / 2, 0);
+    g.restore();
+    x += w.width + space;
+  });
+  g.restore();
+}
+function captionWord(g, c, t, a) {
+  // one big word at a time, in the middle-low of the frame
+  const toks = tokens(c.text.toUpperCase());
+  const times = tokenTimes(c, toks.length);
+  let i = 0;
+  for (let j = 0; j < toks.length; j++) if (t >= times[j] - 0.02) i = j;
+  const w = toks[i], k = clamp((t - times[i]) / 0.13);
+  const size = w.it ? 132 : 112;
+  g.save();
+  g.globalAlpha = a;
+  g.translate(W / 2, 880);
+  const sc = 0.7 + 0.3 * back(k);
+  g.scale(sc, sc);
+  g.rotate(w.it ? -0.04 : 0);
+  g.font = `900 ${size}px Inter, 'Noto Color Emoji'`;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.lineJoin = "round";
+  g.lineWidth = 18;
+  g.strokeStyle = "rgba(0,0,0,0.92)";
+  g.strokeText(w.w, 0, 0);
+  g.fillStyle = w.it ? "#ffd60a" : "#fff";
+  g.fillText(w.w, 0, 0);
+  g.restore();
+}
 function caption(g, text, a, pop) {
   const toks = tokens(text.toUpperCase());
   const size = 78, y = 905;
@@ -506,7 +599,10 @@ window.renderFrame = async (t) => {
     if (t < c.s - 0.02 || t > end) return;
     const a = clamp((t - c.s + 0.02) / 0.06) * (end === c.e + 0.08 ? clamp((end - t) / 0.08) : 1);
     const pop = 0.86 + 0.14 * back(clamp((t - c.s) / 0.16));
-    caption(ctx, c.text, a, pop);
+    if (CAP === "box") captionBox(ctx, c.text, a, pop);
+    else if (CAP === "karaoke") captionKaraoke(ctx, c, t, a);
+    else if (CAP === "word") captionWord(ctx, c, t, a);
+    else caption(ctx, c.text, a, pop);
   });
 };
 window.duration = E.duration;

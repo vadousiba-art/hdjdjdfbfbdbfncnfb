@@ -1,9 +1,10 @@
 # Monetization: research, recommendation, architecture
 
-**Nothing in YORU can charge anyone today.** No payment provider is
-connected, no keys exist, and the "Get Pro" button is disabled with the text
-"Not available yet". Turning payments on needs founder approval and the
-steps at the end of this page.
+**Update (2026-11-03): Pro is sold as a PayPal subscription.** The code is
+in place (see [billing.md](billing.md)); the subscribe button appears once
+`PAYPAL_CLIENT_SECRET` and `PAYPAL_WEBHOOK_ID` are set on the server. Until
+then nothing can charge anyone and the button reads "Not available yet". The
+research below is what led there.
 
 Research checked on 2026-10-27 against each provider's own pages (links
 below). Fees and terms change; re-check before signing up. This is not

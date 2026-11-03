@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "Sammlungen und Lesezeichen",
   "pro.f.discover": "Entdecken und das Creator Showcase",
   "pro.terms": "Sobald Käufe möglich sind: monatliche Abrechnung, jederzeit kündbar, Pro bleibt bis zum Ende des bezahlten Monats. Wenn Pro endet, wechseln Pro-Designs zurück zu den kostenlosen Versionen; nichts, was du gepostet hast, ist betroffen.",
+  "pro.priceLive": "Monatliche Abrechnung über PayPal. PayPal zeigt dir den genauen Betrag inklusive Steuern, bevor du bestätigst.",
+  "pro.termsLive": "Monatliche Abrechnung über PayPal, bis du kündigst. Kündige jederzeit in PayPal und behalte Pro bis zum Ende des bezahlten Monats. Wenn Pro endet, wechseln Pro-Designs zurück zu den kostenlosen Versionen; deine Beiträge bleiben unberührt.",
+  "pro.manage": "Abrechnung über PayPal. Zum Kündigen öffne PayPal: Einstellungen → Zahlungen → Automatische Zahlungen. Pro bleibt bis zum Ende des bezahlten Monats aktiv.",
 
   "wn.title": "Neuigkeiten bei YORU",
   "wn.version": "Version {version}",

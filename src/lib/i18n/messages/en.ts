@@ -236,6 +236,9 @@ const en = {
   "pro.f.collections": "Collections and saved bookmarks",
   "pro.f.discover": "Discover and the Creator Showcase",
   "pro.terms": "When purchases open: billed monthly, cancel any time and keep Pro until the end of the paid month. When Pro ends, Pro cosmetics switch back to the free versions; nothing you posted is affected.",
+  "pro.priceLive": "Billed monthly through PayPal. PayPal shows the exact amount, including any tax, before you confirm.",
+  "pro.termsLive": "Billed monthly through PayPal until you cancel. Cancel any time in PayPal and keep Pro until the end of the month you paid for. When Pro ends, Pro cosmetics switch back to the free versions; nothing you posted is affected.",
+  "pro.manage": "Billed through PayPal. To cancel, open PayPal: Settings → Payments → Automatic payments. Pro stays until the end of the paid month.",
 
   // What's new
   "wn.title": "What's new in YORU",

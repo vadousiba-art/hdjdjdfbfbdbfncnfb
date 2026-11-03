@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "Raccolte e segnalibri",
   "pro.f.discover": "Scopri e Creator Showcase",
   "pro.terms": "Quando gli acquisti apriranno: fatturazione mensile, disdici quando vuoi e mantieni Pro fino alla fine del mese pagato. Quando Pro termina, gli elementi estetici Pro tornano alle versioni gratuite; nulla di ciò che hai pubblicato viene toccato.",
+  "pro.priceLive": "Addebito mensile tramite PayPal. PayPal mostra l'importo esatto, tasse incluse, prima che tu confermi.",
+  "pro.termsLive": "Addebito mensile tramite PayPal finché non disdici. Disdici quando vuoi su PayPal e mantieni Pro fino alla fine del mese pagato. Quando Pro termina, gli elementi Pro tornano alle versioni gratuite; i tuoi post non cambiano.",
+  "pro.manage": "Addebitato tramite PayPal. Per disdire, apri PayPal: Impostazioni → Pagamenti → Pagamenti automatici. Pro resta attivo fino alla fine del mese pagato.",
 
   "wn.title": "Novità di YORU",
   "wn.version": "Versione {version}",

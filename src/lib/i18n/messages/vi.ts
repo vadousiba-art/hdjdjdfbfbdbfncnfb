@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "Bộ sưu tập và dấu trang",
   "pro.f.discover": "Khám phá và Creator Showcase",
   "pro.terms": "Khi mở bán: tính phí hàng tháng, hủy bất cứ lúc nào và giữ Pro đến hết tháng đã trả. Khi Pro kết thúc, trang trí Pro chuyển về phiên bản miễn phí; mọi thứ bạn đã đăng không bị ảnh hưởng.",
+  "pro.priceLive": "Thanh toán hằng tháng qua PayPal. PayPal hiển thị số tiền chính xác, gồm thuế, trước khi bạn xác nhận.",
+  "pro.termsLive": "Thanh toán hằng tháng qua PayPal cho đến khi bạn hủy. Hủy bất cứ lúc nào trong PayPal và giữ Pro đến hết tháng đã trả. Khi Pro kết thúc, các vật phẩm Pro trở về bản miễn phí; bài đăng của bạn không bị ảnh hưởng.",
+  "pro.manage": "Thanh toán qua PayPal. Để hủy, mở PayPal: Cài đặt → Thanh toán → Thanh toán tự động. Pro vẫn còn đến hết tháng đã trả.",
 
   "wn.title": "Có gì mới ở YORU",
   "wn.version": "Phiên bản {version}",

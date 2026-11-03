@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "合集和书签",
   "pro.f.discover": "“发现”和创作者展示",
   "pro.terms": "开放购买后：按月计费，可随时取消，Pro 保留至已付费月份结束。Pro 结束后，Pro 外观会切换回免费版本；你发布的内容不受影响。",
+  "pro.priceLive": "通过 PayPal 按月扣费。确认之前，PayPal 会显示含税的准确金额。",
+  "pro.termsLive": "通过 PayPal 按月扣费，直到你取消。可随时在 PayPal 中取消，Pro 会保留到已付费月份结束。Pro 结束后，Pro 装扮会换回免费版本，你发布的内容不受影响。",
+  "pro.manage": "通过 PayPal 扣费。如需取消，请打开 PayPal：设置 → 付款 → 自动付款。Pro 会保留到已付费月份结束。",
 
   "wn.title": "YORU 新功能",
   "wn.version": "版本 {version}",

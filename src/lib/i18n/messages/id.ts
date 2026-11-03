@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "Koleksi dan markah",
   "pro.f.discover": "Temukan dan Creator Showcase",
   "pro.terms": "Saat pembelian dibuka: ditagih bulanan, bisa dibatalkan kapan saja dan Pro tetap aktif hingga akhir bulan yang dibayar. Saat Pro berakhir, kosmetik Pro kembali ke versi gratis; apa pun yang kamu posting tidak terpengaruh.",
+  "pro.priceLive": "Ditagih setiap bulan lewat PayPal. PayPal menampilkan jumlah pastinya, termasuk pajak, sebelum kamu mengonfirmasi.",
+  "pro.termsLive": "Ditagih setiap bulan lewat PayPal sampai kamu membatalkan. Batalkan kapan saja di PayPal dan Pro tetap aktif sampai akhir bulan yang sudah dibayar. Saat Pro berakhir, item Pro kembali ke versi gratis; postinganmu tidak terpengaruh.",
+  "pro.manage": "Ditagih lewat PayPal. Untuk membatalkan, buka PayPal: Pengaturan → Pembayaran → Pembayaran otomatis. Pro tetap aktif sampai akhir bulan yang sudah dibayar.",
 
   "wn.title": "Yang baru di YORU",
   "wn.version": "Versi {version}",

@@ -228,6 +228,9 @@ const messages: Messages = {
   "pro.f.collections": "컬렉션과 북마크",
   "pro.f.discover": "디스커버와 크리에이터 쇼케이스",
   "pro.terms": "구매가 열리면: 매월 결제, 언제든 해지 가능하며 결제한 달이 끝날 때까지 Pro 유지. Pro가 끝나면 Pro 꾸미기는 무료 버전으로 돌아가며, 게시한 내용에는 영향이 없어요.",
+  "pro.priceLive": "PayPal로 매월 결제됩니다. 확인하기 전에 PayPal이 세금을 포함한 정확한 금액을 보여 줍니다.",
+  "pro.termsLive": "해지할 때까지 PayPal로 매월 결제됩니다. PayPal에서 언제든 해지할 수 있고, 결제한 달이 끝날 때까지 Pro가 유지됩니다. Pro가 끝나면 Pro 꾸미기는 무료 버전으로 돌아가며 게시물에는 영향이 없습니다.",
+  "pro.manage": "PayPal로 결제 중입니다. 해지하려면 PayPal에서 설정 → 결제 → 자동 결제로 가세요. 결제한 달이 끝날 때까지 Pro가 유지됩니다.",
 
   "wn.title": "YORU의 새로운 기능",
   "wn.version": "버전 {version}",

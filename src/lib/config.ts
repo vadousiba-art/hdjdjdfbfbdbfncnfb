@@ -245,3 +245,27 @@ export const uploadConfig = {
 };
 
 export const demoDataDir = () => env("DEMO_DATA_DIR") ?? ".data";
+
+// YORU Pro through a PayPal subscription. The client id and plan id are public
+// (they're in the PayPal button). PAYPAL_CLIENT_SECRET and PAYPAL_WEBHOOK_ID
+// are server-only. Until both are set the button stays hidden, so nobody can
+// pay for a subscription the server can't confirm or renew.
+export const PAYPAL_PUBLIC_CLIENT_ID = "BAAiH78oN6QANWDGZZiJyC4ti5y9ROcJ_OsF8sq6rSbExkzacmHq2fIZy-0WjxvOZ0gNzlxE_xx1N0B7vg";
+export const PAYPAL_PRO_PLAN_ID = "P-3T0538893C7819749NLVFW3Q";
+
+export const paypalConfig = () => {
+  const sandbox = env("PAYPAL_ENV")?.toLowerCase() === "sandbox";
+  const secret = env("PAYPAL_CLIENT_SECRET");
+  const webhookId = env("PAYPAL_WEBHOOK_ID");
+  return {
+    clientId: env("NEXT_PUBLIC_PAYPAL_CLIENT_ID") ?? env("PAYPAL_CLIENT_ID") ?? PAYPAL_PUBLIC_CLIENT_ID,
+    planId: env("PAYPAL_PLAN_ID") ?? PAYPAL_PRO_PLAN_ID,
+    secret,
+    webhookId,
+    api: sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com",
+    // Days of Pro past the next billing date, so a renewal that lands a little
+    // late never switches Pro off in between.
+    graceDays: Math.min(14, Math.max(0, Number(env("PAYPAL_GRACE_DAYS") ?? 3) || 0)),
+    enabled: Boolean(secret && webhookId),
+  };
+};

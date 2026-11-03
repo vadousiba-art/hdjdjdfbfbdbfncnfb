@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalDoc, PublicShell } from "@/components/public/PublicShell";
 import { LEGAL_UPDATED } from "@/lib/support";
+import { paypalConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
+  const paypal = paypalConfig().enabled;
   return (
     <PublicShell>
       <LegalDoc title="Terms of Service" updated={LEGAL_UPDATED}>
@@ -110,18 +112,43 @@ export default function TermsPage() {
 
         <h2>9. YORU Pro and profile cosmetics</h2>
         <ul>
-          <li>
-            <b>Pro isn&apos;t for sale yet.</b> YORU Pro is an optional membership that is still being prepared. Purchases are not open, so nobody
-            can be charged for it today. Any price we mention is a plan, not an offer.
-          </li>
+          {paypal ? (
+            <>
+              <li>
+                <b>Paid Pro is a monthly subscription through PayPal.</b> PayPal shows the price, currency, any tax and the billing period before you
+                confirm, and that is what you agree to pay. The subscription renews every month until you cancel. Payments are handled by PayPal under
+                its own terms.
+              </li>
+              <li>
+                <b>Cancelling.</b> Cancel any time in your PayPal account (Settings → Payments → Automatic payments). You keep Pro until the end of the
+                month you already paid for; nothing renews after that. If a payment fails, is refunded or is reversed, Pro ends.
+              </li>
+              <li>
+                <b>Refunds.</b> Payments aren&apos;t refunded for a partly used month unless the law where you live says otherwise. If something went
+                wrong, contact us through the <Link href="/support">support page</Link>.
+              </li>
+            </>
+          ) : (
+            <li>
+              <b>Pro isn&apos;t for sale yet.</b> YORU Pro is an optional membership that is still being prepared. Purchases are not open, so nobody
+              can be charged for it today. Any price we mention is a plan, not an offer.
+            </li>
+          )}
           <li>
             <b>Testing access.</b> Admins may give some members Pro for free so they can test it. Testing access costs nothing, can end at any time,
             and doesn&apos;t create any right to keep Pro or to a future price.
           </li>
-          <li>
-            <b>If we open paid Pro later,</b> we&apos;ll show the price, billing period, renewal and cancellation terms, and the payment provider
-            before you pay, and we&apos;ll update these Terms first. Your rights under consumer protection law will apply.
-          </li>
+          {paypal ? (
+            <li>
+              <b>Changes.</b> If the price or the terms of Pro change, we&apos;ll tell subscribers before the change applies to them, and you can
+              cancel before then. Your rights under consumer protection law always apply.
+            </li>
+          ) : (
+            <li>
+              <b>If we open paid Pro later,</b> we&apos;ll show the price, billing period, renewal and cancellation terms, and the payment provider
+              before you pay, and we&apos;ll update these Terms first. Your rights under consumer protection law will apply.
+            </li>
+          )}
           <li>
             <b>Cosmetics are a license, not property.</b> Rings, banners, nameplates, badges, themes and other cosmetics are a personal,
             non-transferable right to use them on YORU. They have no cash value and can&apos;t be sold, traded or exchanged. Rarity labels are

@@ -146,6 +146,25 @@ function bigText(g, it, t) {
   g.textAlign = "center";
   g.textBaseline = "middle";
   const emoji = /\p{Extended_Pictographic}/u.test(it.text);
+  if ((E.style || {}).big === "soft" && !emoji) {
+    // night: pale moonlight, a soft glow, and the word sharpens out of a blur
+    const kb = easeOut(clamp((t - it.at) / 0.45));
+    g.filter = `blur(${(1 - kb) * 16}px)`;
+    const gs = g.createLinearGradient(0, -size / 2, 0, size / 2 + (lines.length - 1) * lh);
+    gs.addColorStop(0, "#ffffff");
+    gs.addColorStop(1, "#b8c6ff");
+    g.lineJoin = "round";
+    g.lineWidth = Math.max(6, size * 0.03);
+    g.strokeStyle = "rgba(4,8,24,0.55)";
+    lines.forEach((l, i) => g.strokeText(l, 0, i * lh));
+    g.shadowColor = "rgba(150,170,255,0.5)";
+    g.shadowBlur = 45;
+    g.fillStyle = gs;
+    lines.forEach((l, i) => g.fillText(l, 0, i * lh));
+    g.filter = "none";
+    g.restore();
+    return;
+  }
   if (!emoji) {
     // a short extrusion for depth
     for (let d = 12; d > 0; d -= 2) {
@@ -487,6 +506,81 @@ function captionWord(g, c, t, a) {
   g.fillText(w.w, 0, 0);
   g.restore();
 }
+// typewriter captions (night): small monospace, left-aligned, typing as the words are said
+function captionType(g, c, t, a) {
+  const big = c.text.startsWith("^");
+  const toks = tokens(big ? c.text.slice(1).toUpperCase() : c.text);
+  const times = tokenTimes(c, toks.length);
+  const size = big ? 78 : 48, font = `${big ? 700 : 400} ${size}px 'DejaVu Sans Mono', monospace`;
+  g.save();
+  g.globalAlpha = a;
+  g.font = font;
+  g.textBaseline = "middle";
+  const space = g.measureText(" ").width;
+  const total = toks.reduce((s, tk) => s + g.measureText(tk.w).width, 0) + space * (toks.length - 1);
+  let x = big ? W / 2 - total / 2 : 150;
+  const y = big ? 860 : 900;
+  let lastX = x, typing = false;
+  toks.forEach((tk, i) => {
+    const t0 = times[i], t1 = Math.min(times[i + 1] ?? c.e, t0 + tk.w.length * 0.055);
+    const n = Math.floor(clamp((t - t0) / Math.max(0.05, t1 - t0)) * tk.w.length + (t >= t0 ? 0.999 : 0));
+    const shown = tk.w.slice(0, Math.min(tk.w.length, n));
+    if (shown) {
+      g.shadowColor = "rgba(0,0,0,0.8)";
+      g.shadowBlur = 12;
+      g.fillStyle = tk.it ? "#ff8fa3" : "#f2f4ff";
+      g.fillText(shown, x, y);
+      lastX = x + g.measureText(shown).width;
+      if (n < tk.w.length) typing = true;
+    }
+    x += g.measureText(tk.w).width + space;
+  });
+  // a block cursor, blinking when it rests
+  if (typing || Math.floor(t * 2.2) % 2 === 0) {
+    g.shadowBlur = 0;
+    g.fillStyle = "rgba(242,244,255,0.85)";
+    g.fillRect(lastX + 6, y - size * 0.45, size * 0.5, size * 0.9);
+  }
+  g.restore();
+}
+const NIGHT = (E.style || {}).night;
+const GRAIN = NIGHT ? Array.from({ length: 6 }, (_, i) => {
+  const c = mk(480, 270), g = c.getContext("2d"), d = g.createImageData(480, 270);
+  for (let p = 0; p < d.data.length; p += 4) {
+    const v = 128 + (rnd(i * 1e5 + p) - 0.5) * 255;
+    d.data[p] = d.data[p + 1] = d.data[p + 2] = v;
+    d.data[p + 3] = 255;
+  }
+  g.putImageData(d, 0, 0);
+  return c;
+}) : [];
+function kanjiMark(g, x, y, size, a) {
+  g.save();
+  g.globalAlpha = a;
+  g.font = `900 ${size}px YoruKanji`;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.shadowColor = "rgba(225,29,72,0.7)";
+  g.shadowBlur = size * 0.4;
+  g.fillStyle = BRAND;
+  g.fillText("夜", x, y);
+  g.restore();
+}
+function endCard(g, t) {
+  const k = t - E.speech_end;
+  const a = easeOut(clamp((k - 0.5) / 0.6));
+  if (a <= 0) return;
+  kanjiMark(g, W / 2, H * 0.42, 260, a);
+  g.save();
+  g.globalAlpha = a * 0.9;
+  const ww = 260, wh = (ww * WORDMARK.height) / WORDMARK.width;
+  g.drawImage(WORDMARK, W / 2 - ww / 2, H * 0.62, ww, wh);
+  g.font = "400 30px 'DejaVu Sans Mono', monospace";
+  g.textAlign = "center";
+  g.fillStyle = "rgba(242,244,255,0.6)";
+  g.fillText("3am thoughts", W / 2, H * 0.62 + wh + 50);
+  g.restore();
+}
 function caption(g, text, a, pop) {
   const toks = tokens(text.toUpperCase());
   const size = 78, y = 905;
@@ -538,6 +632,14 @@ const VIGNETTE = (() => {
 window.renderFrame = async (t) => {
   const tt = Math.min(t, E.speech_end - 0.001);
   const b = beatAt(tt);
+  if (b.kind === "insert" && NIGHT) {
+    // a breath: black, a small 夜, the room's silence
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+    kanjiMark(ctx, W - 120, H - 110, 54, 0.55 * clamp((t - b.start) / 0.3) * clamp((b.end - t) / 0.3));
+    return;
+  }
   const pic = await picture(b, tt);
   const img = await load(frameUrl(pic.clip, pic.n));
   const gain = pic.mask || pic.clip === b.src ? EXPO[pic.clip]?.[pic.n - 1] ?? 1 : 1;
@@ -568,7 +670,7 @@ window.renderFrame = async (t) => {
   // a small punch on every change of picture or keyword
   const changes = [b.start, ...ITEMS.filter((x) => x.beat === b && ["big", "phone", "footage", "face"].includes(x.type)).map((x) => x.at)].filter((x) => x <= tt);
   const since = tt - Math.max(...changes);
-  const z = 1 + 0.03 * (1 - easeOut(clamp(since / 0.22)));
+  const z = NIGHT ? 1 + 0.035 * clamp((tt - b.start) / Math.max(1, b.end - b.start)) : 1 + 0.03 * (1 - easeOut(clamp(since / 0.22)));
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, W, H);
@@ -587,11 +689,20 @@ window.renderFrame = async (t) => {
   ITEMS.forEach((it, i) => { if (it.type === "burst" && tt >= it.at && tt < it.end) burst(ctx, it, tt, i); });
   dots(ctx, tt);
 
-  // the brand, small, top left
-  ctx.globalAlpha = 0.85;
-  const ww = 150, wh = (ww * WORDMARK.height) / WORDMARK.width;
-  ctx.drawImage(WORDMARK, 56, 50, ww, wh);
-  ctx.globalAlpha = 1;
+  if (NIGHT) {
+    ctx.globalAlpha = 0.07;
+    ctx.globalCompositeOperation = "overlay";
+    ctx.drawImage(GRAIN[Math.floor(t * 24) % GRAIN.length], 0, 0, W, H);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    kanjiMark(ctx, W - 120, H - 110, 54, 0.55);
+  } else {
+    // the brand, small, top left
+    ctx.globalAlpha = 0.85;
+    const ww = 150, wh = (ww * WORDMARK.height) / WORDMARK.width;
+    ctx.drawImage(WORDMARK, 56, 50, ww, wh);
+    ctx.globalAlpha = 1;
+  }
 
   E.captions.forEach((c, i) => {
     const next = E.captions[i + 1];
@@ -599,11 +710,24 @@ window.renderFrame = async (t) => {
     if (t < c.s - 0.02 || t > end) return;
     const a = clamp((t - c.s + 0.02) / 0.06) * (end === c.e + 0.08 ? clamp((end - t) / 0.08) : 1);
     const pop = 0.86 + 0.14 * back(clamp((t - c.s) / 0.16));
-    if (CAP === "box") captionBox(ctx, c.text, a, pop);
+    if (CAP === "type") captionType(ctx, c, t, clamp((end - t) / 0.12));
+    else if (CAP === "box") captionBox(ctx, c.text, a, pop);
     else if (CAP === "karaoke") captionKaraoke(ctx, c, t, a);
     else if (CAP === "word") captionWord(ctx, c, t, a);
     else caption(ctx, c.text, a, pop);
   });
+  if (NIGHT) {
+    // fade in from black (the loop), and out to the end card
+    if (t < 0.35) {
+      ctx.fillStyle = `rgba(0,0,0,${1 - t / 0.35})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (t > E.speech_end) {
+      ctx.fillStyle = `rgba(0,0,0,${easeOut(clamp((t - E.speech_end) / 0.6))})`;
+      ctx.fillRect(0, 0, W, H);
+      endCard(ctx, t);
+    }
+  }
 };
 window.duration = E.duration;
 window.ready = true;

@@ -646,13 +646,16 @@ function choices(g, t) {
   const list = ITEMS.filter((x) => x.type === "choice" && t >= x.at && t < x.end);
   if (!list.length) return;
   const vote = ITEMS.find((x) => x.type === "vote" && t >= x.at && t < x.end);
-  const cw = VERT ? W - 120 : 760, ch = VERT ? 170 : 150;
-  const x = VERT ? 60 : W - cw - 80, y0 = VERT ? H * 0.47 : 300;
+  // vertical: under the captions, clear of the face and of Instagram's buttons on the right
+  const bold = (E.style || {}).captions === "bold";
+  const cw = VERT ? (bold ? W - 250 : W - 120) : 760, ch = VERT ? (bold ? 132 : 170) : 150;
+  const x = VERT ? (bold ? 50 : 60) : W - cw - 80, y0 = VERT ? H * (bold ? 0.665 : 0.47) : 300;
+  const gap = bold ? 16 : 26;
   list.forEach((it, i) => {
     const k = easeOut(clamp((t - it.at) / 0.4)), out = clamp((it.end - t) / 0.25);
     const newest = i === list.length - 1 && !vote;
     const pulse = vote ? 1 + 0.03 * Math.sin((t - vote.at) * 9 + i * Math.PI) : newest ? 1 + 0.05 * Math.max(0, 1 - (t - it.at) / 0.5) : 1;
-    const y = y0 + i * (ch + 26);
+    const y = y0 + i * (ch + gap);
     g.save();
     g.globalAlpha = clamp(k * 1.5) * out * (newest || vote || i === list.length - 1 ? 1 : 0.8);
     g.filter = `blur(${(1 - k) * 12}px)`;
@@ -681,16 +684,16 @@ function choices(g, t) {
     g.fillText(it.letter, ch / 2, ch / 2 + 3);
     // the text, wrapped to two lines
     g.textAlign = "left";
-    g.font = `800 ${VERT ? 42 : 36}px Inter`;
+    g.font = `800 ${VERT ? (bold ? 34 : 42) : 36}px Inter`;
     const tx = ch + 6, maxW = cw - tx - 110, words = it.text.split(" "), lines = [""];
     for (const w of words) {
       const test = lines[lines.length - 1] ? lines[lines.length - 1] + " " + w : w;
       if (g.measureText(test).width > maxW && lines[lines.length - 1]) lines.push(w);
       else lines[lines.length - 1] = test;
     }
-    const lh = VERT ? 50 : 44;
+    const lh = VERT ? (bold ? 40 : 50) : 44;
     lines.slice(0, 2).forEach((l, j) => g.fillText(l, tx, ch / 2 + (j - (Math.min(2, lines.length) - 1) / 2) * lh));
-    g.font = `${VERT ? 64 : 54}px 'Noto Color Emoji'`;
+    g.font = `${VERT ? (bold ? 52 : 64) : 54}px 'Noto Color Emoji'`;
     g.textAlign = "center";
     g.fillText(it.emoji || "", cw - 60, ch / 2 + 2);
     g.filter = "none";
@@ -706,7 +709,7 @@ function choices(g, t) {
     g.fillStyle = "#fff";
     g.shadowColor = "rgba(0,0,0,0.8)";
     g.shadowBlur = 14;
-    g.fillText("comment A or B 👇", x + cw / 2, y0 - 34);
+    g.fillText("comment A or B 👇", x + cw / 2, bold ? y0 + list.length * (ch + gap) + 22 : y0 - 34);
     g.restore();
   }
 }
@@ -738,6 +741,45 @@ function endCard(g, t) {
   g.textAlign = "center";
   g.fillStyle = "rgba(242,244,255,0.6)";
   g.fillText((E.style || {}).slogan || "the night is for everyone", W / 2, H * 0.62 + wh + 50);
+  g.restore();
+}
+// "bold": the simple viral look. The phrase in heavy white capitals with a black outline, centred,
+// shrunk to fit one line, the word being said in brand pink and a touch bigger
+function captionBold(g, c, t, a) {
+  const toks = tokens(c.text.toUpperCase());
+  const times = tokenTimes(c, toks.length);
+  let size = VERT ? 88 : 76;
+  g.font = `900 ${size}px Inter`;
+  const sp = () => g.measureText(" ").width;
+  const width = () => toks.reduce((s2, tk) => s2 + g.measureText(tk.w).width, 0) + sp() * (toks.length - 1);
+  const maxW = W - (VERT ? 120 : 400);
+  if (width() > maxW) { size *= maxW / width(); g.font = `900 ${size}px Inter`; }
+  const total = width(), space = sp();
+  const y = VERT ? H * 0.62 : 905;
+  const pop = 0.9 + 0.1 * back(clamp((t - c.s) / 0.16));
+  g.save();
+  g.globalAlpha = a;
+  g.translate(W / 2, y);
+  g.scale(pop, pop);
+  let x = -total / 2;
+  g.textBaseline = "middle";
+  g.lineJoin = "round";
+  toks.forEach((tk, i) => {
+    const w = g.measureText(tk.w).width;
+    const now = t >= times[i] - 0.02 && (i === toks.length - 1 || t < times[i + 1]);
+    const k = clamp((t - times[i]) / 0.12);
+    g.save();
+    g.translate(x + w / 2, 0);
+    const sc = now ? 1.08 - 0.04 * easeOut(k) : 1;
+    g.scale(sc, sc);
+    g.lineWidth = size * 0.16;
+    g.strokeStyle = "#000";
+    g.strokeText(tk.w, -w / 2, 0);
+    g.fillStyle = now ? HOT : "#fff";
+    g.fillText(tk.w, -w / 2, 0);
+    g.restore();
+    x += w + space;
+  });
   g.restore();
 }
 function caption(g, text, a, pop) {
@@ -808,6 +850,10 @@ window.renderFrame = async (t) => {
   PG.filter = relight ? `brightness(${gain * 0.5}) saturate(0.8) contrast(1.05)` : `brightness(${gain})`;
   cover(PG, img, pic.z, pic.fx, pic.fy);
   PG.filter = "none";
+  if (!relight && (E.style || {}).look === "cool") {
+    PG.fillStyle = "rgba(40,55,130,0.10)";
+    PG.fillRect(0, 0, W, H);
+  }
   if (relight) {
     // night: the room goes dark and cool
     const tint = PG.createLinearGradient(0, 0, 0, H);
@@ -883,7 +929,8 @@ window.renderFrame = async (t) => {
     if (t < c.s - 0.02 || t > end) return;
     const a = clamp((t - c.s + 0.02) / 0.06) * (end === c.e + 0.08 ? clamp((end - t) / 0.08) : 1);
     const pop = 0.86 + 0.14 * back(clamp((t - c.s) / 0.16));
-    if (CAP === "type") captionType(ctx, c, t, clamp((end - t) / 0.12));
+    if (CAP === "bold") captionBold(ctx, c, t, clamp((t - c.s + 0.02) / 0.05) * clamp((end - t) / 0.08));
+    else if (CAP === "type") captionType(ctx, c, t, clamp((end - t) / 0.12));
     else if (CAP === "box") captionBox(ctx, c.text, a, pop);
     else if (CAP === "karaoke") captionKaraoke(ctx, c, t, a);
     else if (CAP === "word") captionWord(ctx, c, t, a);

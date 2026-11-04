@@ -49,3 +49,21 @@ follows this unless a brief says otherwise.
 - Not "follow for more" and not "thanks for watching". End on a send prompt
   naming one specific person ("send this to the friend who…"), in voice and
   on screen, then cut straight back to the first frame so it loops.
+
+## Added 2026-11-04 (from the motion-graphics and balloon references)
+
+**Motion graphics layer:**
+- Words arrive one at a time: blurred and slightly large, then sharp.
+- Fake app UI being used: a cursor, a search bar that types, a result card
+  sliding up, a "+" that grows into a button and clicks to "✓".
+- Glass cards (frosted, soft shadow) that pop in beside the speaker.
+- Motion blur on every move; nothing just appears.
+
+**The hook formula (balloon):**
+1. Open on an event that hasn't happened yet: something about to break,
+   pop or land, with a countdown.
+2. Count the viewer's own watch time on screen.
+3. At about 7 s, call it out: "You just watched ___ for 7 seconds… and
+   you're still here."
+4. Turn it to YORU.
+5. Pay off the event only at the very end, then loop to the first frame.

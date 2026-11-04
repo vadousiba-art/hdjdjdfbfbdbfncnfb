@@ -43,8 +43,12 @@ for src in sorted((P / "src").glob("*.mp4")):
     clip = src.stem
     if len(sys.argv) > 3 and clip not in sys.argv[3:]:
         continue
-    w, h = map(int, subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
-                                    "-of", "csv=p=0", str(src)], capture_output=True, text=True).stdout.strip().split(","))
+    info_v = json.loads(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                                        "stream=width,height:stream_side_data=rotation", "-of", "json", str(src)],
+                                       capture_output=True, text=True).stdout)["streams"][0]
+    w, h = info_v["width"], info_v["height"]
+    if any(abs(int(d.get("rotation", 0))) == 90 for d in info_v.get("side_data_list", [])):
+        w, h = h, w  # phones store portrait video sideways; ffmpeg turns it upright, so measure it upright
     cx, cy, fh, skins = [], [], [], []
     for a in frames(src):
         r = det.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(a)))

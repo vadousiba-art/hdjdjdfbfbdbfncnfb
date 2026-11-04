@@ -11,7 +11,8 @@ seconds, its B-roll items start at "t" seconds in, and its captions are
 [text, start, end] in seconds from the beat's start.
 
 Pauses longer than GAP inside a line are cut down to a breath, so the speech
-keeps moving; each cut also flips the punch-in on face shots."""
+keeps moving; each cut also flips the punch-in on face shots. A beat with
+"keep_lead": true keeps its silent opening (typing, a look up) instead."""
 
 import json
 import pathlib
@@ -119,6 +120,11 @@ for beat in PLAN["beats"]:
     cuts = []
     for a, b in beat["ranges"]:
         cuts += speech(beat["src"], a, b)
+    if beat.get("keep_lead"):
+        # keep the silent lead-in (typing, a look up) whole, from the range start to the first words
+        first = min((w["s"] for w in words[beat["src"]] if any(a - 0.05 <= w["s"] <= b for a, b in planned)), default=0)
+        k = next((i for i, (a, b) in enumerate(cuts) if b > first), 0)
+        cuts = [(beat["ranges"][0][0], cuts[k][1])] + cuts[k + 1:]
     start = t
     pieces = []
     for k, (a, b) in enumerate(cuts):

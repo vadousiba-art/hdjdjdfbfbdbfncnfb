@@ -14,14 +14,22 @@
 //   stamp  {text}                        a slammed stamp, until the beat ends
 //   dots   {n}                           progress row with n of 4 filled, until the next dots or "dots_end"
 //   share                                a "send to a friend" card
+//   hook   {text}                        the POV / series line typed at the top, through the first beat
+//   choice {letter, text, emoji}         an A/B option card, until "choices_end"; "vote" makes them pulse
+// Style flags (plan.json "style"): vertical, night, relight (room darker, the speaker lit), big: soft,
+// captions: type|box|karaoke|word, slogan.
 
-const W = 1920, H = 1080;
+const PROJ = new URLSearchParams(location.search).get("p") || "yoru1";
+const E = await (await fetch(`/reel/${PROJ}/edit.json`)).json();
+// "vertical": 1080x1920 for Reels; otherwise 1920x1080
+const VERT = Boolean((E.style || {}).vertical);
+const W = VERT ? 1080 : 1920, H = VERT ? 1920 : 1080;
 window.W = W;
 window.H = H;
 const cv = document.getElementById("c");
+cv.width = W;
+cv.height = H;
 const ctx = cv.getContext("2d");
-const PROJ = new URLSearchParams(location.search).get("p") || "yoru1";
-const E = await (await fetch(`/reel/${PROJ}/edit.json`)).json();
 const EXPO = await (await fetch(`/reel/${PROJ}/exposure.json`)).json();
 const BRAND = "#e11d48", HOT = "#ff4d6d";
 
@@ -77,6 +85,8 @@ for (const it of ITEMS) {
   else if (it.type === "footage") it.end = Math.min(it.beat.end, ...later.filter((x) => x.type === "face" && sameBeat(x)).map((x) => x.at));
   else if (it.type === "burst") it.end = it.at + 1.9;
   else if (it.type === "stamp" || it.type === "share") it.end = it.beat.end;
+  else if (it.type === "hook") it.end = Math.min(it.beat.end, ...later.filter((x) => x.type === "big" && x.beat === it.beat).map((x) => x.at));
+  else if (it.type === "choice" || it.type === "vote") it.end = Math.min(E.duration, ...later.filter((x) => x.type === "choices_end").map((x) => x.at));
   else if (it.type === "dots") {
     const nxt = later.find((x) => x.type === "dots");
     it.end = nxt ? nxt.at : it.beat.end;
@@ -120,7 +130,7 @@ function bigText(g, it, t) {
   const pop = lerp(1.35, 1, easeOut(k));
   const kanji = /[\u4e00-\u9fff]/.test(it.text);
   const family = kanji ? "YoruKanji" : "Inter, 'Noto Color Emoji'";
-  const maxW = it.maxW || 700;
+  const maxW = it.maxW || (VERT ? W * 0.94 : 700);
   let size = it.size || 330;
   g.font = `900 ${size}px ${family}`;
   // one line if it fits, otherwise the two most even lines
@@ -138,7 +148,28 @@ function bigText(g, it, t) {
   const widest = Math.max(...lines.map((l) => g.measureText(l).width));
   if (widest > maxW) { size *= maxW / widest; g.font = `900 ${size}px ${family}`; }
   const lh = size * 0.92;
-  const cx = it.x ?? 1530, cy = (it.y ?? (kanji ? 500 : 420)) - ((lines.length - 1) * lh) / 2;
+  let cy = (it.y ?? (VERT ? H * 0.3 : kanji ? 500 : 420)) - ((lines.length - 1) * lh) / 2;
+  if (VERT && it.y == null && it._head != null) {
+    // the block's bottom sits a third of a line below the top of the head, its top below the app's top bar
+    const top = H * 0.075, bottom = it._head * H + lh * 0.35;
+    let block = lines.length * lh;
+    if (block > bottom - top) {
+      const k = (bottom - top) / block;
+      if (k < 0.75) {
+        // no room above the head: the word sits over the top of the head instead (it._front), at full size
+        it._front = true;
+      } else {
+        size *= k;
+        g.font = `900 ${size}px ${family}`;
+      }
+    }
+    const lh2 = size * 0.92;
+    block = lines.length * lh2;
+    cy = it._front ? top + lh2 / 2 + 10 : Math.max(top + lh2 / 2, bottom - block + lh2 / 2);
+    it._lh = lh2;
+  }
+  const cx = it.x ?? (VERT ? W / 2 : 1530);
+  const LH = it._lh || lh;
   g.save();
   g.globalAlpha = Math.min(k * 2, 1) * out;
   g.translate(cx, cy);
@@ -150,17 +181,17 @@ function bigText(g, it, t) {
     // night: pale moonlight, a soft glow, and the word sharpens out of a blur
     const kb = easeOut(clamp((t - it.at) / 0.45));
     g.filter = `blur(${(1 - kb) * 16}px)`;
-    const gs = g.createLinearGradient(0, -size / 2, 0, size / 2 + (lines.length - 1) * lh);
+    const gs = g.createLinearGradient(0, -size / 2, 0, size / 2 + (lines.length - 1) * LH);
     gs.addColorStop(0, "#ffffff");
     gs.addColorStop(1, "#b8c6ff");
     g.lineJoin = "round";
     g.lineWidth = Math.max(6, size * 0.03);
     g.strokeStyle = "rgba(4,8,24,0.55)";
-    lines.forEach((l, i) => g.strokeText(l, 0, i * lh));
+    lines.forEach((l, i) => g.strokeText(l, 0, i * LH));
     g.shadowColor = "rgba(150,170,255,0.5)";
     g.shadowBlur = 45;
     g.fillStyle = gs;
-    lines.forEach((l, i) => g.fillText(l, 0, i * lh));
+    lines.forEach((l, i) => g.fillText(l, 0, i * LH));
     g.filter = "none";
     g.restore();
     return;
@@ -169,10 +200,10 @@ function bigText(g, it, t) {
     // a short extrusion for depth
     for (let d = 12; d > 0; d -= 2) {
       g.fillStyle = `rgba(90,6,24,${0.85 - d * 0.04})`;
-      lines.forEach((l, i) => g.fillText(l, d * 0.9, i * lh + d * 1.1));
+      lines.forEach((l, i) => g.fillText(l, d * 0.9, i * LH + d * 1.1));
     }
   }
-  const grad = g.createLinearGradient(0, -size / 2, 0, size / 2 + (lines.length - 1) * lh);
+  const grad = g.createLinearGradient(0, -size / 2, 0, size / 2 + (lines.length - 1) * LH);
   if (kanji || /^\d$/.test(it.text)) {
     grad.addColorStop(0, "#ff6b86");
     grad.addColorStop(1, BRAND);
@@ -184,12 +215,12 @@ function bigText(g, it, t) {
     g.lineJoin = "round";
     g.lineWidth = Math.max(8, size * 0.045);
     g.strokeStyle = "rgba(38,4,14,0.92)";
-    lines.forEach((l, i) => g.strokeText(l, 0, i * lh));
+    lines.forEach((l, i) => g.strokeText(l, 0, i * LH));
   }
   g.shadowColor = kanji ? "rgba(225,29,72,0.8)" : "rgba(0,0,0,0.35)";
   g.shadowBlur = kanji ? 60 : 20;
   g.fillStyle = grad;
-  lines.forEach((l, i) => g.fillText(l, 0, i * lh));
+  lines.forEach((l, i) => g.fillText(l, 0, i * LH));
   g.shadowBlur = 0;
   if (it.strike) {
     const ks = easeOut(clamp((t - it.at - 0.35) / 0.25));
@@ -285,9 +316,9 @@ function burst(g, it, t, idx) {
     const r1 = rnd(idx * 97 + i), r2 = rnd(idx * 131 + i * 7), r3 = rnd(idx * 53 + i * 3);
     const delay = r3 * 0.35, kk = clamp((k * 1.9 - delay) / 1.4);
     if (kk <= 0 || kk >= 1) continue;
-    const x0 = phoneOn ? 1555 + (r1 - 0.5) * 380 : 260 + r1 * 1400;
+    const x0 = phoneOn ? 1555 + (r1 - 0.5) * 380 : VERT ? W * 0.08 + r1 * W * 0.84 : 260 + r1 * 1400;
     const x = x0 + Math.sin(kk * 6 + r2 * 6) * 40;
-    const y = 1120 - easeOut(kk) * (620 + r2 * 360);
+    const y = VERT ? H + 40 - easeOut(kk) * (H * 0.45 + r2 * H * 0.25) : 1120 - easeOut(kk) * (620 + r2 * 360);
     const s = (70 + r2 * 70) * (kk < 0.15 ? back(kk / 0.15) : 1);
     g.save();
     g.globalAlpha = kk > 0.75 ? (1 - kk) / 0.25 : 1;
@@ -518,8 +549,8 @@ function captionType(g, c, t, a) {
   g.textBaseline = "middle";
   const space = g.measureText(" ").width;
   const total = toks.reduce((s, tk) => s + g.measureText(tk.w).width, 0) + space * (toks.length - 1);
-  let x = big ? W / 2 - total / 2 : 150;
-  const y = big ? 860 : 900;
+  let x = big ? W / 2 - total / 2 : VERT ? Math.max(70, W / 2 - total / 2) : 150;
+  const y = VERT ? H * (big ? 0.72 : 0.745) : big ? 860 : 900;
   let lastX = x, typing = false;
   toks.forEach((tk, i) => {
     const t0 = times[i], t1 = Math.min(times[i + 1] ?? c.e, t0 + tk.w.length * 0.055);
@@ -565,6 +596,134 @@ function kanjiMark(g, x, y, size, a) {
   g.fillStyle = BRAND;
   g.fillText("夜", x, y);
   g.restore();
+}
+// the series / POV line, typed at the top during the first beat
+function hookText(g, it, t) {
+  const n0 = Math.min(it.text.length, 5);
+  const n = n0 + Math.floor(clamp((t - it.at) / 0.6) * (it.text.length - n0));
+  const shown = it.text.slice(0, n);
+  const a = clamp((it.end - t) / 0.2);
+  g.save();
+  g.globalAlpha = a;
+  const size = VERT ? 46 : 40;
+  g.font = `400 ${size}px 'DejaVu Sans Mono', monospace`;
+  g.textAlign = "left";
+  g.textBaseline = "middle";
+  // wrap to the width
+  const maxW = W - 140, words = it.text.split(" "), lines = [[]];
+  let lw = 0;
+  for (const w of words) {
+    const ww = g.measureText(w + " ").width;
+    if (lw + ww > maxW && lines[lines.length - 1].length) { lines.push([]); lw = 0; }
+    lines[lines.length - 1].push(w);
+    lw += ww;
+  }
+  let left = n, y0 = VERT ? H * 0.155 : 120;
+  const lh = size * 1.35;
+  const widest = Math.max(...lines.map((l) => g.measureText(l.join(" ")).width));
+  const x0 = W / 2 - widest / 2;
+  g.fillStyle = "rgba(0,0,0,0.5)";
+  g.beginPath();
+  g.roundRect(x0 - 26, y0 - lh / 2 - 14, widest + 52 + size * 0.6, lh * lines.length + 28, 14);
+  g.fill();
+  let cx = x0, cy = y0;
+  lines.forEach((l, i) => {
+    const str = l.join(" ");
+    const part = str.slice(0, Math.max(0, left));
+    left -= str.length + 1;
+    g.fillStyle = "#f2f4ff";
+    g.fillText(part, x0, y0 + i * lh);
+    if (part.length) { cx = x0 + g.measureText(part).width; cy = y0 + i * lh; }
+  });
+  if (n < it.text.length || Math.floor(t * 2.2) % 2 === 0) {
+    g.fillStyle = "rgba(242,244,255,0.85)";
+    g.fillRect(cx + 6, cy - size * 0.45, size * 0.5, size * 0.9);
+  }
+  g.restore();
+}
+// A/B choice cards, stacked over the chest; the newest pulses, "vote" pulses both
+function choices(g, t) {
+  const list = ITEMS.filter((x) => x.type === "choice" && t >= x.at && t < x.end);
+  if (!list.length) return;
+  const vote = ITEMS.find((x) => x.type === "vote" && t >= x.at && t < x.end);
+  const cw = VERT ? W - 120 : 760, ch = VERT ? 170 : 150;
+  const x = VERT ? 60 : W - cw - 80, y0 = VERT ? H * 0.47 : 300;
+  list.forEach((it, i) => {
+    const k = easeOut(clamp((t - it.at) / 0.4)), out = clamp((it.end - t) / 0.25);
+    const newest = i === list.length - 1 && !vote;
+    const pulse = vote ? 1 + 0.03 * Math.sin((t - vote.at) * 9 + i * Math.PI) : newest ? 1 + 0.05 * Math.max(0, 1 - (t - it.at) / 0.5) : 1;
+    const y = y0 + i * (ch + 26);
+    g.save();
+    g.globalAlpha = clamp(k * 1.5) * out * (newest || vote || i === list.length - 1 ? 1 : 0.8);
+    g.filter = `blur(${(1 - k) * 12}px)`;
+    g.translate(x + cw / 2 + (1 - k) * 80, y + ch / 2);
+    g.scale(pulse, pulse);
+    g.translate(-cw / 2, -ch / 2);
+    g.shadowColor = "rgba(0,0,0,0.55)";
+    g.shadowBlur = 40;
+    g.fillStyle = "rgba(10,12,26,0.72)";
+    g.beginPath();
+    g.roundRect(0, 0, cw, ch, 32);
+    g.fill();
+    g.shadowColor = "transparent";
+    g.strokeStyle = it.letter === "A" ? "rgba(255,107,134,0.8)" : "rgba(150,170,255,0.8)";
+    g.lineWidth = 3;
+    g.stroke();
+    // the letter
+    g.fillStyle = it.letter === "A" ? BRAND : "#5b6cff";
+    g.beginPath();
+    g.arc(ch / 2, ch / 2, ch * 0.33, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#fff";
+    g.font = `900 ${ch * 0.4}px Inter`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(it.letter, ch / 2, ch / 2 + 3);
+    // the text, wrapped to two lines
+    g.textAlign = "left";
+    g.font = `800 ${VERT ? 42 : 36}px Inter`;
+    const tx = ch + 6, maxW = cw - tx - 110, words = it.text.split(" "), lines = [""];
+    for (const w of words) {
+      const test = lines[lines.length - 1] ? lines[lines.length - 1] + " " + w : w;
+      if (g.measureText(test).width > maxW && lines[lines.length - 1]) lines.push(w);
+      else lines[lines.length - 1] = test;
+    }
+    const lh = VERT ? 50 : 44;
+    lines.slice(0, 2).forEach((l, j) => g.fillText(l, tx, ch / 2 + (j - (Math.min(2, lines.length) - 1) / 2) * lh));
+    g.font = `${VERT ? 64 : 54}px 'Noto Color Emoji'`;
+    g.textAlign = "center";
+    g.fillText(it.emoji || "", cw - 60, ch / 2 + 2);
+    g.filter = "none";
+    g.restore();
+  });
+  if (vote) {
+    // "comment 👇" under the cards
+    const k = easeOut(clamp((t - vote.at) / 0.3));
+    g.save();
+    g.globalAlpha = k * clamp((vote.end - t) / 0.25);
+    g.font = `800 ${VERT ? 40 : 34}px Inter, 'Noto Color Emoji'`;
+    g.textAlign = "center";
+    g.fillStyle = "#fff";
+    g.shadowColor = "rgba(0,0,0,0.8)";
+    g.shadowBlur = 14;
+    g.fillText("comment A or B 👇", x + cw / 2, y0 - 34);
+    g.restore();
+  }
+}
+// where the top of the head is (a fraction of the height), from the person mask
+const PROBE = mk(8, 8).getContext("2d");
+const HEADC = mk(54, 96), HEADG = HEADC.getContext("2d", { willReadFrequently: true });
+async function headTop(clip, n) {
+  const m = await load(maskUrl(clip, n));
+  HEADG.clearRect(0, 0, 54, 96);
+  HEADG.drawImage(m, 0, 0, 54, 96);
+  const d = HEADG.getImageData(0, 0, 54, 96).data;
+  for (let y = 0; y < 96; y++) {
+    let on = 0;
+    for (let x = 16; x < 38; x++) if (d[(y * 54 + x) * 4 + 3] > 128) on++;
+    if (on >= 4) return y / 96;
+  }
+  return 0.3;
 }
 function endCard(g, t) {
   const k = t - E.speech_end;
@@ -637,7 +796,7 @@ window.renderFrame = async (t) => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
-    kanjiMark(ctx, W - 120, H - 110, 54, 0.55 * clamp((t - b.start) / 0.3) * clamp((b.end - t) / 0.3));
+    kanjiMark(ctx, VERT ? W - 80 : W - 120, VERT ? H * 0.1 : H - 110, 54, 0.55 * clamp((t - b.start) / 0.3) * clamp((b.end - t) / 0.3));
     return;
   }
   const pic = await picture(b, tt);
@@ -645,19 +804,30 @@ window.renderFrame = async (t) => {
   const gain = pic.mask || pic.clip === b.src ? EXPO[pic.clip]?.[pic.n - 1] ?? 1 : 1;
 
   PG.setTransform(1, 0, 0, 1, 0, 0);
-  PG.filter = `brightness(${gain})`;
+  const relight = (E.style || {}).relight && pic.mask;
+  PG.filter = relight ? `brightness(${gain * 0.5}) saturate(0.8) contrast(1.05)` : `brightness(${gain})`;
   cover(PG, img, pic.z, pic.fx, pic.fy);
   PG.filter = "none";
+  if (relight) {
+    // night: the room goes dark and cool
+    const tint = PG.createLinearGradient(0, 0, 0, H);
+    tint.addColorStop(0, "rgba(30,40,110,0.28)");
+    tint.addColorStop(1, "rgba(20,10,60,0.22)");
+    PG.fillStyle = tint;
+    PG.fillRect(0, 0, W, H);
+  }
 
   // keywords go between the room and the person
   const bigs = active("big", tt);
-  if (bigs.length) {
-    for (const it of bigs) bigText(PG, it, tt);
+  if (VERT && pic.mask) for (const it of bigs) if (it._head == null) it._head = await headTop(pic.clip, pic.n);
+  if (VERT) for (const it of bigs) if (it._front == null) { bigText(PROBE, it, it.at + 1); if (it._front == null) it._front = false; }
+  if (bigs.length || relight) {
+    for (const it of bigs) if (!it._front) bigText(PG, it, tt);
     if (pic.mask) {
       const m = await load(maskUrl(pic.clip, pic.n));
       CG.globalCompositeOperation = "source-over";
       CG.clearRect(0, 0, W, H);
-      CG.filter = `brightness(${gain})`;
+      CG.filter = relight ? `brightness(${gain * 0.97}) saturate(0.95) contrast(1.04)` : `brightness(${gain})`;
       cover(CG, img, pic.z, pic.fx, pic.fy);
       CG.filter = "none";
       CG.globalCompositeOperation = "destination-in";
@@ -665,6 +835,7 @@ window.renderFrame = async (t) => {
       CG.globalCompositeOperation = "source-over";
       PG.drawImage(CUT, 0, 0);
     }
+    for (const it of bigs) if (it._front) bigText(PG, it, tt);
   }
 
   // a small punch on every change of picture or keyword
@@ -685,6 +856,8 @@ window.renderFrame = async (t) => {
   const phones = ITEMS.filter((x) => x.type === "phone" && x.beat === b && tt >= x.at && tt < x.end + 0.0);
   if (phones.length) phone(ctx, phones, tt);
   for (const it of active("stamp", tt)) stamp(ctx, it, tt);
+  for (const it of active("hook", tt)) hookText(ctx, it, tt);
+  choices(ctx, tt);
   for (const it of active("share", tt)) share(ctx, it, tt);
   ITEMS.forEach((it, i) => { if (it.type === "burst" && tt >= it.at && tt < it.end) burst(ctx, it, tt, i); });
   dots(ctx, tt);
@@ -695,7 +868,7 @@ window.renderFrame = async (t) => {
     ctx.drawImage(GRAIN[Math.floor(t * 24) % GRAIN.length], 0, 0, W, H);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
-    kanjiMark(ctx, W - 120, H - 110, 54, 0.55);
+    kanjiMark(ctx, VERT ? W - 80 : W - 120, VERT ? H * 0.1 : H - 110, 54, 0.55);
   } else {
     // the brand, small, top left
     ctx.globalAlpha = 0.85;
@@ -718,7 +891,7 @@ window.renderFrame = async (t) => {
   });
   if (NIGHT) {
     // fade in from black (the loop), and out to the end card
-    if (t < 0.35) {
+    if (t < 0.35 && (E.style || {}).fade_in !== false) {
       ctx.fillStyle = `rgba(0,0,0,${1 - t / 0.35})`;
       ctx.fillRect(0, 0, W, H);
     }

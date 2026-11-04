@@ -37,12 +37,15 @@ const browser = await chromium.launch({
   args: ["--font-render-hinting=none"],
 });
 const PAGE = opt("--page", "index.html");
-const [VW, VH] = ["wide.html", "pop.html"].includes(PAGE) ? [1920, 1080] : [1080, 1920];
+let [VW, VH] = ["wide.html", "pop.html"].includes(PAGE) ? [1920, 1080] : [1080, 1920];
 const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
 page.on("console", (m) => m.type() === "error" && !m.text().includes("404") && console.log("[page]", m.text()));
 page.on("pageerror", (e) => console.log("[page error]", e.message));
 await page.goto(`http://127.0.0.1:${server.address().port}/reel/${PAGE}?p=${PROJECT}`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 180000 });
+// the page decides its own size (a vertical plan in the landscape renderer)
+[VW, VH] = await page.evaluate(() => [window.W || 1080, window.H || 1920]);
+await page.setViewportSize({ width: VW, height: VH });
 const shot = () => page.screenshot({ type: "png", clip: { x: 0, y: 0, width: VW, height: VH } });
 
 if (opt("--stills", null)) {

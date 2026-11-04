@@ -10,10 +10,19 @@ relight, no typewriter or italic captions, no kinetic text).
 1. **TikTok-style captions. Never italic serifs.**
 2. **On-screen hooks:** no background, **or** a white background, **or** a
    black background. Nothing else.
-3. **Real screen recordings and images, taken by you.** Never have me
-   automate or scrape them. You take the pictures / screen recordings
-   yourself, download them, and they go into a **reference folder** I use.
-   (So I no longer capture app screens myself. You send them.)
+3. **Real screen recordings and images, found and saved by Claude** (you
+   asked me to do this part). Every image goes into that video's
+   **reference folder** with its source written down. How I get them:
+   - **YORU screens and screen recordings:** I capture them from the YORU
+     app itself.
+   - **Anything else from the web:** only images that are free to use
+     (Unsplash, Pexels, Wikimedia Commons with a license that allows it,
+     official press kits), or ones I make myself. One at a time, chosen on
+     purpose.
+   - **Never** automated scraping, bots on Instagram or other platforms,
+     or logging into anyone's account. That's how accounts get banned.
+   - The only things I can't get are **your own DMs and comments**. If a
+     script uses one, you screenshot it.
 4. **Never animate images.** No tilted overlay cards. Images go in
    **vertically straight, no round corners, no white outlines.**
 5. **Cut out any dead space longer than 0.1 seconds.** **Plain cuts only.**
@@ -45,8 +54,6 @@ relight, no typewriter or italic captions, no kinetic text).
 
 ## What I need from you each time
 - The talking take(s), filmed **vertically**, phone propped at eye level.
-- **Your own screenshots / screen recordings** for every insert the script
-  asks for (phone screenshots, screen recordings, photos of your laptop
-  screen). Send them as files; I keep them in that video's reference
-  folder.
+- Nothing for the inserts: **I find and prepare them** (rule 3). Only a
+  screenshot of a real DM/comment, if the script uses one.
 - Your Instagram **@handle**, for the corner.

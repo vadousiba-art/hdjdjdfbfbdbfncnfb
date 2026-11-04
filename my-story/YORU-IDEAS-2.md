@@ -24,7 +24,7 @@ true.
 
 | # | You say (casual, fast, like explaining to a friend) | Insert (top half, your own screenshot) |
 |---|---|---|
-| 1 | "A lot of you asked how I built my own social media app. So here's the three-step blueprint. Completely simple." | **a real comment or DM asking it** (screenshot it). Only if someone really asked; otherwise say "If you've ever wanted to build your own app, here's the three-step blueprint." |
+| 1 | "A lot of you asked how I built my own social media app. So here's the three-step blueprint. Completely simple." | **a real comment or DM asking it** (the one screenshot you send me). Only if someone really asked; otherwise say "If you've ever wanted to build your own app, here's the three-step blueprint." |
 | 2 | "By the way, I'm seventeen, and my app is already live. It's called YORU." | **YORU on your phone** (screenshot of the home feed) |
 | 3 | "Step one: the idea. Build something for a problem you actually have." | |
 | 4 | "For me it was likes. Every app feels fake. So on mine you don't heart a post, you can clown it." | **the reaction picker** (screenshot, holding down the heart) |
@@ -42,12 +42,9 @@ faster than normal, with energy. Say the whole thing **in one go, 2–3
 takes**. If you mess up, restart the sentence and keep rolling. I cut
 every pause over 0.1 s.
 
-**Your screenshots / recordings (rule 3, you take them):**
-1. The comment/DM that asked (if there is one).
-2. YORU's home feed on your phone.
-3. The reaction picker open on a post.
-4. A photo of your laptop with VS Code / Claude Code open.
-5. Your site in the browser.
+**The inserts: I get these (rule 3):** YORU's home feed, the reaction
+picker, a VS Code / Claude Code screen, your site in the browser. **Only
+from you:** a screenshot of the comment or DM that asked (if there is one).
 
 ---
 
@@ -106,12 +103,12 @@ every pause over 0.1 s.
 
 About 30 s. Same recording setup as Video 1.
 
-**Your screenshots:** the reaction picker, and the Ghost Mode setting
-turned on.
+**The inserts: I get these:** the reaction picker and the Ghost Mode
+setting, from the YORU app.
 
 ---
 
-**Send me:** the takes, your screenshots, and your Instagram @handle for
-the corner. I edit every one with the v2 rules: TikTok captions, plain
+**Send me:** the takes and your Instagram @handle for the corner. I find
+and prepare every image myself. I edit every one with the v2 rules: TikTok captions, plain
 cuts, pauses over 0.1 s gone, straight images in the top half, no italics,
 no kinetic text.

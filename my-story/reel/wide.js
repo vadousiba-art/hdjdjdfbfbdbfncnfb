@@ -578,7 +578,7 @@ function endCard(g, t) {
   g.font = "400 30px 'DejaVu Sans Mono', monospace";
   g.textAlign = "center";
   g.fillStyle = "rgba(242,244,255,0.6)";
-  g.fillText("3am thoughts", W / 2, H * 0.62 + wh + 50);
+  g.fillText((E.style || {}).slogan || "the night is for everyone", W / 2, H * 0.62 + wh + 50);
   g.restore();
 }
 function caption(g, text, a, pop) {

@@ -55,11 +55,11 @@ admin page, even if it's small. Small and honest grows; fake gets caught.
 |---|---|---|
 | 1a | "Day one of building my own social media app at seventeen." | big **DAY 1** behind you |
 | 1b | "Right now it has [REAL NUMBER] users." | big **[N] USERS**, a counter ticking up |
-| 1c | "Today I'm making it so you can pay for Pro, with PayPal." | phone: the Pro page |
-| 1d | "If this gets to a hundred users, I'll show you all the code." | big **100?** |
+| 1c | "Today I'm trying to get my first hundred users." | phone: the sign-up page |
+| 1d | "Post on it with hashtag roast me, and tonight I'll roast you on video." | big **#ROASTME** |
 | 1e | "Comment what I should add next. I'll build the best one." | big **YOU PICK** |
 
-Screen recording 1s: open the Pro page in YORU and scroll it slowly (8 s).
+Screen recording 1s: none needed, I'll capture the sign-up page myself.
 
 ### Video 2: "One feature, 15 seconds": Ghost Mode (~15 s)
 
@@ -73,6 +73,9 @@ Screen recording 1s: open the Pro page in YORU and scroll it slowly (8 s).
 Screen recording 2s: Settings → Ghost Mode, switch it off and on twice (6 s).
 
 ### Video 3: "My app roasts me" (~18 s)
+
+(Once people post with #roastme, slot 3 becomes "Roasting your posts,
+night N": see `YORU-REEL-2.md`.)
 
 Before filming: post something on YORU (a photo of your setup or your
 messy room works), then summon the Menace roast on it (post menu →
@@ -89,8 +92,11 @@ messy room works), then summon the Menace roast on it (post menu →
 Screen recordings 3s: your post getting the roast (10 s), and the roast
 itself, still (3 s).
 
-**Send me:** clips 1a–1e, 2a–2d, 3a–3e, screen recordings 1s, 2s and 3s,
-and the real user count.
+**Send me:** clips 1a–1e, 2a–2d, 3a–3e, screen recordings 2s and 3s, and
+the real user count.
+
+**Post Reel 2 ("Post on my app and I'll put you in my next video") first**,
+the day before Day 1, so people already know about #roastme.
 
 ---
 
@@ -105,6 +111,7 @@ and the real user count.
 | 4 | "Today I found out who my first real user is." (with their OK) |
 | 5 | "Today I'm asking my mom to try it for the first time." (if she's in) |
 | 6 | "Here's how much it costs to run an app: ___." (the real hosting bill) |
+|  | Don't say people can pay for Pro until PayPal is switched on. |
 | 7 | "One week. Here's everything that changed." (fast montage of the week) |
 
 Day 2 closes the loop on Day 1's question. That makes people come back.

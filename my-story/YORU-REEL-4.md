@@ -1,93 +1,92 @@
-# YORU Reel 4: "If you're seeing this at night, this is for you"
+# YORU Reel 4: "Day 1: I'm 17, building a social media app in public. You decide."
 
-**Goal: reach.** It's built to be sent ("this is your sign") and to stop the
-scroll in the first second, with YORU in one honest line near the end.
-Style: `YORU-STYLE.md`. About 28 s, landscape.
+**Format A, "Fix it with me"** (`STRATEGY.md`): the strongest founder format
+right now. Something unfinished, shown honestly, and **the viewers choose
+what happens next.**
+- People come back for Day 2 (follows).
+- They comment their vote (engagement).
+- They send it to the friend who'd vote the other way (sends).
 
-**Why it can go far:**
-- "If you're seeing this at night" is true for a huge share of the people
-  who'll see it at night, so it feels personal.
-- A "this is for you" message is the most sent kind of motivational
-  video: people forward it to the friend who needs it.
-- The lights snapping off is movement in the first second (the scroll
-  stopper), and it's on brand (yoru = night).
-- YORU comes up as part of your story ("I built it at night"), not as an
-  ad, so people go look it up.
+Motivational without preaching: the motivation is watching a 17-year-old
+actually do it. Style: `YORU-STYLE.md`. About 25 s. **Vertical 9:16 for
+Reels** (+ landscape copy).
 
 ## The script
 
-| # | Picture | You say (quiet, steady) | Words behind you |
-|---|---|---|---|
-| 1 | **The lights snap off.** Your face is lit only by the laptop. | (nothing, 1 s) | |
-| 2 | You look up into the lens. | "If you're seeing this at night…" | AT NIGHT |
-| 3 | | "this is for you." | THIS IS FOR YOU |
-| 4 | | "Everyone's asleep. Nobody's watching." | NOBODY'S WATCHING |
-| 5 | | "That's exactly why it counts." | IT COUNTS |
-| 6 | B-roll: your hands typing at night | "I'm seventeen. Everyone said I was too young…" | TOO YOUNG |
-| 7 | B-roll: the window, the dark outside | "so I built a whole social media app. At night." | AT NIGHT |
-| 8 | back to you | "No team. No money. Just nights." | JUST NIGHTS |
-| 9 | | "So whatever you're scared to start…" | |
-| 10 | | "start it tonight." | (typed big: START IT TONIGHT) |
-| 11 | the app on a phone slides in | "The app's called YORU. It means night." | 夜 |
-| 12 | | "Because the night is for everyone." | |
-| end | fade to black, 夜, YORU, *the night is for everyone*, loop | | |
+**Frame 1:** typed at the top, `day 1 of building a social media app at 17`.
+You're looking down at the laptop, then you look up into the lens.
 
-## What to record (phone only, about 20 minutes)
+| # | You say (energy +20%, to one person) | Picture / words behind you |
+|---|---|---|
+| 1 | "I'm seventeen, and I'm building a social media app. At night. In public." | **17**, then **IN PUBLIC** |
+| 2 | "No team. No money. Just me and this laptop." | **NO TEAM** |
+| 3 | "Right now it has [REAL NUMBER] users." | **[N] USERS**, a counter ticking up |
+| 4 | "And tonight I have to decide something." | (beat) |
+| 5 | "A: [OPTION A, one short sentence]." | glass card **A** |
+| 6 | "Or B: [OPTION B, one short sentence]." | glass card **B** |
+| 7 | "You pick. Comment A or B." | **YOU PICK** |
+| 8 | "Whatever wins, I build it, and I show you tomorrow." | B-roll: hands typing |
+| 9 | "It's called YORU. The night is for everyone." | end card: 夜 · YORU · *the night is for everyone* |
 
-**Setup (`YORU-STYLE.md` §1–2):** phone sideways, front camera, propped up
-about 1 m away at eye level. Laptop open just below your face, brightness
-all the way up, something white on screen. Quiet room.
+**Pick a real decision for A/B** (it has to be something you'll actually
+build, and you show it on Day 2). Ideas that fit YORU:
+- A: "a feed that only opens at midnight" / B: "night streaks with your
+  friends"
+- A: "voice-note posts" / B: "anonymous 3am confessions" (with
+  moderation)
+- A: "a dark mode that gets darker the later it is" / B: "a 'still up?'
+  button that pings your friends"
+
+**Two hook versions to test** (record both as the first line):
+- H1: "I'm seventeen, and I'm building a social media app. At night. In public."
+- H2: "Day one. I'm seventeen, I'm building a social media app, and you're going to decide what I build."
+
+## What to record (phone only, about 15 minutes)
+
+**Setup (`YORU-STYLE.md` §1–2):**
+- **Phone upright this time** (vertical) for Reels. Front camera, propped
+  up **about 1 metre away** at eye level, so I can also make the
+  landscape copy.
+- Laptop just below your face for light, room lights off.
 
 | Clip | What | How |
 |---|---|---|
-| A1 | **The light switch** | Room light ON at the start. Sit in place, look down at the laptop. Have someone flip the light off, or reach for a lamp switch that's in the shot. Keep filming in the dark for 3 s. 2 takes. |
-| A2 | **The talking take** | Lights off, laptop glow only. Start looking down at the laptop, then look up into the lens and say lines 2–12 in one go, slowly, 2-second pauses. **3 takes.** |
+| A1 | **Full take with hook H1** | Start looking down, look up, lines 1–9 in one go. **3 takes.** |
+| A2 | **Full take with hook H2** | Same, with H2 as the first line. **2 takes.** |
 | B1 | **Hands typing** | Phone close to your hands on the keyboard, lit by the screen. 8 s. |
-| B2 | **The window** | The phone pointed out of a window at night (streetlight, sky, the moon if it's out). Hold still for 6 s. |
-| B3 | **(optional) You at the desk from the side** | Phone at your side, you typing, face lit by the screen. 6 s. |
+| B2 | **Your screen** | Point the phone at your laptop screen with real code or YORU open, and scroll slowly. 6 s. |
 
-The app screens on the phone: I capture those.
+**Talking (from `STRATEGY.md` §5):**
+- First word = first sound, no "so".
+- Talk to the sticker by the lens.
+- Hit one word per line: *seventeen*, *public*, *team*, the number, *you*.
+- Drop your voice at the end of "the night is for everyone."
 
-**Send me:** A1, A2 (3 takes), B1, B2 (B3 if you have it).
+**Send me:** A1 (3 takes), A2 (2 takes), B1, B2, the real user count, and
+the A/B you picked.
+
+## Day 2 (the next day, the same format)
+
+"Day two. You picked [A/B]. Here's what I built." Show it on the phone,
+say what was hard, then ask the next question (A or B). Every episode ends
+with a question, so the series never ends.
 
 ## Caption
 
-> If you're seeing this at night, this is for you 🌙 I'm 17, everyone said I was too young, so I built a whole social media app at night. No team, no money, just nights. Whatever you're scared to start, start it tonight.
->
-> Send this to someone who's still up.
+> Day 1 of building a social media app at 17 🌙 No team, no money, just nights. Tonight YOU decide what I build: A) [option A] or B) [option B]. Comment A or B 👇 Winner gets built and shown tomorrow.
 >
 > the night is for everyone 🌙
 >
-> #3amthoughts #motivation #buildinpublic #teenentrepreneur #nightthoughts
+> #buildinpublic #teenentrepreneur #appdeveloper #socialmediaapp
 
-**Pinned comment:** "what are you starting tonight? 👇"
+**Pinned comment:** "A or B? I'm building whatever wins tonight 👇"
 
-## The plan to 100,000 views
+---
 
-Nobody can promise one video gets 100k. What gets there is **posting
-enough good tries that one breaks out**, then doing more of what broke out.
+## Alternate (format B, 3 a.m. thoughts): "If you're seeing this at night, this is for you"
 
-1. **Test the hook, not the whole video.** I'll make 3 versions of Reel 4
-   with different first lines:
-   - A: "If you're seeing this at night…"
-   - B: "Nobody's watching you at 3am…"
-   - C: "Everyone said I was too young…"
+> (the lights snap off; you look up) "If you're seeing this at night… this is for you. Everyone's asleep. Nobody's watching. That's exactly why it counts. I'm seventeen, and I'm building a whole social media app. At night. No team. No money. Just nights. So whatever you're scared to start… start it tonight. The app's called YORU. It means night. Because the night is for everyone."
 
-   Post them as **Trial Reels** (non-followers only). After 24 h, the one
-   with the best **3-second hold** and **shares** gets posted to everyone.
-2. **Post every day**: 1 to 3 videos (3 a.m. thoughts, POVs, app videos),
-   all in the locked style.
-3. **Watch 3 numbers only:**
-   - **Skip rate:** under 40% means the hook works.
-   - **Average watch time:** more than half the video.
-   - **Shares per 1,000 views:** this is the one that goes viral.
-
-   Send me the screenshots every 3 days.
-4. **When one pops** (several times your normal views): within 48 h, make
-   2 more in the same format with a new line. Viral accounts are built on
-   the follow-up, not the first hit.
-5. **Reply to good comments with a video** (a 3 a.m. thought answering
-   them). It's easy content, and those replies get pushed to the
-   commenter's friends.
-6. **Same time every night** (10 p.m. to midnight your time), so your
-   followers expect you and the first hour's numbers are strong.
+Same setup, slow and quiet, 3 takes. B-roll: hands typing, the view from
+your window at night. Only keep lines that are true for you. If nobody
+actually told you you're too young, don't say it.

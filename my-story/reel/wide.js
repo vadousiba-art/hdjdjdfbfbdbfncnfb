@@ -511,7 +511,7 @@ function captionType(g, c, t, a) {
   const big = c.text.startsWith("^");
   const toks = tokens(big ? c.text.slice(1).toUpperCase() : c.text);
   const times = tokenTimes(c, toks.length);
-  const size = big ? 78 : 48, font = `${big ? 700 : 400} ${size}px 'DejaVu Sans Mono', monospace`;
+  const size = big ? 82 : 54, font = `${big ? 700 : 400} ${size}px 'DejaVu Sans Mono', monospace`;
   g.save();
   g.globalAlpha = a;
   g.font = font;

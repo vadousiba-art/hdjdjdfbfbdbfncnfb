@@ -37,7 +37,7 @@ const browser = await chromium.launch({
   args: ["--font-render-hinting=none"],
 });
 const PAGE = opt("--page", "index.html");
-const [VW, VH] = PAGE === "wide.html" ? [1920, 1080] : [1080, 1920];
+const [VW, VH] = ["wide.html", "pop.html"].includes(PAGE) ? [1920, 1080] : [1080, 1920];
 const page = await browser.newPage({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
 page.on("console", (m) => m.type() === "error" && !m.text().includes("404") && console.log("[page]", m.text()));
 page.on("pageerror", (e) => console.log("[page error]", e.message));

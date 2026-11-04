@@ -209,12 +209,15 @@ window.renderFrame = async (t) => {
   for (const it of active("hook", tt)) hook(ctx, it);
 
   // captions: on the line between the halves during an insert, else 68% down
+  // one caption at a time: each shows from just before its first word until the next one starts
   const y = sp ? H / 2 : H * 0.68;
+  let cur = null;
   E.captions.forEach((c, i) => {
     const next = E.captions[i + 1];
-    const end = next && next.s - c.e < 0.25 ? next.s : c.e + 0.1;
-    if (t >= c.s - 0.02 && t < end) caption(ctx, c, y);
+    const end = next ? Math.min(next.s - 0.02, next.s - c.e < 0.25 ? next.s : c.e + 0.1) : c.e + 0.1;
+    if (t >= c.s - 0.02 && t < end) cur = c;
   });
+  if (cur) caption(ctx, cur, y);
 };
 window.duration = E.duration;
 window.ready = true;

@@ -112,6 +112,9 @@ function tokens(text) {
     out.push({ w: raw.replace(/\*/g, ""), accent: it });
     if (close) it = false;
   }
+  // the style allows one underlined word per caption: keep the last one of the marked phrase
+  const last = out.map((tk) => tk.accent).lastIndexOf(true);
+  out.forEach((tk, i) => { tk.accent = i === last; });
   return out;
 }
 // TikTok-style caption: white, bold, a soft shadow, the keyword underlined in red

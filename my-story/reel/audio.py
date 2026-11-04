@@ -97,8 +97,11 @@ def rms(x):
 
 
 # the score sits about 6 dB under the voice in the gaps and about 16 dB under it while he talks
-music *= rms(voice) * 10 ** (-6 / 20) / rms(music)
-fx *= rms(voice) * 10 ** (-10 / 20) / rms(fx)
+# (a score can be silent: voice only)
+if np.abs(music).max() > 1e-6:
+    music *= rms(voice) * 10 ** (-6 / 20) / rms(music)
+if np.abs(fx).max() > 1e-6:
+    fx *= rms(voice) * 10 ** (-10 / 20) / rms(fx)
 music_gain = 10 ** (-(10 * duck) / 20)
 mix = voice + music * music_gain + fx
 fo = int(min(1.2, max(0.15, DUR - E["speech_end"])) * SR)  # the closing fade never reaches back into the voice

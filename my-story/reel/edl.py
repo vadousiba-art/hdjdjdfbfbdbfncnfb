@@ -25,7 +25,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 PROJECT = sys.argv[1]
 P = HERE.parent / "photos" / PROJECT
 PLAN = json.loads((HERE / PROJECT / "plan.json").read_text())
-GAP, KEEP_BEFORE, KEEP_AFTER = 0.30, 0.12, 0.2
+# how long a pause may stay, and how much air is kept around speech (plan.json can tighten them)
+GAP, KEEP_BEFORE, KEEP_AFTER = PLAN.get("gap", 0.30), PLAN.get("keep_before", 0.12), PLAN.get("keep_after", 0.2)
 HOP = 0.01
 
 

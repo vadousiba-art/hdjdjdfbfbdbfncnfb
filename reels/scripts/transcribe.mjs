@@ -81,12 +81,13 @@ try {
   }
   const sorted = [...rms].sort((a, b) => a - b);
   const quiet = Math.max(300, (sorted[Math.floor(sorted.length * 0.95)] ?? 0) * 0.12);
-  // voice, not a key click: the 50 ms from here on are loud on average
+  // voice, not a key click: the 80 ms from here on are loud on average (clicks are shorter)
+  const WIN = 80;
   const loud = (ms) => {
     const i = Math.floor(ms / 10);
     let e = 0;
-    for (let j = i; j < i + 5; j++) e += rms[j] ?? 0;
-    return e / 5 >= quiet;
+    for (let j = i; j < i + WIN / 10; j++) e += rms[j] ?? 0;
+    return e / (WIN / 10) >= quiet;
   };
 
   // tokens -> words. A token that starts with a space starts a new word; word pieces and
@@ -124,11 +125,25 @@ try {
     // a word never starts before the one ahead of it
     if (i > 0) w.startMs = Math.max(w.startMs, clean[i - 1].startMs);
     w.endMs = Math.max(w.endMs, w.startMs);
+    // a word placed wholly in silence (it happens to the first word after a long quiet lead)
+    // moves to where the voice next comes in, before the word after it
+    let voiced = false;
+    for (let t = w.startMs; t + WIN <= Math.max(w.endMs, w.startMs + WIN) && !voiced; t += 10) voiced = loud(t);
+    if (!voiced) {
+      const limit = clean[i + 1] ? clean[i + 1].startMs : rms.length * 10;
+      let t = w.endMs;
+      while (t + WIN <= limit && !loud(t)) t += 10;
+      if (t + WIN <= limit) {
+        const len = Math.max(w.endMs - w.startMs, 100);
+        w.startMs = t;
+        w.endMs = Math.min(limit, t + len);
+      }
+    }
     // after a pause the alignment hands the silence to one side or the other: move the start
     // forward to where the voice comes in, and the end back to where it stops. Each keeps at
     // least 60 ms of the word, so a word too quiet to measure stays where whisper put it.
     while (w.startMs + 60 <= w.endMs && !loud(w.startMs)) w.startMs += 10;
-    while (w.endMs - 60 >= w.startMs && !loud(w.endMs - 50)) w.endMs -= 10;
+    while (w.endMs - 60 >= w.startMs && !loud(w.endMs - WIN)) w.endMs -= 10;
   }
   const result = clean.map((w) => ({ text: w.text, startMs: Math.round(w.startMs), endMs: Math.round(w.endMs) }));
 

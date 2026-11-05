@@ -43,10 +43,10 @@ relight, no typewriter or italic captions, no kinetic text).
 | **Format** | Vertical 1080×1920, 30 fps, natural light, face centred, a mic in hand or a lav |
 | **Font** | One font: Inter. No italics anywhere. |
 | **Captions** | 1–3 words at a time, white, bold, a soft dark shadow, centred at **68% down** the frame. About 68 px. Time them exactly to the words. |
-| **Caption accent** | At most one word per line: a short **coloured underline** under it (YORU red #E11D48), never a different font. |
-| **Hook text** | Top of the frame (about 12–17% down), 2 lines, medium weight, about 60 px. Either white with a shadow (no background), black text on white boxes, or white text on black boxes, square-ish corners. Stays up during the opening line. |
+| **Caption accent** | At most one word per line: the keyword itself turns **YORU red** (#FF3355, the app's bright red, so it reads on skin), never a different font. No underline, no pill. (Picked in the Brand Lab, 2026-11-05.) |
+| **Hook text** | Top of the frame (about 16% down, inside the grid crop), 2 lines, medium weight, about 60 px. Default: black text on white boxes. Also allowed: white text on black boxes, or white with a shadow (no background). Square-ish corners. Stays up during the opening line. |
 | **Handle** | A small Instagram icon + @yourhandle, right side, about a quarter of the way down. |
-| **Inserts** | **Split screen:** the screenshot / screen recording fills the **top half** on a near-black panel (#141010), **straight, square corners, no outline, not moving.** You stay in the bottom half and keep talking. The caption sits on the line between them. |
+| **Inserts** | **Split screen:** the screenshot / screen recording fills the **top half** on the app's card colour (#121212), **straight, square corners, no outline, not moving.** You stay in the bottom half and keep talking. The caption sits on the line between them. A/B options sit side by side with square red A and B tags. Never a screen full frame. |
 | **Motion graphic** (occasionally) | Full frame or top half, dark background, objects that build or come apart (isometric blocks, a folder filling, a phone layer by layer), labelled with small tags. |
 | **Cuts** | Plain hard cuts. No zooms, flashes, whooshes or transitions. Every pause over 0.1 s removed. |
 | **Sound** | Your voice, clean and loud. Optional quiet music bed or a trending sound added in the app. No sound effects on cuts. |

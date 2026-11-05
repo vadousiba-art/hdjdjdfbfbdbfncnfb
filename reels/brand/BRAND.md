@@ -7,10 +7,24 @@ Pulled from the YORU web app (`src/app/globals.css`, `src/components/ui/Logo.tsx
 
 The **editing rules** stay in `my-story/YORU-STYLE.md` (v2, "unslop": plain cuts,
 TikTok captions, straight inserts, no kinetic text, no end card). This sheet is the
-**look** those rules are drawn in. Where they disagreed, the app wins: v2's caption
-underline (#E11D48) and insert panel (#141010) become YORU red and the app's card colour.
+**look** those rules are drawn in. Where they disagreed, the app won: the insert panel
+(v2's #141010) is the app's card colour, and the caption keyword is YORU red (v2's
+#E11D48 underline was dropped in the Brand Lab).
 
-Status: **draft**. Rate the samples in the Brand Lab; what you keep becomes the default.
+Status: **approved, Brand Lab round 1 (2026-11-05)**, except the two Maybes below. Lab
+samples live in `src/brand-lab/` (`BrandLab01`..`20`); build from the kept ones.
+
+| Brand Lab sample | Call | What it means |
+| --- | --- | --- |
+| 02 App cards | **Keep** ("I like the simplistic animation") | the default way to build graphics |
+| 04 Hook: white boxes | **Keep** ("I really like this") | the default hook |
+| 05 Hook: black boxes, 06 Hook: plain white | Keep | hook options |
+| 08 Red word | Keep | the default caption |
+| 11 Split screen, 12 A/B pair | Keep | the insert layouts |
+| 14 Ping, 15 Midnight unlock, 16 Reactions, 17 Same reach, 18 Countdown | Keep | approved motion graphics |
+| 19 Corner handle, 20 Keyword CTA | Keep | in every video (handle still needed) |
+| 03 Red flood, 09 Classic outline | Maybe | to rework, no note yet |
+| 01 Night (red crescent), 07 Underline, 10 Red pill, 13 Full-screen app | **Drop** | never use |
 
 ## Colour
 
@@ -60,18 +74,20 @@ is not a video look.
   animate the wordmark (rule 4). No end card (rule 8), so the logo appears inside a
   graphic or not at all.
 
-## Captions (default from the v2 rules)
+## Captions
 
 Inter 800, about 66 px, white, a soft dark shadow and a thin dark edge, 1-3 words at a
 time, centred at 68% down (on the seam between halves during a split). One keyword per
-caption, marked in YORU red. Treatments in the Brand Lab: underline (v2 default), red
-word, classic outline, red pill.
+caption at most, and it turns red: `redBright` #FF3355 (brighter than the brand red so
+it reads on skin). Lowercase except names, letters and numbers ("YORU", "A", "17").
+
+Not used: the underline and the red pill (dropped). The thick black outline is a Maybe.
 
 ## Hooks
 
 Top of frame, about 16% down (inside the Instagram grid crop, which starts at y285),
-2 lines, Inter 600 at about 60 px. Default: black text on white boxes. Options: white on
-black boxes, plain white with a shadow.
+2 lines, Inter 600 at about 60 px. Default: black text on white boxes. Options (all
+kept): white on black boxes, plain white with a shadow.
 
 ## Inserts and layouts
 
@@ -79,12 +95,14 @@ black boxes, plain white with a shadow.
   on `card` (#121212). Speaker in the bottom half, face centred. Caption on the seam.
 - A/B pairs: two screens side by side, tagged A and B in square YORU-red tags.
 - Real YORU screens only (`public/brand/screens/`, captured from the app).
+- Never a screen full frame over the speaker (dropped).
 
 ## Motifs
 
 Things that make every video feel like the same channel:
 
-- **The crescent moon** from the logo's O, glowing red on the night ground.
+- **App cards** (the default for graphics): `card` panels with hairline edges on the night
+  ground, sliding up into place one after another, simply. Nothing flashy.
 - **Notification cards**: app-style `card` rows with the red 夜 app icon ("YORU · now").
 - **Midnight**: `00:00`, the feed that opens at midnight.
 - **Night streaks and XP**: the "1 night" chip and the level bar (`Lv 4 · Night Owl`).
@@ -92,7 +110,11 @@ Things that make every video feel like the same channel:
 - Slogan: **the night is for everyone**.
 
 Motion graphics stay structural (blocks, cards, a lock, a counter) on the night ground,
-used occasionally (rule 6), with small tags as labels.
+used occasionally (rule 6), with small tags as labels. Approved: the ping cascade, the
+midnight unlock, the reaction picker, the equal-reach stacks and the countdown.
+
+Not used: the glowing red crescent as a graphic (dropped). The crescent stays in the logo.
+A full red ground is a Maybe.
 
 ## Sound
 

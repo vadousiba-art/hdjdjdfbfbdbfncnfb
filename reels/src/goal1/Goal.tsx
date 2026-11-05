@@ -82,7 +82,7 @@ const Counter: React.FC<{ stage: "now" | "goal"; since: number }> = ({ stage, si
 const Count: React.FC<{ n: number; red?: boolean }> = ({ n, red }) => (
   <div style={{ position: "absolute", inset: 0, background: C.night, fontFamily: FONT, color: C.ink }}>
     <div style={{ position: "absolute", top: 150, width: W, textAlign: "center", fontWeight: 900, fontSize: 380, lineHeight: 1, letterSpacing: "-0.04em", color: red ? C.red : C.ink, fontVariantNumeric: "tabular-nums", textShadow: red ? "0 0 80px rgba(242,13,47,0.5)" : "none" }}>{n}</div>
-    <div style={{ position: "absolute", top: 570, width: W, textAlign: "center", fontWeight: 800, fontSize: 50, color: red ? C.ink : C.muted }}>days left in November</div>
+    <div style={{ position: "absolute", top: 570, width: W, textAlign: "center", fontWeight: 800, fontSize: 50, color: red ? C.ink : C.muted }}>{red ? "days left in November" : "days?"}</div>
   </div>
 );
 

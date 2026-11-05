@@ -142,7 +142,7 @@ def build(version):
         g = PLAN["clips"].get(clip, {}).get("gamma", 1)
         d = (ef - sf) / FPS
         chains.append(f"[{k}:v]trim=start_frame={sf}:end_frame={ef},setpts=PTS-STARTPTS,"
-                      f"eq=gamma={g}:contrast=1.04:saturation=1.06,hqdn3d=1.5:1.5:6:6[v{k}]")
+                      f"eq=gamma={g}:contrast=1.14:brightness=-0.02:saturation=1.12,hqdn3d=1.5:1.5:6:6[v{k}]")
         chains.append(f"[{k}:a]atrim=start={sf / FPS:.6f}:end={ef / FPS:.6f},asetpts=PTS-STARTPTS,"
                       f"afade=t=in:d=0.006,afade=t=out:st={max(0, d - 0.006):.6f}:d=0.006[a{k}]")
         cat.append(f"[v{k}][a{k}]")

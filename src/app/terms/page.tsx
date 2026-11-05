@@ -128,12 +128,20 @@ export default function TermsPage() {
                 wrong, contact us through the <Link href="/support">support page</Link>.
               </li>
             </>
-          ) : (
-            <li>
-              <b>Pro isn&apos;t for sale yet.</b> YORU Pro is an optional membership that is still being prepared. Purchases are not open, so nobody
-              can be charged for it today. Any price we mention is a plan, not an offer.
-            </li>
-          )}
+          ) : null}
+          <li>
+            <b>Pro by Interac e-Transfer.</b> Each e-Transfer for the amount shown at checkout (CAD $5.99, less the few cents that identify your
+            payment) adds one month of Pro. It starts when we confirm the payment, usually within a day, or when your current month of Pro ends.
+            Nothing renews automatically, so there is nothing to cancel.
+          </li>
+          <li>
+            <b>Sending it.</b> Send the exact amount to the email shown at checkout, with your reference code in the message. If we can&apos;t find
+            your payment, we&apos;ll tell you in the app; contact us through the <Link href="/support">support page</Link> with your reference code.
+            Payments aren&apos;t refunded for a partly used month unless the law where you live says otherwise.
+          </li>
+          <li>
+            <b>Donations.</b> Donations are voluntary gifts to support YORU. They don&apos;t buy anything in the app.
+          </li>
           <li>
             <b>Testing access.</b> Admins may give some members Pro for free so they can test it. Testing access costs nothing, can end at any time,
             and doesn&apos;t create any right to keep Pro or to a future price.

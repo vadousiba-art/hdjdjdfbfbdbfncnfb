@@ -333,6 +333,19 @@ export const RPC_SCHEMAS = {
   nw_get_config: none,
   nw_set_config: z.object({ p: z.record(z.string(), z.unknown()) }),
   nw_test: z.object({ p_text: z.string().min(1).max(2000) }),
+
+  // Pro and donations by Interac e-Transfer (migration 0016)
+  etransfer_config: none,
+  etransfer_start: z.object({ p_kind: z.enum(["pro", "donation"]), p_amount_cents: z.number().int().min(200).max(50000).nullable().optional() }),
+  etransfer_mark_sent: z.object({ p_id: id, p_sender_name: text(80).optional() }),
+  etransfer_cancel: z.object({ p_id: id }),
+  etransfer_my_orders: none,
+  etransfer_admin_orders: z.object({ p_since: ts }),
+  etransfer_confirm: z.object({ p_ids: z.array(id).min(1).max(100), p_day: day.nullable().optional() }),
+  etransfer_reject: z.object({ p_id: id, p_note: text(200).optional() }),
+  etransfer_undo: z.object({ p_id: id }),
+  etransfer_set_day: z.object({ p_day: day, p_total_cents: z.number().int().min(0).max(10_000_000), p_note: text(200).optional() }),
+  etransfer_days: z.object({ p_limit: z.number().int().min(1).max(366).optional() }),
 } as const;
 
 export type RpcName = keyof typeof RPC_SCHEMAS;
@@ -356,4 +369,5 @@ export const READ_RPCS: ReadonlySet<RpcName> = new Set<RpcName>([
   "pro_universe_version", "pro_get_drafts", "get_creator_analytics", "get_feed_preset", "get_hub", "get_collection_page",
   "night_watch_version", "get_watch", "get_interest_feed", "get_my_standing", "nw_dashboard", "nw_queue", "nw_appeals",
   "nw_member_file", "nw_get_config", "nw_test",
+  "etransfer_config", "etransfer_my_orders", "etransfer_admin_orders", "etransfer_days",
 ]);

@@ -191,6 +191,13 @@ export default function PrivacyPage() {
         </p>
 
         <h2>5. Payments</h2>
+        <p>
+          YORU Pro and donations are paid by Interac e-Transfer from your own bank to the YORU email shown at checkout. YORU never sees your bank
+          account, card or bank login. For each payment YORU keeps the amount, a reference code, when you started and sent it, whether it was
+          confirmed, and the name on your bank account if you choose to type it in. The owner matches these with the e-Transfers that arrive (the
+          amount, the sender&apos;s name and the message your bank sends with it) to switch Pro on. Payment records are kept for bookkeeping; if you
+          delete your account they stay without your account or name attached. Some members also get Pro for free from an admin.
+        </p>
         {paypal ? (
           <p>
             YORU Pro is a monthly subscription paid through PayPal. You pay in PayPal&apos;s own window, and PayPal handles your card, bank or
@@ -198,13 +205,7 @@ export default function PrivacyPage() {
             needs to run the subscription: the subscription id, its plan and status, the next billing date, and records of PayPal&apos;s billing
             events (what happened and when, not your name, email or card). Some members also get Pro for free from an admin.
           </p>
-        ) : (
-          <p>
-            YORU Pro can&apos;t be bought yet, and YORU doesn&apos;t collect any payment or card information. Members who test Pro get it for free
-            from an admin. If paid Pro opens later, we&apos;ll name the payment provider and update this policy before any payment is taken. Card
-            details would be handled by that provider, not stored by YORU.
-          </p>
-        )}
+        ) : null}
 
         <h2>6. Service providers</h2>
         <p>We don&apos;t sell or rent personal information. We share it only with providers that run YORU for us, under their own security and privacy terms:</p>

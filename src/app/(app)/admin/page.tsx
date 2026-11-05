@@ -27,8 +27,10 @@ import { NwQueue } from "@/components/admin/watchtower/Queue";
 import { NwAppeals } from "@/components/admin/watchtower/Appeals";
 import { NwRules } from "@/components/admin/watchtower/Rules";
 import { NwMembers } from "@/components/admin/watchtower/MemberFile";
+import { AdminPayments } from "@/components/admin/Payments";
+import { useETransfer } from "@/lib/client/etransfer";
 
-type Tab = "nw" | "queue" | "appeals" | "people" | "rules" | "overview" | "controls" | "members" | "invites" | "reports" | "creators" | "pro" | "inbox" | "log";
+type Tab = "nw" | "queue" | "appeals" | "people" | "rules" | "overview" | "controls" | "members" | "invites" | "reports" | "creators" | "pro" | "payments" | "inbox" | "log";
 type ReportFlag = { category: string; escalated: boolean; same_target: number };
 
 export default function AdminPage() {
@@ -49,6 +51,9 @@ export default function AdminPage() {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const { available: gates } = useOpenGates();
+  // e-Transfer payments (migration 0016): the owner's money, so the owner's tab
+  const { available: payments } = useETransfer();
+  const showPayments = payments && me.role === "owner";
   const { data: flags, mutate: mutateFlags } = useRpc<Record<string, ReportFlag>>(gates && isAdmin ? "admin_report_flags" : null);
 
   if (!isStaff(me.role)) return <Empty text="Watchtower is for the YORU team." />;
@@ -148,6 +153,7 @@ export default function AdminPage() {
             ["invites", "Invites"],
             ["reports", `Reports${openReports ? ` (${openReports})` : ""}`],
             ...(gates ? ([["creators", "Creators"], ["pro", "Pro"]] as const) : []),
+            ...(showPayments ? ([["payments", "Payments"]] as const) : []),
             ["inbox", "Support"],
             ["log", "Audit log"],
           ] as const
@@ -389,6 +395,7 @@ export default function AdminPage() {
       )}
       {tab === "creators" && gates && <AdminCreators />}
       {tab === "pro" && gates && <AdminPro members={data.members} />}
+      {tab === "payments" && showPayments && <AdminPayments />}
       <MemberToolsDialog
         key={tools?.id ?? "none"}
         member={tools}

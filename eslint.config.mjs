@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "promo-03/**",
     // Welcome film project (capture, canvas composition, render scripts).
     "welcome/**",
+    // Remotion reel project (its own package, lint and tsconfig).
+    "reels/**",
   ]),
 ]);
 

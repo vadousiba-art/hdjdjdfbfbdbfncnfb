@@ -1,0 +1,23 @@
+node_modules
+dist
+.DS_Store
+.env
+
+
+# whisper.cpp source, build and models: re-create with `npm run setup:whisper`
+/bin/
+
+# Footage and media stay on this machine (personal recordings, licensed packs).
+# The folders are kept with .gitkeep files.
+/public/recordings/*
+/public/screen-recordings/*
+/public/images/*
+/public/sound pack/*
+/public/music pack/*
+/out/*
+!/public/**/.gitkeep
+!/out/.gitkeep
+
+# HyperFrames asset projects: keep the source, not installs or renders
+/hyperframes/**/node_modules
+/hyperframes/**/renders

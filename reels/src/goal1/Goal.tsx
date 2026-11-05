@@ -17,7 +17,7 @@ const when = (e: Edit, at: At): number | null => {
 };
 
 
-type Caption = { text: string; key?: string; s: number; e: number };
+type Caption = { text: string; key?: string; s: number; e: number; segEnd: number };
 const captionsOf = (e: Edit): Caption[] => {
   const out: Caption[] = [];
   // walk the segments in output order so a clip used twice is captioned where it plays
@@ -26,10 +26,12 @@ const captionsOf = (e: Edit): Caption[] => {
     const k = `${s.seg}`;
     if (seen.has(k)) continue;
     seen.add(k);
+    // a caption never outlives its take: it ends at the take's last frame
+    const segEnd = Math.max(...e.segments.filter((x) => x.seg === s.seg).map((x) => x.outEndMs));
     for (const [from, to, text, key] of LINES[s.clip] ?? []) {
       const a = e.words.find((w) => w.seg === s.seg && w.i === from);
       const b = e.words.find((w) => w.seg === s.seg && w.i === to);
-      if (a && b) out.push({ text, key, s: a.startMs, e: b.endMs });
+      if (a && b) out.push({ text, key, s: a.startMs, e: b.endMs, segEnd });
     }
   }
   return out.sort((x, y) => x.s - y.s);
@@ -122,7 +124,7 @@ const Reel: React.FC<Props> = ({ version, edit }) => {
   const caps = captionsOf(edit);
   const cap = caps.find((c, k) => {
     const next = caps[k + 1];
-    const end = next ? Math.min(next.s - 20, next.s - c.e < 250 ? next.s : c.e + 100) : c.e + 300;
+    const end = Math.min(c.segEnd, next ? Math.min(next.s - 20, next.s - c.e < 250 ? next.s : c.e + 100) : c.e + 300);
     return ms >= c.s - 20 && ms < end;
   });
   const brolls = timed.filter((x) => x.e.type === "broll");

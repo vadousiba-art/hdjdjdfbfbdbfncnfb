@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalDoc, PublicShell } from "@/components/public/PublicShell";
 import { LEGAL_UPDATED } from "@/lib/support";
-import { paypalConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
-  const paypal = paypalConfig().enabled;
   return (
     <PublicShell>
       <LegalDoc title="Terms of Service" updated={LEGAL_UPDATED}>
@@ -112,23 +110,6 @@ export default function TermsPage() {
 
         <h2>9. YORU Pro and profile cosmetics</h2>
         <ul>
-          {paypal ? (
-            <>
-              <li>
-                <b>Paid Pro is a monthly subscription through PayPal.</b> PayPal shows the price, currency, any tax and the billing period before you
-                confirm, and that is what you agree to pay. The subscription renews every month until you cancel. Payments are handled by PayPal under
-                its own terms.
-              </li>
-              <li>
-                <b>Cancelling.</b> Cancel any time in your PayPal account (Settings → Payments → Automatic payments). You keep Pro until the end of the
-                month you already paid for; nothing renews after that. If a payment fails, is refunded or is reversed, Pro ends.
-              </li>
-              <li>
-                <b>Refunds.</b> Payments aren&apos;t refunded for a partly used month unless the law where you live says otherwise. If something went
-                wrong, contact us through the <Link href="/support">support page</Link>.
-              </li>
-            </>
-          ) : null}
           <li>
             <b>Pro by Interac e-Transfer.</b> Each e-Transfer for the amount shown at checkout (CAD $5.99, less the few cents that identify your
             payment) adds one month of Pro. It starts when we confirm the payment, usually within a day, or when your current month of Pro ends.
@@ -140,23 +121,16 @@ export default function TermsPage() {
             Payments aren&apos;t refunded for a partly used month unless the law where you live says otherwise.
           </li>
           <li>
-            <b>Donations.</b> Donations are voluntary gifts to support YORU. They don&apos;t buy anything in the app.
+            <b>Donations.</b> Donations (CAD $2 to $500, sent the same way) are voluntary gifts to support YORU. They don&apos;t buy anything in the app.
           </li>
           <li>
             <b>Testing access.</b> Admins may give some members Pro for free so they can test it. Testing access costs nothing, can end at any time,
             and doesn&apos;t create any right to keep Pro or to a future price.
           </li>
-          {paypal ? (
-            <li>
-              <b>Changes.</b> If the price or the terms of Pro change, we&apos;ll tell subscribers before the change applies to them, and you can
-              cancel before then. Your rights under consumer protection law always apply.
-            </li>
-          ) : (
-            <li>
-              <b>If we open paid Pro later,</b> we&apos;ll show the price, billing period, renewal and cancellation terms, and the payment provider
-              before you pay, and we&apos;ll update these Terms first. Your rights under consumer protection law will apply.
-            </li>
-          )}
+          <li>
+            <b>Changes.</b> If the price or the terms of Pro change, we&apos;ll update these Terms and show the new price at checkout before you pay.
+            A change never affects months you&apos;ve already paid for. Your rights under consumer protection law always apply.
+          </li>
           <li>
             <b>Cosmetics are a license, not property.</b> Rings, banners, nameplates, badges, themes and other cosmetics are a personal,
             non-transferable right to use them on YORU. They have no cash value and can&apos;t be sold, traded or exchanged. Rarity labels are

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalDoc, PublicShell } from "@/components/public/PublicShell";
 import { LEGAL_UPDATED, supportEmail } from "@/lib/support";
-import { paypalConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
-  const paypal = paypalConfig().enabled;
   const email = supportEmail();
   return (
     <PublicShell>
@@ -198,14 +196,6 @@ export default function PrivacyPage() {
           amount, the sender&apos;s name and the message your bank sends with it) to switch Pro on. Payment records are kept for bookkeeping; if you
           delete your account they stay without your account or name attached. Some members also get Pro for free from an admin.
         </p>
-        {paypal ? (
-          <p>
-            YORU Pro is a monthly subscription paid through PayPal. You pay in PayPal&apos;s own window, and PayPal handles your card, bank or
-            balance under its own privacy statement; YORU never receives or stores your payment details. From PayPal, YORU keeps only what it
-            needs to run the subscription: the subscription id, its plan and status, the next billing date, and records of PayPal&apos;s billing
-            events (what happened and when, not your name, email or card). Some members also get Pro for free from an admin.
-          </p>
-        ) : null}
 
         <h2>6. Service providers</h2>
         <p>We don&apos;t sell or rent personal information. We share it only with providers that run YORU for us, under their own security and privacy terms:</p>
@@ -223,13 +213,11 @@ export default function PrivacyPage() {
               <td>Database, sign-in and file storage</td>
               <td>Account details, profile, content, uploads, messages</td>
             </tr>
-            {paypal && (
-              <tr>
-                <td>PayPal</td>
-                <td>YORU Pro subscription payments (only if you subscribe)</td>
-                <td>Your payment details stay with PayPal; YORU gets the subscription id, status and billing dates</td>
-              </tr>
-            )}
+            <tr>
+              <td>Interac e-Transfer and Gmail</td>
+              <td>Pro payments and donations, through your bank and YORU&apos;s (only if you pay or donate)</td>
+              <td>The amount, your name as your bank shows it and your message; the deposit notice arrives in YORU&apos;s Gmail inbox</td>
+            </tr>
             <tr>
               <td>Vercel</td>
               <td>Website and app hosting</td>

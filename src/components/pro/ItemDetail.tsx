@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePayPalBilling } from "@/components/pro/PayPalSubscribe";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, Heart, Lock, RotateCcw } from "lucide-react";
@@ -33,7 +32,6 @@ function whereUsed(i: Item): { href: string; label: string } | null {
 }
 
 export function ItemDetail({ i, onClose }: { i: Item | null; onClose: () => void }) {
-  const billing = usePayPalBilling();
   const { data: me } = useMyPro();
   const { me: profile } = useShell();
   const { toast, toastError } = useApp();
@@ -119,7 +117,7 @@ export function ItemDetail({ i, onClose }: { i: Item | null; onClose: () => void
       {!owned && i.unlock === "pro" && (
         <p className="mt-3 rounded-xl border border-line bg-card-2 p-3 text-xs text-ink-2">
           Trying on shows it only to you, in this tab. It doesn&apos;t unlock or save anything.{" "}
-          {billing?.enabled ? <>Get it with <a href="/pro#membership" className="font-bold text-brand">YORU Pro</a>.</> : "YORU Pro purchases aren't open yet."}
+          Get it with <a href="/pro/checkout" className="font-bold text-brand">YORU Pro</a>.
         </p>
       )}
     </Modal>

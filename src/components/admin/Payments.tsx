@@ -50,6 +50,11 @@ export function AdminPayments() {
   const byId = new Map(orders.map((o) => [o.id, o]));
   const allWaiting = orders.filter((o) => o.status === "open" || o.status === "sent");
   const decided = orders.filter((o) => o.status === "confirmed" || o.status === "rejected");
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const thisMonth = orders.filter((o) => o.status === "confirmed" && o.decided_at && Date.parse(o.decided_at) >= monthStart);
+  const sumOf = (list: AdminOrder[]) => list.reduce((s, o) => s + o.amount_cents, 0);
+  const proMonth = thisMonth.filter((o) => o.kind === "pro");
+  const donMonth = thisMonth.filter((o) => o.kind === "donation");
 
   async function run(fn: string, args: Record<string, unknown>, msg: string) {
     setBusy(true);
@@ -68,6 +73,19 @@ export function AdminPayments() {
 
   return (
     <div className="space-y-4">
+      <section className="grid grid-cols-3 gap-2">
+        {[
+          ["Waiting", String(allWaiting.length), dollars(sumOf(allWaiting))],
+          ["Pro this month", String(proMonth.length), dollars(sumOf(proMonth))],
+          ["Donations this month", dollars(sumOf(donMonth)), `${donMonth.length} donation${donMonth.length === 1 ? "" : "s"}`],
+        ].map(([label, value, sub]) => (
+          <div key={label} className="card px-3 py-3">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{label}</div>
+            <div className="text-2xl font-black tabular-nums">{value}</div>
+            <div className="text-xs text-muted tabular-nums">{sub}</div>
+          </div>
+        ))}
+      </section>
       <section className="card space-y-3 p-4">
         <div className="flex items-center gap-2">
           <Landmark size={18} className="text-brand" />

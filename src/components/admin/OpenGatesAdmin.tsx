@@ -101,8 +101,8 @@ export function AdminPro({ members }: { members: ProfileLite[] }) {
   return (
     <div className="space-y-3">
       <div className="card p-3 text-xs text-muted">
-        Paid Pro runs through PayPal once PAYPAL_CLIENT_SECRET and PAYPAL_WEBHOOK_ID are set on the server (see docs/billing.md); until then nobody
-        can buy it. Complimentary grants here are for testing and early supporters; each one is recorded in the audit log.
+        Members buy Pro by Interac e-Transfer; the owner confirms those payments in the Payments tab. Complimentary grants here are for testing and
+        early supporters; each one is recorded in the audit log.
       </div>
       <form
         className="card flex flex-wrap items-end gap-2 p-3"

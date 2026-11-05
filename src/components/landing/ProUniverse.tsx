@@ -13,10 +13,9 @@ import { BannerArt } from "@/components/pro/art/Banner";
 import { Nameplate } from "@/components/pro/art/Marks";
 import { ProfileMock } from "@/components/pro/ui";
 import { sfx } from "./sfx";
-import { usePayPalBilling } from "@/components/pro/PayPalSubscribe";
 
 // The public showcase for the YORU Pro Universe. Everything on screen is the
-// real renderer members use in the app. Honest about Pro: purchases aren't open.
+// real renderer members use in the app. Pro is paid by Interac e-Transfer.
 
 const LOOKS = SETS.filter((s) => s.look);
 const RING_PICKS = ["ring.crimson_eclipse", "ring.neon_circuit", "ring.holographic_prism", "ring.digital_rain", "ring.obsidian_crown", "ring.infinite_night"];
@@ -33,7 +32,6 @@ const TOOLS = [
 ];
 
 export function ProUniverse() {
-  const billing = usePayPalBilling();
   const [n, setN] = useState(0);
   const [auto, setAuto] = useState(true);
   useEffect(() => {
@@ -131,17 +129,8 @@ export function ProUniverse() {
 
         <div className="mx-auto mt-10 max-w-2xl rounded-3xl border border-line bg-card/90 p-5 text-center">
           <p className="text-sm text-ink-2">
-            {billing?.enabled ? (
-              <>
-                <b className="text-ink">YORU Pro is open.</b> It&apos;s a monthly subscription through PayPal, which shows the exact price before you
-                confirm, and you can cancel any time.
-              </>
-            ) : (
-              <>
-                <b className="text-ink">YORU Pro is coming soon.</b> Purchases aren&apos;t open yet, so nobody can be charged. The intended price is
-                CA$5.99 a month and isn&apos;t confirmed.
-              </>
-            )}{" "}
+            <b className="text-ink">YORU Pro is open.</b> It&apos;s CA$5.99 for a month, paid by Interac e-Transfer from your own bank, and nothing
+            renews by itself.{" "}
             Posting, chatting, privacy tools and the free cosmetics stay free for everyone, and Pro never changes who sees your posts.
           </p>
           <Link href="/join" onClick={() => sfx.click()} className="mt-4 inline-flex rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-2">

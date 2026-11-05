@@ -6,11 +6,19 @@ export const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Is it free?",
-    a: "Yes. YORU is free, with no ads. Posting, chatting, privacy tools and a set of profile cosmetics are free for everyone. YORU Pro, an optional membership, is coming soon but can't be bought yet, so nobody is charged.",
+    a: "Yes. YORU is free, with no ads. Posting, chatting, privacy tools and a set of profile cosmetics are free for everyone. YORU Pro is an optional membership; you only pay if you choose it.",
   },
   {
     q: "What is YORU Pro?",
-    a: "An optional membership with extra animated cosmetics (rings, banners, nameplates, badges, themes and effects) and more room in creator tools: up to 200 drafts and 50 scheduled posts (instead of 20 and 3), plus extra planner templates and analytics dashboards. Purchases aren't open yet. The intended price is CA$5.99 a month and isn't confirmed. Some members are testing Pro for free. Pro never changes who sees your posts.",
+    a: "An optional membership with extra animated cosmetics (rings, banners, nameplates, badges, themes and effects) and more room in creator tools: up to 200 drafts and 50 scheduled posts (instead of 20 and 3), plus extra planner templates and analytics dashboards. It costs CA$5.99 for one month, paid by Interac e-Transfer from the Pro page. Nothing renews by itself: each payment adds a month, and Pro switches on once the payment is confirmed, usually within a day. Pro never changes who sees your posts.",
+  },
+  {
+    q: "How do I pay for Pro?",
+    a: "On the Pro page, tap Pay by e-Transfer. You get an exact amount (a few cents under CA$5.99, so we can tell your payment apart) and a reference code. Send that amount by Interac e-Transfer from your bank to nextyoru@gmail.com with the code in the message, then tap I've sent it. Pro switches on once the payment is confirmed and you get a notification. YORU never sees your bank details.",
+  },
+  {
+    q: "Can I donate?",
+    a: "Yes, thank you! On the Pro page, Support YORU lets you send any amount from CA$2 to CA$500 by Interac e-Transfer. A donation is a thank-you and doesn't buy anything in the app.",
   },
   {
     q: "Can I try cosmetics before using them?",

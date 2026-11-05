@@ -111,7 +111,7 @@ the day before Day 1, so people already know about #roastme.
 | 4 | "Today I found out who my first real user is." (with their OK) |
 | 5 | "Today I'm asking my mom to try it for the first time." (if she's in) |
 | 6 | "Here's how much it costs to run an app: ___." (the real hosting bill) |
-|  | Don't say people can pay for Pro until PayPal is switched on. |
+|  | Pro is paid by Interac e-Transfer (CA$5.99 for a month, nothing renews). Never mention PayPal or cards. |
 | 7 | "One week. Here's everything that changed." (fast montage of the week) |
 
 Day 2 closes the loop on Day 1's question. That makes people come back.

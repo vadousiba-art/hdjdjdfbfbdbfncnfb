@@ -12,7 +12,6 @@ import { CATALOG, ITEM_BY_ID, STAFF, hubViews } from "@/lib/pro/catalog";
 import { SETS } from "@/lib/pro/sets";
 import { CATEGORIES, SLOTS, type Item, type Slot } from "@/lib/pro/types";
 import { equip, equipped, ownsItem, recentlyViewed, resetLook, saveProSettings, useMyPro, useProUniverse } from "@/lib/client/pro";
-import { usePayPalBilling } from "@/components/pro/PayPalSubscribe";
 import { playSound } from "@/lib/client/pro-fx";
 import type { SoundP } from "@/lib/pro/catalog";
 import { ItemCard } from "@/components/pro/ItemCard";
@@ -63,8 +62,6 @@ function Hub() {
   const { t, formatDate } = useI18n();
   const { available } = useProUniverse();
   const { data: me, isLoading } = useMyPro();
-  const billing = usePayPalBilling();
-  const live = Boolean(billing?.enabled);
   const { data: themes } = useRpc<{ id: string; name: string; accent_hue: number; theme: string }[]>("get_my_themes");
   const { toast, toastError } = useApp();
   const [open, setOpen] = useState<Item | null>(null);
@@ -251,7 +248,7 @@ function Hub() {
               const ex = items.filter((i) => i.status === "experimental").length;
               return <tr key={c} className="border-t border-line"><td className="py-1">{CAT_LABEL[c].name}</td><td>{items.length}</td><td>{ex ? `Available (${ex} experimental)` : "Available"}</td></tr>;
             })}
-            <tr className="border-t border-line"><td className="py-1">Checkout and billing</td><td>–</td><td>{live ? "Available (PayPal)" : "In development"}</td></tr>
+            <tr className="border-t border-line"><td className="py-1">Checkout and billing</td><td>–</td><td>Available (Interac e-Transfer)</td></tr>
           </tbody>
         </table>
       </View>
@@ -260,26 +257,28 @@ function Hub() {
         <p className="text-sm">
           <b>{statusText}</b>
           {m.pro && (until ? ` until ${until}` : " with no end date")}
-          {m.status === "comp" && (live ? ". Granted by the YORU team." : ". Granted by the YORU team while purchases aren't open.")}
+          {m.status === "comp" && ". Granted by the YORU team."}
           {m.status === "expired" && ". Your Pro items are paused, not deleted, and come back if Pro is renewed."}
         </p>
       </View>
 
       <View id="hubview.billing_information">
-        {m.source === "paypal" && m.pro ? (
-          <p className="text-sm text-ink-2">{t("pro.manage")}</p>
-        ) : live ? (
+        {m.source === "etransfer" && m.pro ? (
           <p className="text-sm text-ink-2">
-            No subscription on this account. {t("pro.price")}: {t("pro.priceLive")} <Link href="/pro#membership" className="font-bold text-brand">Subscribe</Link>
+            Paid by Interac e-Transfer{until ? `, so Pro runs until ${until}` : ""}. Nothing renews by itself and no payment details are stored.{" "}
+            <Link href="/pro/checkout" className="font-bold text-brand">Add a month</Link>
           </p>
         ) : (
-          <p className="text-sm text-ink-2">No payment method is on file and billing isn&apos;t connected, so nobody can be charged. {t("pro.price")}: {t("pro.priceNote")}</p>
+          <p className="text-sm text-ink-2">
+            No payment details are stored on YORU. {t("pro.price")}, paid by Interac e-Transfer from your own bank; each payment adds one month.{" "}
+            <Link href="/pro/checkout" className="font-bold text-brand">{m.pro ? "Add a month" : "Get Pro"}</Link>
+          </p>
         )}
       </View>
 
       <View id="hubview.cancellation_guidance">
         <ul className="list-disc space-y-1 ps-5 text-sm text-ink-2">
-          <li>{t(live ? "pro.termsLive" : "pro.terms")}</li>
+          <li>Nothing renews by itself, so there&apos;s nothing to cancel: Pro simply ends when the months you paid for run out. Pay again any time to add a month.</li>
           <li>Equipped Pro items switch back to the defaults; your choices are remembered if you come back.</li>
           <li>Drafts, scheduled posts, collections and earned milestones are never deleted. Free limits apply to new drafts and schedules.</li>
         </ul>

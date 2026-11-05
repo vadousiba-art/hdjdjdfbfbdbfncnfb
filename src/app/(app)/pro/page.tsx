@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { ArrowRight, Check, Clock, FlaskConical, Moon, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Clock, FlaskConical, Heart, Moon, Sparkles } from "lucide-react";
 import { useIdentity } from "@/lib/client/gates";
 import { useI18n } from "@/components/providers/I18nProvider";
 import { useShell } from "@/components/shell/AppShell";
@@ -11,12 +11,12 @@ import { Gate } from "@/components/yoru/Gate";
 import { BY_CATEGORY, CATALOG, ITEM_BY_ID, banners, rings, type BannerP } from "@/lib/pro/catalog";
 import { SETS } from "@/lib/pro/sets";
 import { CATEGORIES } from "@/lib/pro/types";
-import { reducedMotion, tryOn, useMyPro, useTryOn } from "@/lib/client/pro";
+import { reducedMotion, tryOn, useTryOn } from "@/lib/client/pro";
 import { BannerArt } from "@/components/pro/art/Banner";
 import { CAT_LABEL, ProfileMock, useLookWithTryOn } from "@/components/pro/ui";
-import { PayPalSubscribe, usePayPalBilling } from "@/components/pro/PayPalSubscribe";
-import { DonateETransfer, ProETransfer } from "@/components/pro/ETransferCheckout";
-import { useETransfer } from "@/lib/client/etransfer";
+import { roundDollars } from "@/components/pro/ETransferCheckout";
+import { useETransfer, useMyETransfers } from "@/lib/client/etransfer";
+import { dollars } from "@/lib/billing/etransfer";
 import type { MessageKey } from "@/lib/i18n/messages/en";
 
 const BENEFITS: MessageKey[] = ["pro.b.cosmetics", "pro.b.themes", "pro.b.badge", "pro.b.shield", "pro.b.early"];
@@ -31,7 +31,7 @@ export default function ProPage() {
   );
 }
 
-function Hero() {
+function Hero({ isPro }: { isPro: boolean }) {
   const { me } = useShell();
   const [n, setN] = useState(0);
   const [auto, setAuto] = useState(true);
@@ -59,12 +59,12 @@ function Hero() {
             Four hundred ways to make YORU look like you: rings, banners, nameplates, themes, effects and the tools to go with them. The social part stays free for everyone.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/pro/shop" className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-2">
-              Explore YORU Pro <ArrowRight size={16} />
+            <Link href="/pro/checkout" className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-2">
+              {isPro ? "Add a month" : "Get Pro"} <ArrowRight size={16} />
             </Link>
-            <a href="#try" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10">
-              Preview the cosmetics
-            </a>
+            <Link href="/pro/shop" className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/10">
+              Explore the catalog
+            </Link>
           </div>
         </div>
         <div className="min-w-0">
@@ -154,12 +154,11 @@ function Picker({ label, items, active, onPick }: { label: string; items: { id: 
 function Landing() {
   const { t, formatDate } = useI18n();
   const { data: id } = useIdentity();
-  const { data: mine } = useMyPro();
-  const billing = usePayPalBilling();
-  const live = Boolean(billing?.enabled);
   // Interac e-Transfer checkout (migration 0016): one month per payment, confirmed by the owner
   const et = useETransfer();
   const etCfg = et.available ? et.config : undefined;
+  const { data: orders } = useMyETransfers(et.available);
+  const waitingPro = orders?.find((o) => o.kind === "pro" && (o.status === "open" || o.status === "sent"));
   const until = id?.pro_until && id.pro_until !== "infinity" ? id.pro_until : null;
   const free = CATALOG.filter((i) => i.unlock === "free").length;
   const earned = CATALOG.filter((i) => i.unlock.startsWith("milestone:")).length;
@@ -167,7 +166,7 @@ function Landing() {
 
   return (
     <div className="space-y-4">
-      <Hero />
+      <Hero isPro={Boolean(id?.pro)} />
 
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {[["400", "items"], ["20", "systems"], [String(SETS.length), "collections"], [String(free), "free for everyone"]].map(([n, l]) => (
@@ -223,43 +222,46 @@ function Landing() {
         </div>
       </section>
 
-      <section id="membership" className="card overflow-hidden">
-        <div className="flex flex-wrap items-end justify-between gap-3 p-5">
-          <div>
-            <h2 className="text-lg font-black">Membership</h2>
-            <div className="mt-1 text-2xl font-black">{t("pro.price")}</div>
-            <div className="max-w-xs text-xs text-muted">
-              {live ? t("pro.priceLive") : etCfg ? "One month per payment by Interac e-Transfer. Nothing renews by itself." : t("pro.priceNote")}
+      <section id="membership" className="card scroll-mt-20 overflow-hidden">
+        <div className="relative overflow-hidden p-5 sm:p-6">
+          <div className="pointer-events-none absolute -end-20 -top-24 h-56 w-56 rounded-full bg-brand/20 blur-3xl" aria-hidden />
+          <div className="relative flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-muted">
+                <Moon size={13} className="text-brand" /> Membership
+              </div>
+              {etCfg ? (
+                <div className="mt-1.5 flex items-baseline gap-1.5">
+                  <span className="text-4xl font-black tabular-nums">{dollars(etCfg.pro_cents)}</span>
+                  <span className="text-sm font-bold text-muted">{etCfg.currency} / month</span>
+                </div>
+              ) : (
+                <div className="mt-1.5 text-2xl font-black">{t("pro.price")}</div>
+              )}
+              <div className="mt-1 max-w-xs text-xs text-muted">One month per payment by Interac e-Transfer. Nothing renews by itself.</div>
+            </div>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+              {id?.pro ? (
+                <div className="self-start rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs font-bold text-brand sm:self-end">
+                  {until ? t("pro.active", { date: formatDate(until) }) : t("pro.activeForever")}
+                </div>
+              ) : null}
+              <Link
+                href="/pro/checkout"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-bold text-white hover:bg-brand-2"
+              >
+                {waitingPro ? (waitingPro.status === "open" ? "Finish your payment" : "View your payment") : id?.pro ? "Add a month" : "Get Pro"}{" "}
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
-          {id?.pro ? (
-            <div className="rounded-full bg-brand px-4 py-2 text-sm font-bold text-white">
-              {until ? t("pro.active", { date: formatDate(until) }) : t("pro.activeForever")}
-            </div>
-          ) : live || !etCfg ? (
-            <PayPalSubscribe
-              config={billing}
-              fallback={
-                <button disabled className="cursor-not-allowed rounded-full border border-line px-4 py-2 text-sm font-bold text-muted" aria-describedby="pro-not-open">
-                  {t("pro.unavailable")}
-                </button>
-              }
-            />
+          {waitingPro ? (
+            <p className="relative mt-4 rounded-xl border border-line bg-card-2 p-3 text-sm text-ink-2">
+              Your {dollars(waitingPro.amount_cents)} payment (<span className="font-mono">{waitingPro.code}</span>){" "}
+              {waitingPro.status === "open" ? "is ready to send." : "is waiting to be confirmed. You’ll get a notification when Pro switches on."}
+            </p>
           ) : null}
         </div>
-        {etCfg && (
-          <div className="px-5 pb-5">
-            <ProETransfer cfg={etCfg} isPro={Boolean(id?.pro)} />
-          </div>
-        )}
-        {id?.pro && mine?.membership.source === "paypal" && (
-          <p className="mx-5 mb-5 rounded-xl border border-line bg-card-2 p-3 text-sm text-ink-2">{t("pro.manage")}</p>
-        )}
-        {!id?.pro && !live && !etCfg && billing && (
-          <p id="pro-not-open" className="mx-5 mb-5 rounded-xl border border-line bg-card-2 p-3 text-sm text-ink-2">
-            {t("pro.notOpen")}
-          </p>
-        )}
         <div className="grid gap-4 border-t border-line p-5 sm:grid-cols-2">
           <div>
             <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted">{t("pro.included")}</h3>
@@ -289,26 +291,43 @@ function Landing() {
             <p className="text-sm text-ink-2">{experimental} items, clearly labelled and off until you switch them on in the Preview Lab.</p>
           </div>
           <div>
-            <h3 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted"><Clock size={13} /> {live || etCfg ? "Billing" : "In development"}</h3>
+            <h3 className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted"><Clock size={13} /> Billing</h3>
             <p className="text-sm text-ink-2">
-              {live
-                ? "Monthly subscription through PayPal. PayPal handles your card or balance; YORU never sees your payment details."
-                : etCfg
-                  ? "Interac e-Transfer from your own bank. Each payment adds one month, and nothing renews by itself. YORU never sees your bank details."
-                  : "Checkout and billing. Until a payment provider is connected and the price is confirmed, nobody can be charged."}
+              Interac e-Transfer from your own bank. Each payment adds one month, and nothing renews by itself. YORU never sees your bank details.
             </p>
           </div>
         </div>
         <p className="border-t border-line px-5 py-4 text-xs leading-relaxed text-muted">
-          {live
-            ? t("pro.termsLive")
-            : etCfg
-              ? "Each Interac e-Transfer adds one month of Pro. It starts when the payment is confirmed, or when your current month ends if you already have Pro. Nothing renews automatically, so there's nothing to cancel. When Pro ends, Pro cosmetics switch back to the free versions; nothing you posted is affected. If something goes wrong with a payment, contact support with your reference code."
-              : t("pro.terms")}
+          Each Interac e-Transfer adds one month of Pro. It starts when the payment is confirmed, or when your current month ends if you already have Pro.
+          Nothing renews automatically, so there&apos;s nothing to cancel. When Pro ends, Pro cosmetics switch back to the free versions; nothing you
+          posted is affected. If something goes wrong with a payment, contact <Link href="/support" className="underline">support</Link> with your
+          reference code.
         </p>
       </section>
 
-      {etCfg && <DonateETransfer cfg={etCfg} />}
+      <section id="donate" className="card scroll-mt-20 overflow-hidden">
+        <div className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden p-5">
+          <div className="pointer-events-none absolute -start-16 -bottom-24 h-48 w-48 rounded-full bg-brand/15 blur-3xl" aria-hidden />
+          <div className="relative flex min-w-0 flex-1 items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand/15 text-brand">
+              <Heart size={20} />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-lg font-black">Support YORU</h2>
+              <p className="text-sm text-ink-2">
+                Built by one person, with no ads. Donate any amount up to {etCfg ? roundDollars(etCfg.donation_max_cents) : "$500"} by Interac
+                e-Transfer. It’s a thank-you and doesn’t buy anything in the app.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/pro/checkout?for=donate"
+            className="relative inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-6 py-3 text-sm font-bold hover:border-brand sm:w-auto"
+          >
+            <Heart size={16} className="text-brand" /> Donate
+          </Link>
+        </div>
+      </section>
 
       <section className="card p-5">
         <h2 className="text-lg font-black">Tools</h2>

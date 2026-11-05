@@ -297,7 +297,7 @@ export const hubViews = mk<HubViewP>("hubview", [
   ["Membership Benefits", "What Pro adds and what stays free.", "C", "membership", F, { view: "benefits", icon: "✓" }],
   ["Feature Availability", "What's available, experimental, or not built yet.", "C", "membership", F, { view: "availability", icon: "◇" }],
   ["Membership Status", "Active, comp, expired or none, and until when.", "C", "membership", F, { view: "status", icon: "●" }],
-  ["Billing Information", "Billing isn't open yet; this says so honestly.", "C", "membership", F, { view: "billing", icon: "¤" }],
+  ["Billing Information", "How you paid, and when your Pro runs out.", "C", "membership", F, { view: "billing", icon: "¤" }],
   ["Cancellation Guidance", "How cancelling will work and what you keep.", "C", "membership", F, { view: "cancel", icon: "↩" }],
   ["Updates and Announcements", "Catalog and Pro news.", "C", "membership", F, { view: "updates", icon: "✉" }],
 ]);

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePayPalBilling } from "@/components/pro/PayPalSubscribe";
 import Link from "next/link";
 import clsx from "clsx";
 import { FlaskConical, Lock } from "lucide-react";
@@ -36,7 +35,6 @@ export default function LabPage() {
 }
 
 function Tool({ i, children }: { i: Item; children: React.ReactNode }) {
-  const billing = usePayPalBilling();
   const { data: me } = useMyPro();
   const owned = ownsItem(i, me);
   return (
@@ -47,7 +45,7 @@ function Tool({ i, children }: { i: Item; children: React.ReactNode }) {
         {!owned && <span className="inline-flex items-center gap-1 rounded-full bg-card-2 px-2 py-0.5 text-[10px] font-bold"><Lock size={10} /> Pro</span>}
       </div>
       <p className="-mt-2 mb-3 text-sm text-muted">{i.desc}</p>
-      {owned ? children : <p className="rounded-xl border border-line bg-card-2 p-3 text-sm text-ink-2">This tool is part of YORU Pro. {billing?.enabled ? <a href="/pro#membership" className="font-bold text-brand">Subscribe on the Pro page.</a> : "Purchases aren't open yet."}</p>}
+      {owned ? children : <p className="rounded-xl border border-line bg-card-2 p-3 text-sm text-ink-2">This tool is part of YORU Pro. <a href="/pro/checkout" className="font-bold text-brand">Get Pro on the Pro page.</a></p>}
     </section>
   );
 }

@@ -450,8 +450,8 @@ test("a member applies to the Creator Showcase and an admin approves them", asyn
 
 test("an admin grants complimentary Pro and the member sees it", async ({ page, browser }) => {
   await loginAs(page, /Ari/);
-  await page.goto("/pro"); // nobody can buy it: no payment provider is connected
-  await expect(page.getByRole("button", { name: "Not available yet" })).toBeDisabled();
+  await page.goto("/pro"); // paid Pro goes through the e-Transfer checkout
+  await expect(page.getByRole("link", { name: /Get Pro/ }).first()).toHaveAttribute("href", "/pro/checkout");
   await page.goto("/admin");
   await page.getByRole("tab", { name: "Pro" }).click();
   await page.getByPlaceholder("@username").fill("LucasSZN");
@@ -482,9 +482,28 @@ test("the Pro landing page is honest about price and checkout", async ({ page })
   await expect(page.getByRole("heading", { name: /YOUR PROFILE\.\s*YOUR UNIVERSE\./ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore YORU Pro" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Preview the cosmetics" }).first()).toBeVisible();
-  await expect(page.getByText("CAD $5.99 per month")).toBeVisible();
-  await expect(page.getByText(/Intended price, not confirmed yet/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Not available yet" })).toBeDisabled();
+  await expect(page.getByText("One month per payment by Interac e-Transfer. Nothing renews by itself.")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Get Pro/ }).first()).toHaveAttribute("href", "/pro/checkout");
+  await expect(page.getByRole("link", { name: "Donate" })).toHaveAttribute("href", "/pro/checkout?for=donate");
+});
+
+test("Pro and donations check out by Interac e-Transfer", async ({ page }) => {
+  await loginAs(page, /Zach/);
+  await page.goto("/pro/checkout");
+  await page.getByRole("button", { name: /Pay \$5\.99 by Interac e-Transfer/ }).click();
+  await expect(page.getByText("nextyoru@gmail.com")).toBeVisible();
+  await expect(page.getByText(/^YORU-[A-Z0-9]{5}$/)).toBeVisible();
+  await expect(page.getByText(/^\$5\.\d\d$/).first()).toBeVisible();
+  await page.getByRole("button", { name: /I.ve sent it/ }).click();
+  await expect(page.getByText("Payment sent. Pro is on its way.")).toBeVisible();
+
+  await page.getByRole("tab", { name: /Donate/ }).click();
+  await page.getByRole("radio", { name: "Custom" }).click();
+  await page.locator("#donation-custom").fill("501");
+  await expect(page.getByRole("button", { name: /^Donate/ })).toBeDisabled();
+  await page.locator("#donation-custom").fill("12.50");
+  await page.getByRole("button", { name: "Donate $12.50" }).click();
+  await expect(page.getByText("Send your donation")).toBeVisible();
 });
 
 test("trying on never unlocks; free items equip and show on posts; crafted requests are refused", async ({ page }) => {

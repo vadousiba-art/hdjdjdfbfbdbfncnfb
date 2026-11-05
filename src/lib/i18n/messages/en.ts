@@ -218,11 +218,8 @@ const en = {
   "pro.title": "YORU Pro",
   "pro.tagline": "Extra ways to make YORU yours. The social part stays free for everyone.",
   "pro.price": "CAD $5.99 per month",
-  "pro.priceNote": "Intended price, not confirmed yet. Taxes may apply where required.",
-  "pro.notOpen": "Purchases aren't open yet. No payment provider is connected, so no one can be charged. During testing, admins can grant Pro to members.",
   "pro.active": "You have YORU Pro until {date}.",
   "pro.activeForever": "You have YORU Pro.",
-  "pro.unavailable": "Not available yet",
   "pro.included": "What Pro adds",
   "pro.alwaysFree": "Always free for everyone",
   "pro.b.cosmetics": "Every Pro item in the catalog: rings, banners, nameplates, badges, themes, effects and more",
@@ -235,10 +232,6 @@ const en = {
   "pro.f.progress": "Normal XP, levels, streaks and badges",
   "pro.f.collections": "Collections and saved bookmarks",
   "pro.f.discover": "Discover and the Creator Showcase",
-  "pro.terms": "When purchases open: billed monthly, cancel any time and keep Pro until the end of the paid month. When Pro ends, Pro cosmetics switch back to the free versions; nothing you posted is affected.",
-  "pro.priceLive": "Billed monthly through PayPal. PayPal shows the exact amount, including any tax, before you confirm.",
-  "pro.termsLive": "Billed monthly through PayPal until you cancel. Cancel any time in PayPal and keep Pro until the end of the month you paid for. When Pro ends, Pro cosmetics switch back to the free versions; nothing you posted is affected.",
-  "pro.manage": "Billed through PayPal. To cancel, open PayPal: Settings → Payments → Automatic payments. Pro stays until the end of the paid month.",
 
   // What's new
   "wn.title": "What's new in YORU",

@@ -1,10 +1,11 @@
 # Monetization: research, recommendation, architecture
 
-**Update (2026-11-03): Pro is sold as a PayPal subscription.** The code is
-in place (see [billing.md](billing.md)); the subscribe button appears once
-`PAYPAL_CLIENT_SECRET` and `PAYPAL_WEBHOOK_ID` are set on the server. Until
-then nothing can charge anyone and the button reads "Not available yet". The
-research below is what led there.
+**Update (2026-11-05): Pro is paid by Interac e-Transfer only.** CAD $5.99
+buys one month per payment and nothing renews; donations go the same way.
+The owner confirms each payment in Watchtower → Payments. See
+[etransfer.md](etransfer.md). The PayPal checkout that was built on
+2026-11-03 was removed before it ever went live. The research below is
+kept for reference.
 
 Research checked on 2026-10-27 against each provider's own pages (links
 below). Fees and terms change; re-check before signing up. This is not

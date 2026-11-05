@@ -45,7 +45,19 @@ function Bubble({
   const { me } = useShell();
   const { toastError, toast } = useApp();
   const [quick, setQuick] = useState(false);
+  // the quick-reaction bar opens above the bubble unless that would put it under the sticky chat header
+  const [quickBelow, setQuickBelow] = useState(false);
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const [reporting, setReporting] = useState(false);
+
+  function openQuick(open: boolean) {
+    if (open) {
+      const top = bubbleRef.current?.getBoundingClientRect().top ?? Infinity;
+      const header = document.querySelector("[data-chat-header]")?.getBoundingClientRect().bottom ?? 0;
+      setQuickBelow(top - header < 56);
+    }
+    setQuick(open);
+  }
 
   async function react(emoji: string) {
     setQuick(false);
@@ -73,7 +85,7 @@ function Bubble({
       initial={{ opacity: 0, y: 12, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 32 }}
-      className={clsx("group flex gap-2", mine ? "flex-row-reverse" : "flex-row", showHeader ? "mt-3" : "mt-0.5")}
+      className={clsx("group flex gap-2", mine ? "flex-row-reverse" : "flex-row", showHeader ? "mt-3" : "mt-0.5", quick && "relative z-30")}
     >
       <div className="w-8 shrink-0">
         {!mine && showHeader && (
@@ -92,7 +104,7 @@ function Bubble({
             <span className="text-muted">{timeAgo(m.created_at)}</span>
           </div>
         )}
-        <div className="relative">
+        <div className="relative" ref={bubbleRef}>
           <div
             className={clsx(
               "rounded-3xl px-3.5 py-2 text-[15px] leading-snug",
@@ -102,7 +114,11 @@ function Bubble({
               !m.deleted && m.is_ai && "rounded-bl-lg border border-roast/50 bg-gradient-to-br from-roast/20 to-volt/20 text-ink",
               m.deleted && "border border-dashed border-line",
             )}
-            onDoubleClick={() => !m.deleted && react("❤️")}
+            onDoubleClick={() => {
+              if (m.deleted) return;
+              window.getSelection()?.removeAllRanges(); // a double-tap heart shouldn't also highlight the word
+              react("❤️");
+            }}
           >
             {m.reply_to && !m.deleted && (
               <div className={clsx("mb-1.5 rounded-xl border-l-2 px-2 py-1 text-xs", mine ? "border-white/70 bg-white/15" : "border-brand bg-black/10")}>
@@ -132,7 +148,7 @@ function Bubble({
                 mine ? "right-full mr-1" : "left-full ml-1",
               )}
             >
-              <button onClick={() => setQuick((q) => !q)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="React">
+              <button onClick={() => openQuick(!quick)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="React">
                 <SmilePlus size={16} />
               </button>
               <button onClick={() => onReply(m)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="Reply">
@@ -143,10 +159,14 @@ function Bubble({
           <AnimatePresence>
             {quick && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.6, y: 6 }}
+                initial={{ opacity: 0, scale: 0.6, y: quickBelow ? -6 : 6 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.7 }}
-                className={clsx("absolute -top-11 z-20 flex gap-0.5 rounded-full border border-line bg-card p-1 shadow-xl", mine ? "right-0" : "left-0")}
+                className={clsx(
+                  "absolute z-20 flex gap-0.5 rounded-full border border-line bg-card p-1 shadow-xl",
+                  quickBelow ? "top-full mt-2" : "-top-11",
+                  mine ? "right-0" : "left-0",
+                )}
               >
                 {QUICK.map((e) => (
                   <motion.button key={e} whileHover={{ scale: 1.35, y: -4 }} onClick={() => react(e)} className="rounded-full px-1.5 text-lg font-bold">
@@ -158,19 +178,23 @@ function Bubble({
           </AnimatePresence>
         </div>
         {m.reactions.length > 0 && (
-          <div className={clsx("-mt-1.5 flex flex-wrap gap-1 px-2", mine ? "justify-end" : "justify-start")}>
+          // tucked under the bubble's edge and drawn above it (the bubble is positioned, so the
+          // row needs its own stacking order); solid fills so it reads over any bubble or theme
+          <div className={clsx("relative z-10 -mt-1.5 flex flex-wrap gap-1 px-2", mine ? "justify-end" : "justify-start")}>
             {m.reactions.map((r) => (
               <motion.button
                 key={r.emoji}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 onClick={() => react(r.emoji)}
+                aria-label={`${r.emoji} ${r.count}${r.mine ? ", you reacted" : ""}`}
                 className={clsx(
-                  "rounded-full border px-1.5 text-xs font-bold",
-                  r.mine ? "border-brand bg-brand/20" : "border-line bg-card",
+                  "inline-flex items-center gap-1 rounded-full border bg-card px-1.5 py-0.5 text-xs font-bold leading-none shadow-sm",
+                  r.mine ? "border-brand text-brand" : "border-line text-ink",
                 )}
               >
-                {r.emoji} {r.count > 1 ? r.count : ""}
+                <span className="text-[13px] leading-none">{r.emoji}</span>
+                {r.count > 1 ? <span className="tabular-nums">{r.count}</span> : null}
               </motion.button>
             ))}
           </div>
@@ -183,7 +207,7 @@ function Bubble({
             align={mine ? "right" : "left"}
             items={[
               { label: "Reply", icon: <Reply size={14} />, onSelect: () => onReply(m) },
-              { label: "React", icon: <SmilePlus size={14} />, onSelect: () => setQuick(true) },
+              { label: "React", icon: <SmilePlus size={14} />, onSelect: () => openQuick(true) },
               {
                 label: "Copy text",
                 icon: <Copy size={14} />,
@@ -435,7 +459,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div>
-      <div className="sticky top-[var(--header-h,76px)] z-20 -mx-3 mb-2 flex items-center gap-3 border-b border-line bg-bg/90 px-3 py-2 backdrop-blur sm:-mx-4 sm:px-4">
+      <div data-chat-header className="sticky top-[var(--header-h,76px)] z-20 -mx-3 mb-2 flex items-center gap-3 border-b border-line bg-bg/90 px-3 py-2 backdrop-blur sm:-mx-4 sm:px-4">
         <button onClick={() => router.push("/chat")} className="rounded-full p-1.5 hover:bg-card-2" aria-label="Back to chats">
           <ArrowLeft size={20} />
         </button>

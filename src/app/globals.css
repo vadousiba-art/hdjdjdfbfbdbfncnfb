@@ -596,9 +596,11 @@ body {
 @keyframes pr-sheen-w { 0%, 55% { transform: skewX(-12deg) translateX(-110%); } 85%, 100% { transform: skewX(-12deg) translateX(330%); } }
 .a-sheen-b { animation: pr-sheen-b var(--d, 3.8s) ease-in-out infinite; }
 .a-sheen-w { animation: pr-sheen-w var(--d, 5s) ease-in-out infinite; }
-@keyframes chat-drift { 0% { transform: translate(-6%, -4%) scale(1); } 100% { transform: translate(8%, 6%) scale(1.15); } }
-[data-chat-theme] { position: relative; isolation: isolate; overflow: hidden; }
-[data-chat-theme]::before { content: ""; position: absolute; inset: -20%; z-index: -1; pointer-events: none; background: radial-gradient(40% 30% at 25% 20%, color-mix(in srgb, var(--chat-me) 22%, transparent), transparent 70%), radial-gradient(35% 25% at 80% 85%, color-mix(in srgb, var(--chat-them) 40%, transparent), transparent 70%); animation: chat-drift 16s ease-in-out infinite alternate; }
+/* The glow drifts by moving its background inside the box, so the chat area never has to clip
+   (clipping cut off reaction bars and pills at its edges). */
+@keyframes chat-drift { 0% { background-position: 20% 15%, 75% 85%; } 100% { background-position: 80% 70%, 25% 30%; } }
+[data-chat-theme] { position: relative; isolation: isolate; }
+[data-chat-theme]::before { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none; background: radial-gradient(40% 30% at 50% 50%, color-mix(in srgb, var(--chat-me) 22%, transparent), transparent 70%), radial-gradient(35% 25% at 50% 50%, color-mix(in srgb, var(--chat-them) 40%, transparent), transparent 70%); background-size: 160% 160%, 160% 160%; background-repeat: no-repeat; animation: chat-drift 16s ease-in-out infinite alternate; }
 
 /* Staff nameplates */
 @keyframes np-founder { 0%, 100% { text-shadow: 0 0 6px rgb(224 181 79 / 0.5), 0 0 1px #7a5a12; } 50% { text-shadow: 0 0 14px rgb(224 181 79 / 0.9), 0 0 24px rgb(229 16 47 / 0.45); } }

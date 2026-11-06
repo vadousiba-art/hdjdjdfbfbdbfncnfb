@@ -38,6 +38,9 @@ def words_of(clip):
     w = json.loads((REC / f"{clip}.words.json").read_text())
     for i, x in enumerate(w):
         x["i"] = i
+    # hand-measured word times (against the waveform), keyed by word index so they survive re-timing
+    for k, fix in PLAN.get("fix_words", {}).get(clip, {}).items():
+        w[int(k)].update(fix)
     for x in PLAN.get("add_words", {}).get(clip, []):
         w.append({**x, "i": len(w)})
     return sorted(w, key=lambda x: x["startMs"])

@@ -173,6 +173,10 @@ Edit decisions:
 - **The callback is restored.** The C224 take started at "And that's the best news…", so
   each version puts "Nobody is coming." (from one of the other hook takes) in front of it,
   as written. "Remember that" after "Cringe beats never" is cut, to keep short-long-short.
+- **Fixed (Nov 6):** "never" (said slowly, 2.94–3.56 s in C219) and the end of "coming" in
+  the callback were clipped. The cuts now end after them (C219 at 3.62 s, the C215 callback
+  at 3.34 s, the C212 one at 4.18 s), and their word times were measured by hand
+  (`fix_words` in `reels/src/motivation/cut.json`) so each word appears as it's said.
 - **Soundtrack (redone Nov 6):** your reference reel's own piano. Your old voice was
   separated out of it (HTDemucs), the piano's first two bars come in on "So", then two
   bars loop (they match the original's own continuation at 0.95, no clicks) until the

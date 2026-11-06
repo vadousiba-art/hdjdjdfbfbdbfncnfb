@@ -156,3 +156,63 @@ video. Its script is in git history if you want it next.
 2. Then the takes: the full script (3 takes), the alternate lines and the extras.
 3. Your handle is **@ethan_lang__founder** (from your screenshot). Tell me if the videos
    should use a different one.
+
+## Delivered (Nov 6): four versions
+
+Files: `reels/out/motivation/yoru-motivation-v1.mp4` … `v4.mp4` (1080×1920, 30 fps, about
+22–23 s, -13 LUFS). Code: `reels/src/motivation/`, `reels/scripts/motivation-music.py`.
+
+| | Hook (first words) | Look | Note |
+| --- | --- | --- | --- |
+| **v1 (main)** | "Listen! Nobody's coming to give you permission." (C211) | YORU red night | the strongest delivery: widest vocal range, fastest to the point |
+| v2 | "Listen, nobody is coming to give you permission." (C212) | red | slower, heavier |
+| v3 | "Nobody is coming to give you permission." (C215) | red | opens straight on the line |
+| v4 | same as v1 | blue night | tests the original's blue look against the red |
+
+Edit decisions:
+- **The callback is restored.** The C224 take started at "And that's the best news…", so
+  each version puts "Nobody is coming." (from one of the other hook takes) in front of it,
+  as written. "Remember that" after "Cringe beats never" is cut, to keep short-long-short.
+- **Soundtrack:** original, synthesised, built to the reference's plan: dry hook, the 808
+  drops on "So", F–E bass with slides at 152 BPM, a dead stop after "tonight", half a
+  second of silence, then a boom on the cut to black with the CTA.
+- **Words:** stacked lower left over the dark torso and desk (the face sits higher in
+  these takes than in the original), each appearing on the frame it's said.
+
+Captions:
+
+**v1**
+> Nobody's coming to give you permission. 🌙
+>
+> Ship the embarrassing version tonight. Cringe beats never.
+>
+> Send this to the friend sitting on a project they're too scared to post. Comment NIGHT and
+> I'll send you what I'm building.
+>
+> #buildinpublic #founder #entrepreneur #motivation
+
+**v2**
+> Listen. Nobody is coming to give you permission. 🌙
+>
+> Waiting for perfect is just quitting slowly.
+>
+> Send this to the friend who's been "almost ready" for months. Comment NIGHT and I'll send
+> you what I'm building.
+>
+> #buildinpublic #founder #entrepreneur #motivation
+
+**v3**
+> Nobody is coming to give you permission. Ship it tonight. 🌙
+>
+> Send this to the friend sitting on a project they're too scared to post. Comment NIGHT and
+> I'll send you what I'm building.
+>
+> #buildinpublic #founder #entrepreneur #motivation
+
+**v4**
+> Cringe beats never. Ship it tonight. 🌙
+>
+> Send this to the friend who needs to hear it. Comment NIGHT and I'll send you what I'm
+> building.
+>
+> #buildinpublic #founder #entrepreneur #motivation

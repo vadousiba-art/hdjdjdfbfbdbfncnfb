@@ -324,6 +324,8 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                     <Settings size={18} />
                   </Link>
                 </>
+              ) : p.is_bot && / · Night Crew$/.test(p.display_name) ? (
+                <span className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted">🌙 YORU bot</span>
               ) : p.is_bot ? (
                 <Link href="/menace">
                   <Button variant="chaos">

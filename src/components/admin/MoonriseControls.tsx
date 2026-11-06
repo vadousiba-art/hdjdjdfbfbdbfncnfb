@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import clsx from "clsx";
+import { useShell } from "@/components/shell/AppShell";
 import { motion } from "motion/react";
 import { useSWRConfig } from "swr";
 import { byFn, useRpc } from "@/lib/client/hooks";
@@ -23,26 +25,115 @@ type Admin = {
 const field = "w-full rounded-xl border border-line bg-card-2 px-3 py-2 text-sm tabular-nums text-ink outline-none focus:border-brand";
 
 // The Night Crew (migration 0018): labeled YORU bot accounts that like new
-// posts and follow members, so nobody posts into silence early on.
-function NightCrew() {
+// posts and follow members. The owner sets how many there are, creates them
+// (names and bios by Gemini), and unleashes them.
+type Crew = {
+  enabled: boolean;
+  max_likes: number;
+  follows: number;
+  chance: number;
+  likes_week: number;
+  follows_total: number;
+  crew: { id: string; username: string; display_name: string; bio: string; active: boolean }[];
+};
+
+export function NightCrew() {
   const { toast, toastError } = useApp();
-  const { data, mutate } = useRpc<{ enabled: boolean; likes_week: number; follows: number }>("admin_get_crew");
+  const { me } = useShell();
+  const owner = me.role === "owner";
+  const { data, mutate } = useRpc<Crew>("admin_get_crew");
+  const [add, setAdd] = useState("5");
+  const [busy, setBusy] = useState<string | null>(null);
   if (!data) return null;
+  const active = data.crew.filter((c) => c.active).length;
+
+  async function run<T>(key: string, job: () => Promise<T>, done: (r: T) => string) {
+    setBusy(key);
+    try {
+      const r = await job();
+      toast(done(r), "success", "🌙");
+      mutate();
+    } catch (err) {
+      toastError(err);
+    } finally {
+      setBusy(null);
+    }
+  }
+  const set = (p: Record<string, unknown>) => run("set", () => rpc<Crew>("admin_set_crew", { p }), () => "Saved.");
+  const create = () =>
+    run(
+      "add",
+      async () => {
+        const res = await fetch("/api/crew", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ count: Number(add) }) });
+        const j = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(j?.error?.message ?? "Couldn't add them.");
+        return (j?.data ?? j) as { added: number; by: string };
+      },
+      (r) => `Added ${r.added} to the Night Crew${r.by === "gemini" ? ", written by Gemini" : ""}.`,
+    );
+  const unleash = () =>
+    run("unleash", () => rpc<{ liked?: number; followed?: number }>("admin_unleash_crew"), (r) => `Unleashed: ${r.liked ?? 0} likes, ${r.followed ?? 0} follows.`);
+
   return (
-    <div className="border-t border-line pt-3">
-      <Toggle
-        checked={data.enabled}
-        onChange={async (v) => {
-          try {
-            mutate(await rpc("admin_set_crew", { p_enabled: v }), { revalidate: false });
-            toast(v ? "Night Crew is on." : "Night Crew is off.", "success", "🌙");
-          } catch (err) {
-            toastError(err);
-          }
-        }}
-        label="Night Crew"
-        description={`5 labeled bot accounts that like new posts (1 to 4 each, at random times) and follow every member once. ${data.likes_week} likes this week, ${data.follows} follows.`}
-      />
+    <div className="space-y-3 border-t border-line pt-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-semibold">Night Crew</h3>
+          <p className="text-xs text-muted">
+            YORU bot accounts, always labeled as bots, that like new posts at random times and follow members. {active} active of {data.crew.length}
+            {" · "}
+            {data.likes_week} likes this week · {data.follows_total} follows.
+          </p>
+        </div>
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.94 }}
+          disabled={!owner || busy !== null || !data.enabled || active === 0}
+          onClick={unleash}
+          className="shrink-0 rounded-full bg-brand px-4 py-2 text-sm font-bold text-white shadow-[0_0_24px_rgb(225_29_72/0.35)] disabled:opacity-40"
+        >
+          {busy === "unleash" ? "Unleashing…" : "Unleash now"}
+        </motion.button>
+      </div>
+      <Toggle checked={data.enabled} onChange={(v) => owner && set({ enabled: v })} label="Night Crew is on" description="Runs every 10 minutes. Unleash fills every post's and member's quota at once." />
+      <div className="grid grid-cols-3 gap-2">
+        <label className="text-xs text-muted">
+          Likes per post (max)
+          <input className={field} type="number" min={1} max={50} defaultValue={data.max_likes} disabled={!owner} onBlur={(e) => Number(e.target.value) !== data.max_likes && set({ max_likes: Number(e.target.value) })} />
+        </label>
+        <label className="text-xs text-muted">
+          Follows per member
+          <input className={field} type="number" min={0} max={50} defaultValue={data.follows} disabled={!owner} onBlur={(e) => Number(e.target.value) !== data.follows && set({ follows: Number(e.target.value) })} />
+        </label>
+        <label className="text-xs text-muted">
+          Activity (% per run)
+          <input className={field} type="number" min={5} max={100} defaultValue={Math.round(data.chance * 100)} disabled={!owner} onBlur={(e) => Number(e.target.value) !== Math.round(data.chance * 100) && set({ chance: Number(e.target.value) / 100 })} />
+        </label>
+      </div>
+      <div className="flex items-end gap-2">
+        <label className="w-24 text-xs text-muted">
+          How many
+          <input className={field} type="number" min={1} max={50} value={add} disabled={!owner} onChange={(e) => setAdd(e.target.value.replace(/[^0-9]/g, ""))} />
+        </label>
+        <Button variant="outline" disabled={!owner || busy !== null || !(Number(add) >= 1 && Number(add) <= 50)} onClick={create}>
+          {busy === "add" ? "Creating…" : "Create bots with Gemini"}
+        </Button>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {data.crew.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            title={`${c.bio}\n@${c.username} · tap to ${c.active ? "pause" : "wake"}`}
+            disabled={!owner || busy !== null}
+            onClick={() => run("member", () => rpc("admin_set_crew_member", { p_id: c.id, p_active: !c.active }), () => (c.active ? `${c.display_name} is resting.` : `${c.display_name} is back.`))}
+            className={clsx("rounded-full border px-2.5 py-1 text-xs transition", c.active ? "border-brand/50 text-ink" : "border-line text-muted line-through")}
+          >
+            🌙 {c.display_name.replace(/ · Night Crew$/, "")}
+          </button>
+        ))}
+      </div>
+      {!owner && <p className="text-xs text-muted">Only the owner can change or unleash the Night Crew.</p>}
     </div>
   );
 }

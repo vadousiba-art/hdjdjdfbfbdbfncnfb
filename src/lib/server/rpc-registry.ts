@@ -381,7 +381,18 @@ export const RPC_SCHEMAS = {
   }),
   // Night Crew (migration 0018)
   admin_get_crew: none,
-  admin_set_crew: z.object({ p_enabled: z.boolean() }),
+  admin_set_crew: z.object({
+    p: z
+      .object({
+        enabled: z.boolean().optional(),
+        max_likes: z.number().int().min(1).max(50).optional(),
+        follows: z.number().int().min(0).max(50).optional(),
+        chance: z.number().min(0.05).max(1).optional(),
+      })
+      .strict(),
+  }),
+  admin_set_crew_member: z.object({ p_id: id, p_active: z.boolean() }),
+  admin_unleash_crew: none,
 } as const;
 
 export type RpcName = keyof typeof RPC_SCHEMAS;

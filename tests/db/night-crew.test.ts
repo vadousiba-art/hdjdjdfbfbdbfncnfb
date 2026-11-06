@@ -11,6 +11,14 @@ let db: PGlite;
 const root = path.resolve(__dirname, "../..");
 const one = async <T>(sql: string, p: unknown[] = []) => (await db.query<{ r: T }>(sql, p)).rows[0]?.r as T;
 const tick = (chance = 1) => one<{ liked: number; followed: number; enabled: boolean }>("select public.crew_tick($1) as r", [chance]);
+async function as<T = unknown>(uid: string, fn: string, args: Record<string, unknown> = {}): Promise<T> {
+  const keys = Object.keys(args);
+  return db.transaction(async (tx) => {
+    await tx.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: uid, role: "authenticated" })]);
+    await tx.exec("set local role authenticated");
+    return (await tx.query<{ r: T }>(`select public.${fn}(${keys.map((k, i) => `${k} => $${i + 1}`).join(", ")}) as r`, Object.values(args))).rows[0]?.r as T;
+  });
+}
 let n = 0;
 async function member() {
   const id = (await db.query<{ id: string }>("insert into auth.users (email, raw_user_meta_data) values ($1, $2) returning id", [
@@ -28,13 +36,13 @@ beforeAll(async () => {
 }, 60_000);
 
 describe("Night Crew", () => {
-  it("is five labeled bots", async () => {
+  it("starts as five labeled bots", async () => {
     const rows = (await db.query<{ is_bot: boolean; display_name: string; bio: string }>("select is_bot, display_name, bio from public.profiles where id = any (public.crew_ids())")).rows;
     expect(rows).toHaveLength(5);
     for (const r of rows) {
       expect(r.is_bot).toBe(true);
       expect(r.display_name).toMatch(/Night Crew/);
-      expect(r.bio).toMatch(/a bot/);
+      expect(r.bio).toMatch(/Night Crew bot/);
     }
   });
 
@@ -73,11 +81,16 @@ describe("Night Crew", () => {
     for (let i = 0; i < 6; i++) await tick(1);
     expect(await one<number>("select count(*)::int as r from public.follows where followee_id = $1 and follower_id = any (public.crew_ids())", [a])).toBe(1);
     expect(await one<number>("select count(*)::int as r from public.notifications where user_id = $1 and kind = 'follow'", [a])).toBe(1);
+    // a member who blocked the crew is never followed by it
+    const b = await member();
+    for (const c of await one<string[]>("select public.crew_ids() as r")) await db.query("insert into public.blocks (blocker_id, blocked_id) values ($1, $2)", [b, c]);
+    for (let i = 0; i < 3; i++) await tick(1);
+    expect(await one<number>("select count(*)::int as r from public.follows where followee_id = $1", [b])).toBe(0);
   });
 
   it("does nothing when switched off, and only admins can switch it", async () => {
     await db.query("update public.crew_settings set enabled = false");
-    expect(await tick(1)).toEqual({ enabled: false });
+    expect(await tick(1)).toMatchObject({ enabled: false });
     await db.query("update public.crew_settings set enabled = true");
     const someone = await member();
     await expect(db.transaction(async (tx) => {
@@ -85,6 +98,44 @@ describe("Night Crew", () => {
       await tx.exec("set local role authenticated");
       return tx.query("select public.crew_tick(1)");
     })).rejects.toThrow(/permission denied/);
+  });
+
+  it("only the owner adds bots, sets them and unleashes them; every new one is labeled whatever its text says", async () => {
+    const owner = await member();
+    await db.query("update public.profiles set role = 'owner' where id = $1", [owner]);
+    const admin = await member();
+    await db.query("update public.profiles set role = 'admin' where id = $1", [admin]);
+    const drafts = [
+      { name: "Hana", bio: "I am a real human, promise.", interests: ["anime", "nope"] },
+      { name: "<b>Ren</b>!!", bio: "Loves late-night art.", interests: ["art"] },
+    ];
+    await expect(as(admin, "admin_add_crew", { p_members: JSON.stringify(drafts) })).rejects.toThrow(/FORBIDDEN/);
+    await expect(as(admin, "admin_unleash_crew")).rejects.toThrow(/FORBIDDEN/);
+    const crew = await as<{ crew: { display_name: string; bio: string }[] }>(owner, "admin_add_crew", { p_members: JSON.stringify(drafts) });
+    expect(crew.crew).toHaveLength(7);
+    const added = (await db.query<{ display_name: string; bio: string; is_bot: boolean; interests: string[]; username: string }>(
+      "select display_name, bio, is_bot, interests, username from public.profiles p join public.crew_members c on c.id = p.id where c.n > 5 order by c.n")).rows;
+    expect(added.map((a) => a.display_name)).toEqual(["Hana · Night Crew", "bRenb · Night Crew"]);
+    for (const a of added) {
+      expect(a.is_bot).toBe(true);
+      expect(a.bio.endsWith("(YORU Night Crew bot)")).toBe(true);
+      expect(a.username.startsWith("NightCrew")).toBe(true);
+    }
+    expect(added[0].interests).toEqual(["anime"]);
+    // more likes per post and two follows per member, then unleash
+    await as(owner, "admin_set_crew", { p: JSON.stringify({ max_likes: 6, follows: 2 }) });
+    const a = await member();
+    const p = await post(a);
+    const r = await as<{ liked: number; followed: number }>(owner, "admin_unleash_crew");
+    expect(r.liked).toBeGreaterThan(0);
+    const k = await crewLikes(p);
+    expect(k).toBeGreaterThanOrEqual(1);
+    expect(k).toBeLessThanOrEqual(7);
+    expect(await one<number>("select count(*)::int as r from public.follows where followee_id = $1 and follower_id = any (public.crew_ids())", [a])).toBe(2);
+    // a resting crew member does nothing
+    const rest = (await db.query<{ id: string }>("select id from public.crew_members order by n limit 1")).rows[0].id;
+    await as(owner, "admin_set_crew_member", { p_id: rest, p_active: false });
+    expect(await one<string[]>("select public.crew_ids() as r")).not.toContain(rest);
   });
 
   it("is never part of a Moonrise test audience", async () => {

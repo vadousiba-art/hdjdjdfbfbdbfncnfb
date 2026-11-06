@@ -141,21 +141,6 @@ function Bubble({
               </>
             )}
           </div>
-          {!m.deleted && (
-            <div
-              className={clsx(
-                "absolute top-1/2 hidden -translate-y-1/2 items-center gap-0.5 group-hover:flex",
-                mine ? "right-full mr-1" : "left-full ml-1",
-              )}
-            >
-              <button onClick={() => openQuick(!quick)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="React">
-                <SmilePlus size={16} />
-              </button>
-              <button onClick={() => onReply(m)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="Reply">
-                <Reply size={16} />
-              </button>
-            </div>
-          )}
           <AnimatePresence>
             {quick && (
               <motion.div
@@ -201,25 +186,38 @@ function Bubble({
         )}
       </div>
       {!m.deleted && (
-        <div className="self-center opacity-0 transition group-hover:opacity-100 max-sm:opacity-100">
-          <Menu
-            trigger={<MoreHorizontal size={16} />}
-            align={mine ? "right" : "left"}
-            items={[
-              { label: "Reply", icon: <Reply size={14} />, onSelect: () => onReply(m) },
-              { label: "React", icon: <SmilePlus size={14} />, onSelect: () => openQuick(true) },
-              {
-                label: "Copy text",
-                icon: <Copy size={14} />,
-                onSelect: async () => {
-                  await navigator.clipboard?.writeText(m.body).catch(() => null);
-                  toast("Copied.", "success", "📋");
+        // one toolbar beside the bubble, in the row's flow: react and reply (hover only, so only on
+        // devices that can hover), then the ⋯ menu. Mirrored for your own messages. Laid out side by
+        // side, nothing can sit on top of anything else.
+        <div className={clsx("flex shrink-0 items-center gap-0.5 self-center", mine && "flex-row-reverse")}>
+          <div className={clsx("hidden items-center gap-0.5 group-hover:flex", mine && "flex-row-reverse")}>
+            <button onClick={() => openQuick(!quick)} className="rounded-full p-1 text-muted hover:bg-card-2 hover:text-ink" aria-label="React">
+              <SmilePlus size={16} />
+            </button>
+            <button onClick={() => onReply(m)} className="rounded-full p-1 text-muted hover:bg-card-2 hover:text-ink" aria-label="Reply">
+              <Reply size={16} />
+            </button>
+          </div>
+          <div className="opacity-0 transition group-hover:opacity-100 max-sm:opacity-100">
+            <Menu
+              trigger={<MoreHorizontal size={16} />}
+              align={mine ? "right" : "left"}
+              items={[
+                { label: "Reply", icon: <Reply size={14} />, onSelect: () => onReply(m) },
+                { label: "React", icon: <SmilePlus size={14} />, onSelect: () => openQuick(true) },
+                {
+                  label: "Copy text",
+                  icon: <Copy size={14} />,
+                  onSelect: async () => {
+                    await navigator.clipboard?.writeText(m.body).catch(() => null);
+                    toast("Copied.", "success", "📋");
+                  },
                 },
-              },
-              { label: "Report", icon: <Flag size={14} />, onSelect: () => setReporting(true), hidden: mine },
-              { label: "Unsend", icon: <Trash2 size={14} />, onSelect: remove, hidden: !(mine || me.role !== "member"), danger: true },
-            ]}
-          />
+                { label: "Report", icon: <Flag size={14} />, onSelect: () => setReporting(true), hidden: mine },
+                { label: "Unsend", icon: <Trash2 size={14} />, onSelect: remove, hidden: !(mine || me.role !== "member"), danger: true },
+              ]}
+            />
+          </div>
         </div>
       )}
       <ReportDialog open={reporting} onClose={() => setReporting(false)} targetType="message" targetId={m.id} />

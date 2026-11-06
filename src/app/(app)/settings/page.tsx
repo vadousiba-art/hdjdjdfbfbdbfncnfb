@@ -60,7 +60,8 @@ function Segmented<T extends string>({ value, options, onChange, label }: { valu
   );
 }
 
-const NOTIF: (keyof NotificationPrefs)[] = ["likes", "comments", "mentions", "reposts", "messages", "awards", "friend_posts"];
+// "friend_posts" (every post by anyone) is gone: new posts now notify followers only (migration 0017).
+const NOTIF: (keyof NotificationPrefs)[] = ["likes", "comments", "mentions", "reposts", "messages", "awards", "following_posts", "follows", "top_posts", "moonrise"];
 
 type SavedTheme = { id: string; name: string; accent_hue: number; theme: ThemePref; ambience: AmbienceMode };
 
@@ -101,6 +102,16 @@ export default function SettingsPage() {
       toastError(err);
       mutate(byFn("get_me"));
     }
+  }
+
+  async function saveNotif(key: keyof NotificationPrefs, value: boolean) {
+    mutate(byFn("get_me"), (cur?: Me) => (cur ? { ...cur, notification_prefs: { ...cur.notification_prefs, [key]: value } } : cur), { revalidate: false });
+    try {
+      await rpc("set_notification_prefs", { p: { [key]: value } });
+    } catch (err) {
+      toastError(err);
+    }
+    mutate(byFn("get_me"));
   }
 
   // Open Gates profile fields. Optimistic, rolled back by refetching on error.
@@ -278,7 +289,7 @@ export default function SettingsPage() {
           <Toggle
             key={key}
             checked={me.notification_prefs[key] ?? true}
-            onChange={(v) => save({ notification_prefs: { [key]: v } })}
+            onChange={(v) => saveNotif(key, v)}
             label={t(`notif.${key}` as MessageKey)}
             description={t(`notif.${key}Desc` as MessageKey)}
           />

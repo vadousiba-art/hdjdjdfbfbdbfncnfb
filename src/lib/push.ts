@@ -42,8 +42,18 @@ const PHRASE: Record<string, (b: string) => string> = {
   award: (b) => (AWARD_INFO[b as AwardKind] ? `gave your post ${AWARD_INFO[b as AwardKind].emoji} ${AWARD_INFO[b as AwardKind].label}` : "gave your post an award"),
   message: (b) => clip(b, 140) || "sent you a message",
   friend_post: (b) => `posted${quote(b)}`,
+  new_post: (b) => `posted${quote(b)}`,
+  follow: () => "started following you",
   roast: (b) => `roasted you${quote(b)}`,
 };
+
+// Moonrise phases as the database names them (docs/MOONRISE.md).
+export const MOON_EMOJI: Record<string, string> = { "New Moon": "🌑", Crescent: "🌒", "Half Moon": "🌓", "Full Moon": "🌕", "Blood Moon": "🔴" };
+// A top-post notification's body: "🌕 Full Moon · the post's text".
+export function splitTopPost(body: string) {
+  const m = /^(\S+) ([^·]+?) · ([\s\S]*)$/.exec(body);
+  return m ? { emoji: m[1], phase: m[2], text: m[3] } : { emoji: "🌕", phase: "Full Moon", text: body };
+}
 
 export function wordPush(n: PushItem, site: string): PushPayload {
   const abs = (u: string | null | undefined) => (!u ? undefined : u.startsWith("http") ? u : `${site}${u.startsWith("/") ? u : `/api/media/${u}`}`);
@@ -57,6 +67,19 @@ export function wordPush(n: PushItem, site: string): PushPayload {
   const icon = abs(n.actor?.avatar) ?? `${site}/brand/yoru/app-icon-512.png`;
   const base = { url, icon, unread: n.unread };
 
+  if (n.kind === "moon") {
+    const phase = clip(n.body, 20);
+    return { ...base, title: "YORU · Moonrise", body: `Your post just reached ${MOON_EMOJI[phase] ?? "🌕"} ${phase}.`, tag: `moon-${n.post_id}`, icon: `${site}/brand/yoru/app-icon-512.png` };
+  }
+  if (n.kind === "top_post" && n.actor) {
+    const t = splitTopPost(n.body);
+    return {
+      ...base,
+      title: t.phase === "Blood Moon" ? "🔴 Trending across YORU" : `${t.emoji} Top post in your interests`,
+      body: `${n.actor.name}${quote(t.text) || " posted something people love"}`,
+      tag: `top-${n.post_id}`,
+    };
+  }
   if (n.kind === "level_up") return { ...base, title: "Level up 昇", body: `You reached level ${clip(n.body, 10)}. Keep the night going.`, tag: "level", icon: `${site}/brand/yoru/app-icon-512.png` };
   const phrase = PHRASE[n.kind];
   if (phrase && n.actor) {

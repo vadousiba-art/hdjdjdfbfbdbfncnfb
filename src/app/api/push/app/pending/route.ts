@@ -5,8 +5,10 @@ import { wordPush, type PushItem } from "@/lib/push";
 
 // For the Android app's background check (used until Firebase is set up):
 // unread notifications newer than `since` (with two minutes of overlap; the
-// app skips ids it has already shown), worded exactly like pushes. The app
-// sends its session cookie; refreshed cookies come back as usual.
+// app skips ids it has already shown), worded exactly like pushes. Like
+// pushes, a notification waits 30 seconds first, so one you've already read in
+// the app never reaches the shade. The app sends its session cookie; refreshed
+// cookies come back as usual.
 
 type Row = {
   id: string; kind: string; body: string; read: boolean; created_at: string; post_id: string | null; channel_id: string | null;
@@ -20,7 +22,8 @@ export async function GET(req: NextRequest) {
     const rows = await db.rpc<Row[]>("get_notifications", { p_limit: 30 });
     const unread = rows.filter((r) => !r.read).length;
     const site = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin;
-    const fresh = rows.filter((r) => !r.read && Date.parse(r.created_at) > since).slice(0, 10);
+    const due = Date.now() - 30_000;
+    const fresh = rows.filter((r) => !r.read && Date.parse(r.created_at) > since && Date.parse(r.created_at) <= due).slice(0, 10);
     const items = fresh.map((r) => {
       const item: PushItem = {
         id: r.id, kind: r.kind, body: r.body, post_id: r.post_id, channel_id: r.channel_id, unread,

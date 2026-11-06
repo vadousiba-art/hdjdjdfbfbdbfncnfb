@@ -11,6 +11,7 @@ import {
   Bot,
   Flag,
   Heart,
+  Info,
   Pin,
   Sparkles,
   Link2,
@@ -49,6 +50,7 @@ import { AwardDialog } from "./AwardDialog";
 import { QuoteDialog } from "./QuoteDialog";
 import { playSound } from "@/lib/client/sounds";
 import { VideoPlayer } from "@/components/media/VideoPlayer";
+import { MoonBadge, MoonChip, MoonLaneLine } from "@/components/moon/Moonrise";
 
 function compact(n: number) {
   if (n < 1000) return String(n);
@@ -143,6 +145,7 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
   const [awardOpen, setAwardOpen] = useState(false);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [collectOpen, setCollectOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const { available: gates } = useOpenGates();
   const t = useT();
   const [roasting, setRoasting] = useState(false);
@@ -270,6 +273,21 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
     }
   }
 
+  // "Not interested": hides it for you, and its author and hashtags rank lower in your For You for 30 days.
+  async function notInterested() {
+    setDismissed(true);
+    try {
+      await rpc("mark_not_interested", { p_post: shown.id });
+    } catch (err) {
+      setDismissed(false);
+      toastError(err);
+    }
+  }
+  async function undoNotInterested() {
+    setDismissed(false);
+    await rpc("undo_not_interested", { p_post: shown.id }).catch(toastError);
+  }
+
   const startPress = () => {
     longPressed.current = false;
     pressTimer.current = setTimeout(() => {
@@ -354,6 +372,13 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
                   onSelect: toggleFeature,
                   hidden: !isStaff,
                 },
+                {
+                  label: "Why am I seeing this?",
+                  icon: <Info size={16} />,
+                  onSelect: () => toast(post.why ?? "", "info", "🌙"),
+                  hidden: !post.why,
+                },
+                { label: "Not interested", icon: <EyeOff size={16} />, onSelect: notInterested, hidden: mine || shown.author.id === me.id || shown.author.is_bot },
                 { label: "Report", icon: <Flag size={16} />, onSelect: () => setReportOpen(true), hidden: mine },
                 {
                   label: `Block @${shown.author.username}`,
@@ -379,6 +404,23 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
   const held = post.mod?.state === "held";
   const sensitive = post.mod?.state === "label" ? post.mod.label : null;
 
+  if (dismissed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: "auto" }}
+        className="flex items-center justify-between gap-3 border-b border-line/70 py-3.5 text-[13.5px] text-ink-2"
+      >
+        <span className="flex items-center gap-2">
+          <EyeOff size={16} className="shrink-0 text-muted" /> Got it. You&apos;ll see less like this.
+        </span>
+        <button type="button" onClick={undoNotInterested} className="shrink-0 font-semibold text-brand hover:underline">
+          Undo
+        </button>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.article
       layout="position"
@@ -395,6 +437,7 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
           reposted
         </div>
       )}
+      {post.lane === "moonrise" && post.why && !isRepost && <MoonLaneLine why={post.why} />}
       {held && (
         <Link
           href="/standing"
@@ -426,6 +469,17 @@ export function PostCard({ post: initial, detail, onDeleted }: Props) {
             <span className="min-w-0 truncate">@{shown.author.username}</span>
             <span aria-hidden>·</span>
             <TimeAgo iso={shown.created_at} className="shrink-0" />
+            {!isRepost && mine && post.moon_mine ? (
+              <>
+                <span aria-hidden>·</span>
+                <MoonChip postId={post.id} mine={post.moon_mine} />
+              </>
+            ) : !isRepost && post.moon ? (
+              <>
+                <span aria-hidden>·</span>
+                <MoonBadge phase={post.moon} />
+              </>
+            ) : null}
             {shown.author.flair && <span className="hidden truncate text-brand-2 sm:inline">· {shown.author.flair}</span>}
           </div>
         </div>

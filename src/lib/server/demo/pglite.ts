@@ -50,9 +50,12 @@ async function open(): Promise<PGlite> {
       .catch(() => {});
   });
 
-  // Post Planner: demo mode has no pg_cron, so this process publishes due
-  // drafts once a minute (the same function pg_cron runs on Supabase).
-  const tick = () => db.query("select public.pro_publish_due(50, 'demo')").catch(() => {});
+  // Demo mode has no pg_cron, so this process runs once a minute what pg_cron
+  // runs on Supabase: the Post Planner's due drafts and Moonrise's decisions.
+  const tick = async () => {
+    await db.query("select public.pro_publish_due(50, 'demo')").catch(() => {});
+    await db.query("select public.moon_tick(500)").catch(() => {});
+  };
   void tick();
   setInterval(tick, 60_000).unref?.();
 

@@ -17,6 +17,11 @@ const day = z.iso.date();
 
 export const REACTIONS = ["heart", "skull", "fire", "clown", "cap", "crying", "salute", "w", "l"] as const;
 export const AWARDS = ["menace", "war_crime", "touch_grass", "galaxy_brain", "skill_issue", "ratio"] as const;
+// The notification switches in Settings (set_notification_prefs, migration 0017).
+export const NOTIFICATION_KEYS = [
+  "likes", "comments", "mentions", "reposts", "messages", "awards", "friend_posts",
+  "following_posts", "follows", "top_posts", "moonrise",
+] as const;
 
 export const RPC_SCHEMAS = {
   // reads
@@ -346,6 +351,34 @@ export const RPC_SCHEMAS = {
   etransfer_undo: z.object({ p_id: id }),
   etransfer_set_day: z.object({ p_day: day, p_total_cents: z.number().int().min(0).max(10_000_000), p_note: text(200).optional() }),
   etransfer_days: z.object({ p_limit: z.number().int().min(1).max(366).optional() }),
+
+  // Following, notifications and Moonrise (migration 0017, docs/MOONRISE.md)
+  get_follow_state: z.object({ p_user: id }),
+  follow_user: z.object({ p_user: id }),
+  unfollow_user: z.object({ p_user: id }),
+  list_follows: z.object({ p_user: id, p_kind: z.enum(["followers", "following"]).optional(), p_limit: z.number().int().min(1).max(200).optional() }),
+  set_notification_prefs: z.object({ p: z.record(z.enum(NOTIFICATION_KEYS), z.boolean()) }),
+  get_for_you: z.object({
+    p_seen: z.array(id).max(300).optional(),
+    p_limit: z.number().int().min(5).max(30).optional(),
+    p_hour: z.number().int().min(0).max(23).nullable().optional(),
+  }),
+  get_moonrise: none,
+  get_moon_status: z.object({ p_post: id }),
+  mark_not_interested: z.object({ p_post: id }),
+  undo_not_interested: z.object({ p_post: id }),
+  admin_get_moonrise: none,
+  admin_set_moonrise: z.object({
+    p: z
+      .object({
+        enabled: z.boolean().optional(),
+        sizes: z.array(z.number().int().min(2).max(100_000)).length(3).optional(),
+        quotas: z.array(z.number().gt(0).max(1)).length(4).optional(),
+        second_night: z.boolean().optional(),
+        slots: z.number().int().min(0).max(4).optional(),
+      })
+      .strict(),
+  }),
 } as const;
 
 export type RpcName = keyof typeof RPC_SCHEMAS;
@@ -370,4 +403,5 @@ export const READ_RPCS: ReadonlySet<RpcName> = new Set<RpcName>([
   "night_watch_version", "get_watch", "get_interest_feed", "get_my_standing", "nw_dashboard", "nw_queue", "nw_appeals",
   "nw_member_file", "nw_get_config", "nw_test",
   "etransfer_config", "etransfer_my_orders", "etransfer_admin_orders", "etransfer_days",
+  "get_follow_state", "list_follows", "get_moonrise", "get_moon_status", "admin_get_moonrise",
 ]);

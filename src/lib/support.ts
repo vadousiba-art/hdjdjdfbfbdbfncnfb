@@ -15,4 +15,4 @@ export const TOPIC_LABELS: Record<SupportTopic, string> = {
 export const supportEmail = () => process.env.SUPPORT_EMAIL?.trim() || null;
 
 // Date shown on the privacy policy and terms.
-export const LEGAL_UPDATED = "November 5, 2026";
+export const LEGAL_UPDATED = "November 6, 2026";

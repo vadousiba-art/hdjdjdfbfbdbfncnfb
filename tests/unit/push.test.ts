@@ -42,6 +42,18 @@ describe("push wording", () => {
     expect(wordPush(n({ kind: "announcement", body: "", actor: null, post_id: null }), SITE).body).toBe("You have a new notification.");
   });
 
+  it("words following, new posts, top posts and Moonrise (migration 0017)", () => {
+    expect(wordPush(n({ kind: "follow", post_id: null }), SITE)).toMatchObject({ title: "Zach", body: "started following you", url: "/notifications" });
+    expect(wordPush(n({ kind: "new_post", body: "night walk #anime" }), SITE)).toMatchObject({ title: "Zach", body: "posted: “night walk #anime”", url: "/post/p1" });
+    expect(wordPush(n({ kind: "top_post", body: "🌕 Full Moon · speedrun done #gaming" }), SITE)).toMatchObject({
+      title: "🌕 Top post in your interests", body: "Zach: “speedrun done #gaming”", url: "/post/p1", tag: "top-p1",
+    });
+    expect(wordPush(n({ kind: "top_post", body: "🔴 Blood Moon · everyone saw this" }), SITE).title).toBe("🔴 Trending across YORU");
+    expect(wordPush(n({ kind: "moon", body: "Crescent", actor: null }), SITE)).toMatchObject({
+      title: "YORU · Moonrise", body: "Your post just reached 🌒 Crescent.", url: "/post/p1", tag: "moon-p1",
+    });
+  });
+
   it("resolves storage paths and keeps absolute avatars", () => {
     expect(wordPush(n({ actor: { ...zach, avatar: "u/abc.jpg" } }), SITE).icon).toBe("https://yoru.test/api/media/u/abc.jpg");
     expect(wordPush(n({ actor: { ...zach, avatar: "https://cdn.x/a.png" } }), SITE).icon).toBe("https://cdn.x/a.png");

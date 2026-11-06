@@ -8,7 +8,7 @@ import { pgQuery, pgRpc } from "./postgres";
 import { ensureDemoSeeded } from "./demo/seed";
 import { READ_RPCS, type RpcName } from "./rpc-registry";
 import { scheduleDrain } from "./realtime/outbox";
-import { schedulePush } from "./push";
+import { mayNotify, schedulePush } from "./push";
 
 // Server-side functions that write (and so may produce live events).
 const SERVICE_WRITES = /^(bot_|nw_|delete_account$|submit_support$|pro_publish_due$)/;
@@ -88,7 +88,7 @@ function rpcVia(userId: string, call: (fn: string, args: Record<string, unknown>
       try {
         const out = (await call(fn, args ?? {})) as T;
         // A write may have created notifications: send any pushes in the background.
-        if (!READ_RPCS.has(fn as RpcName)) schedulePush();
+        if (!READ_RPCS.has(fn as RpcName) && mayNotify(fn)) schedulePush();
         return out;
       } catch (err) {
         throw toAppError(err);

@@ -64,6 +64,20 @@ export default function PrivacyPage() {
             with the date you earned them.
           </li>
           <li>
+            <b>Follows:</b> who you follow and who follows you, so you can be told when someone you follow posts. Follower counts and lists are
+            visible to other members. Blocking someone ends following in both directions.
+          </li>
+          <li>
+            <b>&quot;Not interested&quot;:</b> posts you mark this way, with their author and hashtags, so For You shows you less like them (for 30
+            days) and hides that post for you. They&apos;re kept until you undo them or delete your account, and are never shown to anyone.
+          </li>
+          <li>
+            <b>Moonrise:</b> when Moonrise is on, new posts are first shown to a few members who picked matching interests. To count each person
+            once, YORU records which posts it showed to whom as part of these tests (the post, the person, the phase and the time). These records
+            are deleted automatically after 7 days, are never shown to anyone (authors only see totals, such as &quot;shown to 64 of 100&quot;), and
+            are used for nothing else. YORU still doesn&apos;t record watch time, scrolling, or anything from outside YORU.
+          </li>
+          <li>
             <b>Profile visit counts:</b> when a signed-in member opens your profile, we add one to a daily total for your profile. To count each
             visitor only once a day, we keep a hashed key made from the visitor, your profile and the date. That key is deleted after about two
             days and is never shown to anyone, including you and admins. You only see totals, never who visited.
@@ -164,6 +178,10 @@ export default function PrivacyPage() {
         </p>
 
         <h3 id="push">Push notifications</h3>
+        <p>
+          A push is sent about 30 seconds after the notification, and only if it&apos;s still unread by then, so you aren&apos;t pinged about
+          something you&apos;ve already seen in the app.
+        </p>
         <p>
           Push notifications are off until you turn them on and allow them on a device. On the website and the installed web app, your browser
           gives YORU a push address at its push service (Google for Chrome, Mozilla for Firefox, Apple for Safari, Microsoft for Edge) and two

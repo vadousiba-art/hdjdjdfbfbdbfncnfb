@@ -32,7 +32,10 @@ async function signup(name: string) {
   ]);
   return r.rows[0].id;
 }
-const claim = async () => (await db.query<{ r: { kind: string; actor: { name: string } | null; unread: number; devices: { endpoint: string }[] }[] }>("select public.push_claim(100) as r")).rows[0].r;
+// pushes wait 30 seconds (migration 0017); `claim` is the server's drain once they're due
+const due = () => db.query("update public.push_outbox set due_at = now() - interval '1 second'");
+const claimNow = async () => (await db.query<{ r: { kind: string }[] }>("select public.push_claim(100) as r")).rows[0].r;
+const claim = async () => (await due(), (await db.query<{ r: { kind: string; actor: { name: string } | null; unread: number; devices: { endpoint: string }[] }[] }>("select public.push_claim(100) as r")).rows[0].r);
 const queued = async () => (await db.query<{ n: number }>("select count(*)::int as n from public.push_outbox")).rows[0].n;
 
 beforeAll(async () => {
@@ -65,6 +68,20 @@ describe("push notifications", () => {
     expect(items[0]).toMatchObject({ kind: "comment", actor: { name: "push_zed" } });
     expect(items[0].devices.map((d) => d.endpoint)).toEqual(["https://push.example/1"]);
     expect(await queued()).toBe(0); // claimed means sent once
+  });
+
+  it("waits 30 seconds, and never pushes what was read in the app meanwhile", async () => {
+    await as(u.zed, "add_comment", { p_post_id: u.post, p_body: "too soon" });
+    expect(await queued()).toBe(1);
+    expect(await claimNow()).toEqual([]); // not due yet: nothing sent, still queued
+    expect(await queued()).toBe(1);
+    const wait = (await db.query<{ s: number }>("select public.push_next_due() as s")).rows[0].s;
+    expect(wait).toBeGreaterThan(25);
+    expect(wait).toBeLessThanOrEqual(30);
+    await db.query("update public.notifications set read_at = now() where user_id = $1 and read_at is null", [u.ari]);
+    expect(await claim()).toEqual([]); // due, but already read: dropped, not sent
+    expect(await queued()).toBe(0);
+    expect((await db.query<{ s: number | null }>("select public.push_next_due() as s")).rows[0].s).toBeNull();
   });
 
   it("follows notification settings and blocks (they decide what's pushed)", async () => {

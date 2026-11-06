@@ -18,6 +18,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Feed } from "@/components/feed/Feed";
 import { ReportDialog } from "@/components/feed/ReportDialog";
 import { EditProfileDialog } from "@/components/profile/EditProfileDialog";
+import { FollowButton, FollowCounts } from "@/components/profile/Follow";
 import { PostCard } from "@/components/feed/PostCard";
 import { XpBar } from "@/components/yoru/Progression";
 import { CURRENTLY, hueColor, levelProgress } from "@/lib/progress";
@@ -331,9 +332,10 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 </Link>
               ) : (
                 <>
+                  {!p.blocked && <FollowButton userId={p.id} username={p.username} />}
                   {!p.blocked && (
-                    <Button onClick={dm}>
-                      <MessageCircle size={16} /> Message
+                    <Button variant="outline" onClick={dm} aria-label="Message">
+                      <MessageCircle size={16} /> <span className="hidden sm:inline">Message</span>
                     </Button>
                   )}
                   <Menu
@@ -389,6 +391,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
             )}
             {p.status && <div className="mt-1 text-sm font-semibold text-online">● {p.status}</div>}
             {p.bio && <p className="mt-2 whitespace-pre-wrap text-[15px]">{p.bio}</p>}
+            {!p.is_bot && !p.blocked && <FollowCounts userId={p.id} />}
             <div className="mt-2 flex items-center gap-1 text-xs text-muted">
               <CalendarDays size={14} /> Joined {new Date(p.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
               {p.roast_opt_in && <span className="ms-2 rounded-full bg-roast/15 px-2 py-0.5 font-bold text-roast">🔥 roastable</span>}

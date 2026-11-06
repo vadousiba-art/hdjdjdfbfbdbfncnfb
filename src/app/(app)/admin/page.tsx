@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button, ChaosLoader, Empty, PageTitle, TimeAgo } from "@/components/ui/bits";
 import { AdminOverviewPanel } from "@/components/admin/Overview";
 import { SiteControls } from "@/components/admin/SiteControls";
+import { MoonriseControls } from "@/components/admin/MoonriseControls";
 import { AuditLog } from "@/components/admin/AuditLog";
 import { SupportInbox } from "@/components/admin/SupportInbox";
 import { MemberToolsDialog } from "@/components/admin/MemberTools";
@@ -162,7 +163,12 @@ export default function AdminPage() {
       {nwView}
 
       {tab === "overview" && <AdminOverviewPanel onGoto={setTab} />}
-      {tab === "controls" && <SiteControls />}
+      {tab === "controls" && (
+        <>
+          <MoonriseControls />
+          <SiteControls />
+        </>
+      )}
       {tab === "log" && <AuditLog />}
       {tab === "inbox" && <SupportInbox />}
 

@@ -29,32 +29,50 @@ export const webPushEnabled = webPushReady;
 
 type Device = { kind?: "webpush" | "fcm"; endpoint: string; p256dh?: string | null; auth?: string | null };
 type Claimed = PushItem & { devices: Device[] };
-const g = globalThis as unknown as { __yoruPush?: { running: boolean; again: boolean } };
+
+// Pushes wait 30 seconds after the notification (migration 0017), and one you
+// read in the app meanwhile is never sent. After a write, the request stays
+// open in the background until what it queued is due, sends it, and stops:
+// at most WAIT_BUDGET_MS, inside the function's 60-second limit. Several
+// requests draining at once is safe: each queued push is claimed exactly once.
+const WAIT_BUDGET_MS = 45_000;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// When this server's background drain will stop (0 = none running).
+const g = globalThis as unknown as { __yoruPushUntil?: number };
+
+// Writes that never create a notification, so they never need a drain.
+const QUIET = new Set([
+  "get_for_you", "mark_not_interested", "undo_not_interested", "touch_presence", "mark_channel_read",
+  "mark_notifications_read", "set_notification_prefs", "unfollow_user", "push_subscribe", "push_unsubscribe",
+]);
+export const mayNotify = (fn: string) => !QUIET.has(fn);
 
 export function schedulePush() {
   if (!pushReady()) return;
-  const state = (g.__yoruPush ??= { running: false, again: false });
-  if (state.running) {
-    state.again = true;
-    return;
-  }
-  state.running = true;
-  const job = (async () => {
-    try {
-      do {
-        state.again = false;
-        await sendQueued();
-      } while (state.again);
-    } catch (err) {
-      console.warn("[yoru] push send failed:", (err as Error).message);
-    } finally {
-      state.running = false;
-    }
-  })();
+  // A drain already running here outlives anything this request queued (due in 30 s).
+  if ((g.__yoruPushUntil ?? 0) > Date.now() + 31_000) return;
+  const job = drainUntilQuiet().catch((err) => console.warn("[yoru] push send failed:", (err as Error).message));
   try {
     waitUntil(job);
   } catch {
     /* outside a request the promise simply runs */
+  }
+}
+
+async function drainUntilQuiet() {
+  const end = Date.now() + WAIT_BUDGET_MS;
+  g.__yoruPushUntil = Math.max(g.__yoruPushUntil ?? 0, end);
+  try {
+    for (;;) {
+      await sendQueued();
+      const next = await serviceRpc<number | null>("push_next_due", {});
+      if (next == null) return;
+      const wait = Math.ceil(next * 1000) + 250;
+      if (Date.now() + wait > end) return; // a later request picks it up
+      await sleep(wait);
+    }
+  } finally {
+    if (g.__yoruPushUntil === end) g.__yoruPushUntil = 0;
   }
 }
 

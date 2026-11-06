@@ -5,6 +5,7 @@ import Link from "next/link";
 import { StoriesBar } from "@/components/stories/StoriesBar";
 import { InlineComposer } from "@/components/feed/InlineComposer";
 import { Feed } from "@/components/feed/Feed";
+import { ForYouFeed } from "@/components/feed/ForYouFeed";
 import { FeedTabs, type FeedTab } from "@/components/feed/FeedTabs";
 import { FeaturedStrip, NightlyCard, SiteNotices } from "@/components/yoru/Progression";
 import { Empty } from "@/components/ui/bits";
@@ -49,7 +50,7 @@ export default function HomePage() {
       </div>
       <FeedTabs value={tab} onChange={setTab} />
       {tab === "for_you" && <FeaturedStrip />}
-      {tab === "for_you" && <Feed key="for_you" mode="trending" emptyText="Nothing trending yet. Check Latest for everything new." />}
+      {tab === "for_you" && <ForYouFeed key="for_you" emptyText="Nothing trending yet. Check Latest for everything new." />}
       {tab === "latest" && <Feed key="latest" mode="latest" live />}
       {tab === "interests" &&
         (noInterests ? (

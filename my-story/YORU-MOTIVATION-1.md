@@ -34,54 +34,66 @@ the usual 1–3 word captions at 68% down, because that's the look you asked for
 else stays: each word just appears in place (nothing flies or slides), one font, plain cuts,
 pauses over 0.1 s cut.
 
-## The scripts (about 15 s each, three different messages)
+## The script: "Nobody's coming" (scripts 2 and 3 mixed, about 18 s)
 
-Each line below is one **block**. The words stack up as you say them, then the block clears
-for the next one. **Bold** marks the big words, and the red word is the one in [brackets].
-Every script ends with the same small line for the last 2 seconds: COMMENT "NIGHT" AND I'LL
-SEND YOU WHAT I'M BUILDING.
+> **Nobody's coming to give you permission.**
+> So your first version will be embarrassing, and you'll post it anyway, because waiting for
+> perfect is just quitting slowly.
+> **Cringe beats never.**
+> Nobody's coming, and that's the best news you'll get, because the only person you're
+> waiting on is you.
+> **Ship it tonight.**
 
-### Script 1 (main): "You're early". Being young is a head start.
+### The rhythm: short, long, short, long, short
 
-> You're not too young. You're early. Everyone else is waiting until they're ready. You get
-> to be bad at it first. Fail while it's cheap. So when they finally start... you've been
-> doing it for years. Start now.
+| # | Type | Line | Words |
+| --- | --- | --- | --- |
+| 1 | **Hook (short)** | Nobody's coming to give you permission. | 6 |
+| 2 | Long (a sentence and a half) | So your first version will be embarrassing, and you'll post it anyway, because waiting for perfect is just quitting slowly. | 20 |
+| 3 | **Short** | Cringe beats never. | 3 |
+| 4 | Long (the second hook) | Nobody's coming, and that's the best news you'll get, because the only person you're waiting on is you. | 18 |
+| 5 | **Short (the ending)** | Ship it tonight. | 3 |
 
-1. YOU'RE NOT / **TOO [YOUNG.]**
-2. YOU'RE / **[EARLY.]**
-3. EVERYONE ELSE / IS WAITING / **TO BE [READY.]**
-4. YOU GET TO BE / **[BAD] AT IT** / FIRST.
-5. FAIL WHILE / **IT'S [CHEAP.]**
-6. SO WHEN THEY / FINALLY START... / YOU'VE BEEN DOING IT / **FOR [YEARS.]**
-7. START / **[NOW.]**
+- Every short line is under 7 words, and every long line is one sentence and a bit, easy to
+  say in one breath (breathe at the comma if you need to).
+- **Line 4 is a callback:** it repeats the hook ("Nobody's coming") but flips its meaning
+  from scary to good news. That twist is this video's "You do."
+- Script 3 gives the hook, the callback and the "tonight"; script 2 gives the embarrassing
+  first version and "cringe beats never".
 
-Why it's the main one: it's you (17, building an app), the first line is the hook, and
-every young person who's been told "you're too young" knows someone to send it to.
+### The blocks on screen (one red word per block)
 
-### Script 2: "Ship it embarrassing". Start before it's good.
+1. NOBODY'S COMING / TO GIVE YOU / **[PERMISSION.]**
+2. SO YOUR FIRST VERSION / **WILL BE [EMBARRASSING,]**
+3. AND YOU'LL POST IT ANYWAY, / BECAUSE WAITING FOR PERFECT / **IS JUST QUITTING [SLOWLY.]**
+4. **CRINGE / BEATS / [NEVER.]**
+5. NOBODY'S COMING, / AND THAT'S / **THE BEST [NEWS]** / YOU'LL GET,
+6. BECAUSE THE ONLY PERSON / YOU'RE WAITING ON / **IS [YOU.]**
+7. SHIP IT / **[TONIGHT.]**
+8. (small, last 2 s) COMMENT "NIGHT" AND I'LL SEND YOU WHAT I'M BUILDING
 
-> Your first version is going to be embarrassing. Ship it anyway. Most things you admire
-> started out rough. The only thing worse than cringe... is never starting. Post it. Ship
-> it. Fix it later.
+### Alternate lines (one extra take each, for the test versions)
 
-1. YOUR FIRST VERSION / IS GOING TO BE / **[EMBARRASSING.]**
-2. SHIP IT / **[ANYWAY.]**
-3. MOST THINGS / YOU ADMIRE / **STARTED OUT [ROUGH.]**
-4. THE ONLY THING / WORSE THAN **CRINGE...** / **IS [NEVER] STARTING.**
-5. POST IT. / SHIP IT. / **FIX IT [LATER.]**
-
-### Script 3: "Nobody's coming". Stop waiting for permission.
-
-> Nobody's coming. No one's going to hand you the life you want. No permission. No perfect
-> moment. Just you, tonight, deciding. So decide.
-
-1. NOBODY'S / **[COMING.]**
-2. NO ONE'S GOING / TO HAND YOU / **THE [LIFE] YOU WANT.**
-3. NO PERMISSION. / **NO PERFECT / [MOMENT.]**
-4. JUST YOU, / **[TONIGHT,]** / DECIDING.
-5. SO / **[DECIDE.]**
+- Hook: **"Nobody's coming to save your idea."** (6 words)
+- Ending: **"So decide. Tonight."** (3 words)
 
 Say the lines your way. If a word comes out different, I'll put up the words you actually say.
+
+### The technique: what it's called
+
+There isn't one official name for it, but it's well known:
+
+- **Sentence length variation.** Gary Provost's "write music" passage in *100 Ways to Improve
+  Your Writing* (1985) is the famous example: a run of same-length sentences gets monotonous,
+  so mix short, medium and long so the writing "sings".
+- **Tension and release** (also called suspension and resolution). A long sentence builds,
+  and the short one right after it lands the point. The contrast is what makes the short line
+  hit.
+- Two classic devices in this script: the **callback** (line 4 repeats the hook) and the
+  **punch line** or "kicker" (the short line that ends each beat).
+
+**Saved for later:** "You're early" (being young is a head start) is still a good separate
+video. Its script is in git history if you want it next.
 
 ## How to record
 
@@ -94,15 +106,15 @@ Say the lines your way. If a word comes out different, I'll put up the words you
    words. No sunglasses, same as the original.
 3. **Delivery:** wide eyes, barely blink, stare **into the lens**, not the screen. Slow, low
    and steady, without long stops between lines (I cut every gap over 0.1 s, so steady speech
-   keeps it one continuous stare). Pause a beat before the twist line (Script 1:
-   "You're early." / Script 2: "Ship it anyway." / Script 3: "So decide.") and say it
-   slowest
-4. **Takes:** each script **in one go, start to finish**, 3 takes each, with a second of
-   silence before and after.
+   keeps it one continuous stare). Long lines: steady, one breath, like you're
+   explaining. **Short lines: stop for a beat first, then say them slower and lower, hitting
+   every word** ("Cringe. Beats. Never."). The contrast is what makes them land
+4. **Takes:** the whole script **in one go, start to finish**, 3 takes, with a second of
+   silence before and after. Then one take each of the alternate hook and ending lines.
 5. **Extras:**
-   - Script 1 once more with a **normal monitor** (blue or white glow), to test the original
-     look against the red one.
-   - Optional: after Script 1, quieter: "If you want to see what I'm building... comment
+   - The script once more with a **normal monitor** (blue or white glow), to test the
+     original look against the red one.
+   - Optional: after the script, quieter: "If you want to see what I'm building... comment
      NIGHT." (a spoken-CTA version)
 
 ## How I'll edit it
@@ -115,46 +127,32 @@ Say the lines your way. If a word comes out different, I'll put up the words you
 - **Handle:** Instagram icon + @ethan_lang__founder, lower left.
 - **Sound:** your voice, cleaned to -14 LUFS. If you want, add a quiet trending sound in
   Instagram.
-- **Four versions:** Script 1 in red (main), Script 1 in blue (look test), Script 2 and
-  Script 3. The spoken-CTA cut too, if you record it.
+- **Four versions:** the main one in red, the same in blue (look test), the alternate hook
+  ("...to save your idea") and the alternate ending ("So decide. Tonight."). The spoken-CTA
+  cut too, if you record it.
 
-## Captions (drafts)
+## Caption (draft)
 
-**Script 1:**
-> You're not too young. You're early. 🌙
+> Nobody's coming to give you permission. 🌙
 >
-> Send this to the friend who keeps saying they'll start "when they're older". And comment
-> NIGHT if you want to see what I'm building at 17.
->
-> #buildinpublic #youngentrepreneur #founder #motivation
-
-**Script 2:**
-> Your first version will be embarrassing. Ship it anyway. 🌙
+> Ship the embarrassing version tonight.
 >
 > Send this to the friend sitting on a project they're too scared to post. Comment NIGHT and
 > I'll send you what I'm building.
 >
 > #buildinpublic #founder #entrepreneur #motivation
 
-**Script 3:**
-> Nobody's coming. Decide tonight. 🌙
->
-> Send this to the friend who's been waiting for the "right moment". Comment NIGHT and I'll
-> send you what I'm building.
->
-> #buildinpublic #founder #entrepreneur #motivation
-
 ## Posting
 
-- Space them out: one a day, starting with Script 1 (red). Post the blue test when you want
-  to compare the looks.
-- If your account has **over 1,000 followers**, try Scripts 2 and 3 as **Trial Reels** first
-  (non-followers only).
+- Post the red main version first. Post the blue version and the alternate lines on later
+  days to see which wins.
+- If your account has **over 1,000 followers**, try the test versions as **Trial Reels**
+  first (non-followers only).
 - Reply to every NIGHT comment with the YORU link.
 
 ## What I need from you
 
 1. **The 5-second light test**, first.
-2. Then the takes: Scripts 1–3 and the extras.
+2. Then the takes: the full script (3 takes), the alternate lines and the extras.
 3. Your handle is **@ethan_lang__founder** (from your screenshot). Tell me if the videos
    should use a different one.

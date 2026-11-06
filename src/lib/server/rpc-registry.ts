@@ -379,6 +379,9 @@ export const RPC_SCHEMAS = {
       })
       .strict(),
   }),
+  // Night Crew (migration 0018)
+  admin_get_crew: none,
+  admin_set_crew: z.object({ p_enabled: z.boolean() }),
 } as const;
 
 export type RpcName = keyof typeof RPC_SCHEMAS;
@@ -403,5 +406,5 @@ export const READ_RPCS: ReadonlySet<RpcName> = new Set<RpcName>([
   "night_watch_version", "get_watch", "get_interest_feed", "get_my_standing", "nw_dashboard", "nw_queue", "nw_appeals",
   "nw_member_file", "nw_get_config", "nw_test",
   "etransfer_config", "etransfer_my_orders", "etransfer_admin_orders", "etransfer_days",
-  "get_follow_state", "list_follows", "get_moonrise", "get_moon_status", "admin_get_moonrise",
+  "get_follow_state", "list_follows", "get_moonrise", "get_moon_status", "admin_get_moonrise", "admin_get_crew",
 ]);

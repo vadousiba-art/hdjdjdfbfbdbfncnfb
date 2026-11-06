@@ -55,6 +55,7 @@ async function open(): Promise<PGlite> {
   const tick = async () => {
     await db.query("select public.pro_publish_due(50, 'demo')").catch(() => {});
     await db.query("select public.moon_tick(500)").catch(() => {});
+    await db.query("select public.crew_tick(0.35)").catch(() => {});
   };
   void tick();
   setInterval(tick, 60_000).unref?.();

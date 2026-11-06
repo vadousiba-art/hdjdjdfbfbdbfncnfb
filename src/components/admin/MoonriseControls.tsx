@@ -22,6 +22,31 @@ type Admin = {
 
 const field = "w-full rounded-xl border border-line bg-card-2 px-3 py-2 text-sm tabular-nums text-ink outline-none focus:border-brand";
 
+// The Night Crew (migration 0018): labeled YORU bot accounts that like new
+// posts and follow members, so nobody posts into silence early on.
+function NightCrew() {
+  const { toast, toastError } = useApp();
+  const { data, mutate } = useRpc<{ enabled: boolean; likes_week: number; follows: number }>("admin_get_crew");
+  if (!data) return null;
+  return (
+    <div className="border-t border-line pt-3">
+      <Toggle
+        checked={data.enabled}
+        onChange={async (v) => {
+          try {
+            mutate(await rpc("admin_set_crew", { p_enabled: v }), { revalidate: false });
+            toast(v ? "Night Crew is on." : "Night Crew is off.", "success", "🌙");
+          } catch (err) {
+            toastError(err);
+          }
+        }}
+        label="Night Crew"
+        description={`5 labeled bot accounts that like new posts (1 to 4 each, at random times) and follow every member once. ${data.likes_week} likes this week, ${data.follows} follows.`}
+      />
+    </div>
+  );
+}
+
 export function MoonriseControls() {
   const { toast, toastError } = useApp();
   const { mutate: mutateAll } = useSWRConfig();
@@ -159,6 +184,7 @@ export function MoonriseControls() {
           ))}
         </select>
       </label>
+      <NightCrew />
     </section>
   );
 }

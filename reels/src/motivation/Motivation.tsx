@@ -2,7 +2,8 @@
 // talking shot, and the words stacking up as they're said (small connector lines, big
 // key lines, one YORU-red word per block). Words never move: each one appears on the
 // frame it's spoken and goes from grey to white in 4 frames. The beat stops dead after the
-// last word; on the boom it cuts to black with the last block and the CTA.
+// last word; on the boom it cuts to black with the last block and the CTA. The audio is one
+// pre-mixed track (voice + the reference's piano loop), so the video itself is muted.
 import React from "react";
 import { AbsoluteFill, Audio, CalculateMetadataFunction, Composition, continueRender, delayRender, Folder, interpolateColors, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { fitText } from "@remotion/layout-utils";
@@ -82,10 +83,11 @@ const Reel: React.FC<Props> = ({ version, edit, sizes }) => {
     <AbsoluteFill style={{ background: "#000" }}>
       <Sequence durationInFrames={edit.frames} premountFor={0}>
         <AbsoluteFill>
-          <OffthreadVideo src={staticFile(`recordings/motivation/${version}/aroll.mp4`)} style={{ width: W, height: H }} />
+          <OffthreadVideo src={staticFile(`recordings/motivation/${version}/aroll.mp4`)} muted style={{ width: W, height: H }} />
         </AbsoluteFill>
       </Sequence>
-      <Audio src={staticFile(`recordings/motivation/${version}/music.wav`)} />
+      {/* voice + the reference piano, pre-mixed and peak-limited by scripts/motivation-music.py */}
+      <Audio src={staticFile(`recordings/motivation/${version}/mix.wav`)} />
       {now >= 0 ? <Stack block={v.blocks[now]} sizes={sizes[now]} edit={edit} frame={frame} /> : null}
       {card ? (
         <div style={{ position: "absolute", left: LEFT, top: TOP + 300, fontFamily: "Inter", textTransform: "uppercase", color: C.ink, textShadow: SHADOW }}>

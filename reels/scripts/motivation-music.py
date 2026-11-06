@@ -1,18 +1,22 @@
-"""The soundtrack for the motivation reel: an original dark trap bed, built to the same plan
-as the reference video's music (measured 2026-11-06):
-
-  - the hook is dry: no music under it
-  - the beat drops on the first word after the hook: 808 on F and E (a half step, E
-    Phrygian) with slides, kick, half-time clap, hi-hats with rolls, a dark bell line
-    and a low pad, at 152 BPM
-  - everything stops dead the moment the last word ends
-  - silence, then one huge low boom (pitched on C) on the cut to black
+"""The soundtrack for the motivation reel: the reference reel's own piano, looped.
 
   python3 scripts/motivation-music.py <version>
 
-Reads public/recordings/motivation/<version>/edit.json and writes music.wav (48 kHz
-stereo) beside it, timed to that version's words. Nothing here is sampled: every sound is
-synthesised below.
+The music comes from the creator's best-performing reel (the reference): its voice was
+separated out with HTDemucs (scripts/separate-reference.py), leaving the piano and the
+closing boom in public/recordings/motivation/ref-music.wav. That piano is a short figure
+that repeats every bar; measured on a log spectrogram it matches itself 0.93 two bars on
+(3.104 s), so it loops cleanly on a chord attack.
+
+Same plan as the reference:
+  - the hook is dry: no music under it
+  - the piano comes in on the first word after the hook (its own opening two bars, which
+    start from silence), then loops two bars (attack at 5.8747 s to attack at 8.9786 s)
+  - it fades out with the last word, a short silence, then the reference's boom on the
+    cut to black
+
+Writes music.wav (the music alone) and mix.wav (voice + music through a limiter, the
+track the reel plays) beside the version's edit.json.
 """
 
 import json
@@ -20,242 +24,139 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import wave
 
 import numpy as np
 from scipy import signal
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 VERSION = sys.argv[1]
-OUT = ROOT / "public" / "recordings" / "motivation" / VERSION
+REC = ROOT / "public" / "recordings" / "motivation"
+OUT = REC / VERSION
 EDIT = json.loads((OUT / "edit.json").read_text())
 SR = 48000
-BPM = 152
-STEP = 60 / BPM / 4            # one 16th note
-BAR = 16 * STEP
-CARD = 1.6                      # the black end card after the a-roll, in seconds
-BED_LUFS = -21.0                # the beat, under a -14 LUFS voice
-BOOM_PEAK = 10 ** (-2.0 / 20)   # the boom's sample peak
-rng = np.random.default_rng(152)
+CARD = 1.6               # the black end card after the a-roll, in seconds
 
-words = EDIT["words"]
-drop = next(w for w in words if w["seg"] == 1)["startMs"] / 1000          # first word after the hook
-stop = max(w["endMs"] for w in words) / 1000                               # the last word ends
-boom_at = EDIT["frames"] / EDIT["fps"]                                     # the cut to black
-total = boom_at + CARD
-N = int(round(total * SR))
+# measured in ref-music.wav (44.1 kHz)
+INTRO = (2.7734, 5.8747)  # the piano's own first two bars, from silence
+LOOP = (5.8747, 8.9786)   # two bars, attack to attack
+BOOM = (16.85, 18.45)     # the boom; it starts at 16.88
+BOOM_ONSET = 16.88
+PRE = 0.004               # start each piece this far before its attack
+XFADE = 0.012             # equal-power crossfade at every splice
+OUTRO_FADE = 0.25         # the piano fades out over this after the last word
 
-
-def note(name):
-    names = {"C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11}
-    return 440.0 * 2 ** ((names[name[:-1]] + 12 * (int(name[-1]) + 1) - 69) / 12)
+PIANO_LUFS = -15.0        # just under the -14 LUFS voice before ducking (the reference had it louder than the voice)
+BOOM_OVER_PIANO = 6.3     # dB, as in the reference (-8.0 vs -14.3 LUFS)
+DUCK_MARGIN = 1.5         # the voice stays at least this many dB above the piano
+DUCK_MAX = 6.0            # the piano never dips more than this
 
 
-def place(buf, x, t, gain=1.0):
-    i = int(round(t * SR))
-    if i >= len(buf) or i + len(x) <= 0:
-        return
-    a, b = max(0, i), min(len(buf), i + len(x))
-    buf[a:b] += gain * x[a - i:b - i]
+def read(path):
+    with wave.open(str(path)) as w:
+        sr, ch = w.getframerate(), w.getnchannels()
+        x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64).reshape(-1, ch) / 32768
+    return sr, x
 
 
-def env_exp(n, tau, attack=0.003):
-    t = np.arange(n) / SR
-    e = np.exp(-t / tau)
-    at = max(1, int(attack * SR))
-    e[:at] *= np.linspace(0, 1, at)
-    return e
-
-
-def lowpass(x, hz, order=2):
-    b, a = signal.butter(order, hz / (SR / 2), "low")
-    return signal.lfilter(b, a, x)
-
-
-def highpass(x, hz, order=2):
-    b, a = signal.butter(order, hz / (SR / 2), "high")
-    return signal.lfilter(b, a, x)
-
-
-def bandpass(x, lo, hi, order=2):
-    b, a = signal.butter(order, [lo / (SR / 2), hi / (SR / 2)], "band")
-    return signal.lfilter(b, a, x)
-
-
-# ---------------------------------------------------------------- instruments
-
-def bass808(f_to, dur, f_from=None):
-    n = int((dur + 0.04) * SR)
-    t = np.arange(n) / SR
-    if f_from:
-        glide = np.clip(t / (dur * 0.55), 0, 1)
-        f = f_from * (f_to / f_from) ** glide
-    else:
-        f = np.full(n, f_to)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    x = np.sin(ph) + 0.22 * np.sin(2 * ph)
-    e = env_exp(n, 0.55, 0.002)
-    rel = int(0.04 * SR)
-    e[-rel:] *= np.linspace(1, 0, rel)
-    x = np.tanh(2.4 * x * e) / np.tanh(2.4)
-    return x
-
-
-def kick():
-    n = int(0.45 * SR)
-    t = np.arange(n) / SR
-    f = 48 + 120 * np.exp(-t / 0.03)
-    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * env_exp(n, 0.16, 0.001)
-    click = highpass(rng.standard_normal(n), 2500) * env_exp(n, 0.004, 0.0005) * 0.25
-    return np.tanh(1.8 * (x + click))
-
-
-def clap():
-    n = int(0.5 * SR)
-    noise = bandpass(rng.standard_normal(n), 1100, 6500)
-    e = np.zeros(n)
-    for k, d in enumerate([0.0, 0.009, 0.018]):     # three quick hands, then the tail
-        i = int(d * SR)
-        e[i:] += env_exp(n - i, 0.012 if k < 2 else 0.16, 0.0005) * (0.7 if k < 2 else 1.0)
-    body = np.sin(2 * np.pi * 185 * np.arange(n) / SR) * env_exp(n, 0.05) * 0.35
-    return (noise * e * 0.6 + body)
-
-
-def hat(vel=1.0, tau=0.022):
-    n = int(0.12 * SR)
-    x = highpass(rng.standard_normal(n), 7200, 3) * env_exp(n, tau, 0.0005)
-    return x * 0.35 * vel
-
-
-def bell(f, dur=1.6):
-    n = int(dur * SR)
-    t = np.arange(n) / SR
-    idx = 0.4 + 2.6 * np.exp(-t / 0.25)
-    x = np.sin(2 * np.pi * f * t + idx * np.sin(2 * np.pi * f * 3.5 * t))
-    return x * env_exp(n, 0.8, 0.002) * 0.5
-
-
-def pad(freqs, dur):
-    n = int(dur * SR)
-    t = np.arange(n) / SR
-    x = np.zeros(n)
-    for f in freqs:
-        for cents in (-8, 0, 8):
-            fr = f * 2 ** (cents / 1200)
-            x += signal.sawtooth(2 * np.pi * fr * t + rng.uniform(0, 6.28))
-    x = lowpass(x / (3 * len(freqs)), 850, 2)
-    e = np.minimum(1, t / 1.8) * np.minimum(1, (dur - t) / 0.05).clip(0, 1)
-    return x * e
-
-
-def boom():
-    n = int(CARD * SR)
-    t = np.arange(n) / SR
-    f = 33 + 90 * np.exp(-t / 0.09)                      # falls onto a low C-ish rumble
-    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * env_exp(n, 0.55, 0.001)
-    tone = np.sin(2 * np.pi * note("C2") * t) * env_exp(n, 0.42, 0.002) * 0.6
-    hit = lowpass(rng.standard_normal(n), 320, 2) * env_exp(n, 0.18, 0.0005) * 1.4
-    crack = bandpass(rng.standard_normal(n), 800, 5000) * env_exp(n, 0.03, 0.0003) * 0.25
-    x = np.tanh(1.6 * (sub + tone + hit + crack))
-    tail = int(0.08 * SR)
-    x[-tail:] *= np.linspace(1, 0, tail)
-    return x
-
-
-def reverb(x, secs=1.4, mix=0.25):
-    n = int(secs * SR)
-    ir_l = rng.standard_normal(n) * np.exp(-np.arange(n) / SR / (secs / 5))
-    ir_r = rng.standard_normal(n) * np.exp(-np.arange(n) / SR / (secs / 5))
-    ir_l, ir_r = lowpass(ir_l, 6000) / np.sqrt(n), lowpass(ir_r, 6000) / np.sqrt(n)
-    wl = signal.fftconvolve(x, ir_l)[: len(x)]
-    wr = signal.fftconvolve(x, ir_r)[: len(x)]
-    return np.stack([x + mix * 30 * wl, x + mix * 30 * wr])
-
-
-# ---------------------------------------------------------------- arrangement
-
-# 808 patterns: (16th step, note, length in steps, slide from)
-BASS = [
-    [(0, "F2", 6, None), (6, "F2", 4, None), (10, "E2", 6, None)],
-    [(0, "F2", 4, None), (4, "E2", 3, None), (8, "F#2", 6, "B2"), (14, "F2", 2, None)],
-    [(0, "F2", 6, None), (6, "F2", 4, None), (10, "E2", 6, None)],
-    [(0, "E2", 6, None), (6, "A2", 4, "A#2"), (12, "F2", 4, None)],
-]
-KICKS = [[0, 6, 10], [0, 4, 8, 14], [0, 6, 10], [0, 6, 11]]
-BELLS = [[(0, "E5"), (4, "F5"), (6, "E5"), (8, "C5"), (12, "B4")],
-         [(0, "E5"), (4, "F5"), (6, "G5"), (8, "F5"), (12, "E5")]]
-
-bass_bus = np.zeros(N)
-drum_bus = np.zeros(N)
-bell_bus = np.zeros(N)
-pad_bus = np.zeros(N)
-
-bars = int(np.ceil((stop - drop) / BAR)) + 1
-K, C = kick(), clap()
-for b in range(bars):
-    t0 = drop + b * BAR
-    for step, nm, ln, frm in BASS[b % 4]:
-        place(bass_bus, bass808(note(nm), ln * STEP, note(frm) if frm else None), t0 + step * STEP, 0.9)
-    for step in KICKS[b % 4]:
-        place(drum_bus, K, t0 + step * STEP, 0.75)
-    place(drum_bus, C, t0 + 8 * STEP, 0.55)                       # half-time clap on 3
-    roll = b % 2 == 1
-    for step in range(0, 16, 2):
-        if roll and step >= 12:
-            continue
-        place(drum_bus, hat(1.0 if step % 4 == 0 else 0.65), t0 + step * STEP)
-    if b % 4 in (1, 3):
-        place(drum_bus, hat(0.5), t0 + 13 * STEP)
-    if roll:                                                      # triplet roll into the next bar
-        for k in range(6):
-            place(drum_bus, hat(0.45 + 0.1 * k, 0.015), t0 + 12 * STEP + k * (4 * STEP / 6))
-    for step, nm in BELLS[b % 2]:
-        place(bell_bus, bell(note(nm)), t0 + step * STEP, 0.32)
-    if b % 2 == 0:
-        place(pad_bus, pad([note("E3"), note("B3"), note("G4")], 2 * BAR), t0, 0.22)
-
-# the dead stop: everything ends with the last word (5 ms fade, no tails)
-cut = int(round(stop * SR))
-fade = int(0.005 * SR)
-mix_mono = bass_bus + drum_bus
-mix_mono[cut:cut + fade] *= np.linspace(1, 0, fade)
-mix_mono[cut + fade:] = 0
-wet = reverb(bell_bus + pad_bus + 0.25 * drum_bus, 1.6, 0.3)
-wet[:, cut:cut + fade] *= np.linspace(1, 0, fade)
-wet[:, cut + fade:] = 0
-bed = np.stack([mix_mono, mix_mono]) + wet
-bed[:, : int(drop * SR)] = 0                                     # the hook stays dry
+def write(path, x):
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(x.shape[1])
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes((np.clip(x, -1, 1) * 32767).astype("<i2").tobytes())
 
 
 def lufs(x):
     with tempfile.TemporaryDirectory() as tmp:
         p = pathlib.Path(tmp) / "x.wav"
-        write_wav(p, x)
+        write(p, x)
         r = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(p), "-af", "loudnorm=print_format=json", "-f", "null", "-"],
                            capture_output=True, text=True).stderr
         return float(json.loads(r[r.rindex("{"): r.rindex("}") + 1])["input_i"])
 
 
-def write_wav(path, x):
-    x = np.clip(x, -1, 1)
-    pcm = (x.T * 32767).astype("<i2").tobytes()
-    import wave
-    with wave.open(str(path), "wb") as w:
-        w.setnchannels(2)
-        w.setsampwidth(2)
-        w.setframerate(SR)
-        w.writeframes(pcm)
+src_sr, ref = read(REC / "ref-music.wav")
+ref = signal.resample_poly(ref, SR, src_sr, axis=0)          # 44.1 -> 48 kHz
+xf = int(XFADE * SR)
+# each piece: its nominal length (attack to next attack) plus an XFADE tail that overlaps the next piece's head
+span = lambda a, b: (int(round((a - PRE) * SR)), int(round((b - PRE) * SR)))
+(i0, i1), (l0, l1) = span(*INTRO), span(*LOOP)
+intro, loop = ref[i0:i1 + xf], ref[l0:l1 + xf]
+intro_len, loop_len = i1 - i0, l1 - l0
+boom = ref[int(BOOM[0] * SR):int(BOOM[1] * SR)]
+
+words = EDIT["words"]
+drop = next(w for w in words if w["seg"] == 1)["startMs"] / 1000       # first word after the hook
+stop = max(w["endMs"] for w in words) / 1000                           # the last word ends
+boom_at = EDIT["frames"] / EDIT["fps"]                                 # the cut to black
+N = int(round((boom_at + CARD) * SR))
+music = np.zeros((N, 2))
+up, down = np.sin(np.linspace(0, np.pi / 2, xf))[:, None], np.cos(np.linspace(0, np.pi / 2, xf))[:, None]
 
 
-peak = np.abs(bed).max()
-bed /= peak
-g = 10 ** ((BED_LUFS - lufs(bed[:, int(drop * SR):cut])) / 20)
-bed *= g
+def lay(piece, at):
+    """Add a piece at sample `at`; its first XFADE crossfades with the previous piece's tail."""
+    piece = piece.copy()
+    end = min(N, at + len(piece))
+    piece = piece[: end - at]
+    if len(piece) > xf:
+        music[at:at + xf] *= down
+        piece[:xf] *= up
+    music[at:end] += piece
 
-bm = boom()
-bm = np.stack([bm, bm]) * (BOOM_PEAK / np.abs(bm).max())
-i = int(round(boom_at * SR))
-bed[:, i:i + bm.shape[1]] += bm[:, : N - i]
 
-write_wav(OUT / "music.wav", bed)
-print(f"{VERSION}: drop {drop:.3f}s, stop {stop:.3f}s, boom {boom_at:.3f}s, total {total:.3f}s, "
-      f"bed {lufs(bed[:, int(drop * SR):cut]):.1f} LUFS, peak {20 * np.log10(np.abs(bed).max()):.1f} dBFS")
+pos = int(round((drop - PRE) * SR))
+lay(intro, pos)
+pos += intro_len
+stop_n = int(round(stop * SR))
+while pos < stop_n:
+    lay(loop, pos)
+    pos += loop_len
+fade = int(OUTRO_FADE * SR)
+music[stop_n:stop_n + fade] *= np.linspace(1, 0, fade)[:, None]
+music[stop_n + fade:] = 0
+music[: int(round((drop - PRE) * SR))] = 0                            # the hook stays dry
+
+g = 10 ** ((PIANO_LUFS - lufs(music[int(drop * SR):stop_n])) / 20)
+music *= g
+
+# ducking: wherever a word is quieter than the piano, the piano dips (up to DUCK_MAX dB) so the
+# voice stays at least DUCK_MARGIN dB on top; between words it plays at full strength
+voice = subprocess.run(["ffmpeg", "-v", "error", "-i", str(OUT / "aroll.mp4"), "-vn", "-ac", "1", "-ar", str(SR), "-f", "s16le", "-"],
+                       capture_output=True, check=True).stdout
+voice = np.frombuffer(voice, np.int16).astype(np.float64) / 32768 / np.sqrt(2)   # as it sits in each stereo channel
+hop = int(0.01 * SR)
+frames = N // hop
+def env_db(x):
+    x = np.pad(x, (0, max(0, frames * hop - len(x))))[: frames * hop].reshape(frames, hop)
+    return 10 * np.log10(np.mean(x ** 2, axis=1) + 1e-12)
+v_db = np.convolve(env_db(voice), np.ones(15) / 15, mode="same")       # word-length (150 ms) levels
+p_db = np.convolve(env_db(music.mean(axis=1)), np.ones(15) / 15, mode="same")
+want = np.where(v_db > -45, np.clip(v_db - DUCK_MARGIN - p_db, -DUCK_MAX, 0), 0.0)
+gain = np.zeros(frames)
+for k in range(frames):                      # fast down (20 ms), slow up (180 ms)
+    prev = gain[k - 1] if k else 0.0
+    a = 1 - np.exp(-1 / (2 if want[k] < prev else 18))
+    gain[k] = prev + a * (want[k] - prev)
+duck = np.repeat(10 ** (gain / 20), hop)
+duck = np.pad(duck, (0, N - len(duck)), constant_values=1.0)
+music *= duck[:, None]
+print(f"ducking: deepest {gain.min():.1f} dB, piano lowered on {np.mean(gain < -0.5) * 100:.0f}% of frames")
+boom_gain = 10 ** ((PIANO_LUFS + BOOM_OVER_PIANO - lufs(boom)) / 20)
+b0 = int(round((boom_at - (BOOM_ONSET - BOOM[0])) * SR))
+seg = boom[: N - b0] * boom_gain
+music[b0:b0 + len(seg)] += seg
+write(OUT / "music.wav", music)
+
+# the reel's track: the cleaned voice (already -14 LUFS; in both channels at -3 dB, the pan law) + the music, peak-limited
+mix = music.copy()
+mix[: len(voice)] += voice[:N, None]
+with tempfile.TemporaryDirectory() as tmp:
+    raw = pathlib.Path(tmp) / "raw.wav"
+    write(raw, np.clip(mix, -4, 4) / 4)                                  # headroom for the limiter, gain restored below
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw), "-af", "volume=4,alimiter=limit=0.84:attack=2:release=60:level=disabled",
+                    "-ar", str(SR), str(OUT / "mix.wav")], check=True)
+_, m = read(OUT / "mix.wav")
+print(f"{VERSION}: piano in at {drop:.3f}s, out at {stop:.3f}s, boom {boom_at:.3f}s | piano {lufs(music[int(drop * SR):stop_n]):.1f} LUFS, "
+      f"mix {lufs(m):.1f} LUFS, peak {20 * np.log10(np.abs(m).max()):.1f} dBFS, {int(np.ceil((stop - drop - intro_len / SR) / (loop_len / SR)))} loops")

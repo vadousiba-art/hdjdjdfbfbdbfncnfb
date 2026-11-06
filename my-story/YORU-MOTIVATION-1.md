@@ -173,9 +173,12 @@ Edit decisions:
 - **The callback is restored.** The C224 take started at "And that's the best news…", so
   each version puts "Nobody is coming." (from one of the other hook takes) in front of it,
   as written. "Remember that" after "Cringe beats never" is cut, to keep short-long-short.
-- **Soundtrack:** original, synthesised, built to the reference's plan: dry hook, the 808
-  drops on "So", F–E bass with slides at 152 BPM, a dead stop after "tonight", half a
-  second of silence, then a boom on the cut to black with the CTA.
+- **Soundtrack (redone Nov 6):** your reference reel's own piano. Your old voice was
+  separated out of it (HTDemucs), the piano's first two bars come in on "So", then two
+  bars loop (they match the original's own continuation at 0.95, no clicks) until the
+  last word. The piano ducks under soft words (up to 6 dB, only while you speak) so every
+  word stays on top, then it fades with "tonight" and the reference's real boom hits on the
+  cut to black. Mix: voice -14 LUFS, piano -19 LUFS after ducking, whole video -12.6 LUFS.
 - **Words:** stacked lower left over the dark torso and desk (the face sits higher in
   these takes than in the original), each appearing on the frame it's said.
 

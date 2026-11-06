@@ -3,6 +3,10 @@
 Status: **proposal**. Nothing here is built yet. The decisions marked **DECIDE** need a yes/no
 before building.
 
+**See also `docs/MOONRISE.md`** (2026-11-06): how far each post travels, in phases judged by
+strangers. It turns this doc's Fresh lane into the Moonrise lane, needs "Not interested", and
+replaces the night boost and the new-member boost below.
+
 ## What it replaces, and why
 
 Today "For You" (`get_feed('trending')` in `0001_core.sql`) is one global list, the same for

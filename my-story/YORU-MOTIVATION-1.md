@@ -1,8 +1,9 @@
-# YORU video: the stare (a YORU remake of "They do not see it yet")
+# YORU video: the stare, with a new message
 
 Your best video so far: **2.3K views, 118 likes, 9 reposts and 17 sends**, from 15 seconds of
-you staring into the lens. This remakes the idea with new words and the YORU look, so it's
-yours again, not a repost.
+you staring into the lens. This keeps that format (the stare, the dark room, the stacked
+words) but says something new, in the YORU look. The original's message ("they don't see it,
+you do") isn't reused.
 
 ## Why the original works
 
@@ -33,51 +34,52 @@ the usual 1–3 word captions at 68% down, because that's the look you asked for
 else stays: each word just appears in place (nothing flies or slides), one font, plain cuts,
 pauses over 0.1 s cut.
 
-## The scripts (about 15 s each)
+## The scripts (about 15 s each, three different messages)
 
 Each line below is one **block**. The words stack up as you say them, then the block clears
 for the next one. **Bold** marks the big words, and the red word is the one in [brackets].
+Every script ends with the same small line for the last 2 seconds: COMMENT "NIGHT" AND I'LL
+SEND YOU WHAT I'M BUILDING.
 
-### Script 1 (main): "Nobody sees it"
+### Script 1 (main): "You're early". Being young is a head start.
 
-> Nobody sees it yet. Nobody sees the nights, the bugs, the 3 a.m. And honestly? Good.
-> They don't have to get it. You know who does? You do. Keep building.
+> You're not too young. You're early. Everyone else is waiting until they're ready. You get
+> to be bad at it first. Fail while it's cheap. So when they finally start... you've been
+> doing it for years. Start now.
 
-1. NOBODY / SEES IT / **[YET.]**
-2. NOBODY SEES / **THE NIGHTS,** / THE BUGS, / **THE [3 A.M.]**
-3. AND HONESTLY? / **[GOOD.]**
-4. THEY DON'T / HAVE TO / **GET IT.**
-5. YOU KNOW / WHO DOES? / **[YOU] DO.**
-6. KEEP / **[BUILDING.]**
-7. (small, last 2 s) COMMENT "NIGHT" AND I'LL SEND YOU WHAT I'M BUILDING
+1. YOU'RE NOT / **TOO [YOUNG.]**
+2. YOU'RE / **[EARLY.]**
+3. EVERYONE ELSE / IS WAITING / **TO BE [READY.]**
+4. YOU GET TO BE / **[BAD] AT IT** / FIRST.
+5. FAIL WHILE / **IT'S [CHEAP.]**
+6. SO WHEN THEY / FINALLY START... / YOU'VE BEEN DOING IT / **FOR [YEARS.]**
+7. START / **[NOW.]**
 
-### Script 2: "Everyone's asleep"
+Why it's the main one: it's you (17, building an app), the first line is the hook, and
+every young person who's been told "you're too young" knows someone to send it to.
 
-> Everyone you know is asleep right now. And you're still up, building something nobody
-> asked for. They'll call it a phase. Let them. One day they'll ask how you did it.
-> Keep going.
+### Script 2: "Ship it embarrassing". Start before it's good.
 
-1. EVERYONE YOU KNOW / IS **[ASLEEP]** / RIGHT NOW.
-2. AND YOU'RE / **STILL [UP,]** / BUILDING SOMETHING / **NOBODY** ASKED FOR.
-3. THEY'LL CALL IT / **A [PHASE.]**
-4. LET / **[THEM.]**
-5. ONE DAY / THEY'LL ASK / **[HOW]** YOU DID IT.
-6. KEEP / **[GOING.]**
-7. (small) COMMENT "NIGHT" AND I'LL SEND YOU WHAT I'M BUILDING
+> Your first version is going to be embarrassing. Ship it anyway. Most things you admire
+> started out rough. The only thing worse than cringe... is never starting. Post it. Ship
+> it. Fix it later.
 
-### Script 3: "Nobody claps"
+1. YOUR FIRST VERSION / IS GOING TO BE / **[EMBARRASSING.]**
+2. SHIP IT / **[ANYWAY.]**
+3. MOST THINGS / YOU ADMIRE / **STARTED OUT [ROUGH.]**
+4. THE ONLY THING / WORSE THAN **CRINGE...** / **IS [NEVER] STARTING.**
+5. POST IT. / SHIP IT. / **FIX IT [LATER.]**
 
-> Nobody claps at 3 a.m. Nobody sees the bugs, the rewrites, the nights you almost quit.
-> And that's okay. You're not doing it for the claps. You're doing it because you can see
-> it... even if they can't. Yet.
+### Script 3: "Nobody's coming". Stop waiting for permission.
 
-1. NOBODY CLAPS / **AT [3 A.M.]**
-2. NOBODY SEES / THE BUGS, / THE REWRITES, / **THE NIGHTS YOU / ALMOST [QUIT.]**
-3. AND THAT'S / **[OKAY.]**
-4. YOU'RE NOT / DOING IT / **FOR THE [CLAPS.]**
-5. YOU'RE DOING IT / BECAUSE YOU / **CAN [SEE] IT.**
-6. EVEN IF / THEY CAN'T. / **[YET.]**
-7. (small) COMMENT "NIGHT" AND I'LL SEND YOU WHAT I'M BUILDING
+> Nobody's coming. No one's going to hand you the life you want. No permission. No perfect
+> moment. Just you, tonight, deciding. So decide.
+
+1. NOBODY'S / **[COMING.]**
+2. NO ONE'S GOING / TO HAND YOU / **THE [LIFE] YOU WANT.**
+3. NO PERMISSION. / **NO PERFECT / [MOMENT.]**
+4. JUST YOU, / **[TONIGHT,]** / DECIDING.
+5. SO / **[DECIDE.]**
 
 Say the lines your way. If a word comes out different, I'll put up the words you actually say.
 
@@ -92,8 +94,9 @@ Say the lines your way. If a word comes out different, I'll put up the words you
    words. No sunglasses, same as the original.
 3. **Delivery:** wide eyes, barely blink, stare **into the lens**, not the screen. Slow, low
    and steady, without long stops between lines (I cut every gap over 0.1 s, so steady speech
-   keeps it one continuous stare). Lean in a little on "You know who does?" and go slowest
-   on "You do."
+   keeps it one continuous stare). Pause a beat before the twist line (Script 1:
+   "You're early." / Script 2: "Ship it anyway." / Script 3: "So decide.") and say it
+   slowest
 4. **Takes:** each script **in one go, start to finish**, 3 takes each, with a second of
    silence before and after.
 5. **Extras:**
@@ -118,28 +121,26 @@ Say the lines your way. If a word comes out different, I'll put up the words you
 ## Captions (drafts)
 
 **Script 1:**
-> Nobody has to get it but you. 🌙
+> You're not too young. You're early. 🌙
 >
-> Built at night, one bug at a time.
+> Send this to the friend who keeps saying they'll start "when they're older". And comment
+> NIGHT if you want to see what I'm building at 17.
 >
-> Send this to the friend who's building something nobody gets yet. And comment NIGHT if you
-> want to see what I'm building.
+> #buildinpublic #youngentrepreneur #founder #motivation
+
+**Script 2:**
+> Your first version will be embarrassing. Ship it anyway. 🌙
+>
+> Send this to the friend sitting on a project they're too scared to post. Comment NIGHT and
+> I'll send you what I'm building.
 >
 > #buildinpublic #founder #entrepreneur #motivation
 
-**Script 2:**
-> Everyone's asleep. You're still building. 🌙
->
-> Send this to the friend who's up right now working on their thing. Comment NIGHT and I'll
-> send you what I'm building.
->
-> #buildinpublic #founder #nightowl #motivation
-
 **Script 3:**
-> Nobody claps at 3 a.m. Build anyway. 🌙
+> Nobody's coming. Decide tonight. 🌙
 >
-> Send this to the friend who almost quit this week. Comment NIGHT and I'll send you what
-> I'm building.
+> Send this to the friend who's been waiting for the "right moment". Comment NIGHT and I'll
+> send you what I'm building.
 >
 > #buildinpublic #founder #entrepreneur #motivation
 

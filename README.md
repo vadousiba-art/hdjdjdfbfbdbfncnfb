@@ -64,6 +64,7 @@ By default all app data lives in Supabase Postgres. Setting `DATA_BACKEND=neon` 
 | Doc | What's in it |
 | --- | --- |
 | [docs/open-gates.md](docs/open-gates.md) | YORU 2.0 "Open Gates": feature status, how to release and roll back, test results |
+| [docs/pro-universe.md](docs/pro-universe.md) | YORU Pro Universe: the 400-item catalog, 20 systems, storefront, migration 0009, tests, what's left before launch |
 | [docs/monetization.md](docs/monetization.md) | Payment provider research (fees, age rules), recommendation, Pro/tips architecture. Nothing charges today |
 | [docs/security-review.md](docs/security-review.md) | Gatekeeper review: access control, findings and fixes, privacy, legal notes |
 | [docs/aws-openai-readiness.md](docs/aws-openai-readiness.md) | What would change if AWS/OpenAI credits are approved (none are confirmed) |
@@ -115,6 +116,7 @@ Store listing text, links and graphics: [`docs/store-listing.md`](docs/store-lis
 | **Effects** | Ambient background (stars, sakura, rain, fireflies or off), double-tap media to like, `||spoilers||` that blur until tapped, category chips in the composer, Ctrl/Cmd+K command palette, and a hidden 夜 mode (Konami code or tap the logo five times). All respect reduced motion |
 | **Admin** | Overview with 14-day activity chart and top posters/tags; announcement banner; broadcast notification to everyone; quiet mode (pause member posts); slow mode; word filter; tonight's prompt; feature posts in "Tonight's picks"; mute members (10 min to 7 days), flair, grant XP, rebuild XP from history; full audit log of admin actions. Plus invites, roles, verify, ban and the report queue |
 | **Open Gates (2.0)** | 16 interface languages (machine-translated, labelled) with Arabic right-to-left; interests and Discover; profile banners, avatar frames and a badge showcase; saved looks; Collections; Ghost Mode; Creator Showcase with admin review; report categories with auto-escalation; YORU Pro (purchases off, admin grants only); public Trust Center; "What's new" release tour. Details: [docs/open-gates.md](docs/open-gates.md) |
+| **Pro Universe** | 400 customization items in 20 systems (rings, banners, nameplates, themes, effects, badges, layouts, collections, drafts, analytics, feed presets, hubs, reactions, insights, chat themes, sounds, planner, milestones, lab, hub) with try-on, equip and wishlist; Draft Studio and scheduled posts; own-data analytics. Ownership checked server-side; purchases not open. Details: [docs/pro-universe.md](docs/pro-universe.md) |
 | **UX** | Dark, light and system themes; reduced-motion support (system, reduced, or full); mobile-first layout with a desktop 3-column view; absurd loading, empty, 404 and error screens |
 
 ---

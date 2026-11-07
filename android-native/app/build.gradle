@@ -1,0 +1,123 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+// The YORU server the app talks to (same accounts and data as the website). Override with: gradle assembleRelease -PitnUrl=https://...
+def itnUrl = project.findProperty("itnUrl") ?: "https://yoru-social.vercel.app"
+
+// Release signing comes from android/keystore.properties (never committed):
+//   storeFile=/path/to/release.jks
+//   storePassword=...
+//   keyAlias=...
+//   keyPassword=...
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file("keystore.properties")
+if (keystoreFile.exists()) {
+    keystoreFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace "com.israeltoknt.app"
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.yoru.social"
+        minSdk 24
+        targetSdk 36
+        versionCode 5
+        versionName "2.0.0"
+        buildConfigField "String", "APP_URL", "\"${itnUrl}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+        compose true
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                systemProperty "robolectric.graphicsMode", "NATIVE"
+                systemProperty "robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2/"
+                systemProperty "robolectric.dependency.repo.id", "central-mirror"
+                systemProperty "roborazzi.test.record", "true"
+                systemProperty "yoru.demoUrl", project.findProperty("demoUrl") ?: ""
+                maxHeapSize = "2g"
+            }
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile.exists()) {
+                storeFile file(keystoreProps["storeFile"])
+                storePassword keystoreProps["storePassword"]
+                keyAlias keystoreProps["keyAlias"]
+                keyPassword keystoreProps["keyPassword"]
+            }
+            // Sign with both schemes: v1 (JAR) for store upload checkers and
+            // older tools, v2 for modern Android.
+            enableV1Signing true
+            enableV2Signing true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            if (keystoreFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    packaging {
+        resources { excludes += ["/META-INF/{AL2.0,LGPL2.1}"] }
+    }
+}
+
+dependencies {
+    def composeBom = platform("androidx.compose:compose-bom:2025.06.01")
+    implementation composeBom
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.ui:ui-graphics"
+    implementation "androidx.compose.foundation:foundation"
+    implementation "androidx.compose.material3:material3"
+    implementation "androidx.compose.material:material-icons-extended"
+    implementation "androidx.activity:activity-compose:1.10.1"
+    implementation "androidx.navigation:navigation-compose:2.9.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.9.1"
+    implementation "androidx.core:core-ktx:1.16.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation "androidx.work:work-runtime-ktx:2.10.1"
+    implementation "androidx.media3:media3-exoplayer:1.6.1"
+    implementation "androidx.media3:media3-ui:1.6.1"
+    implementation "androidx.media3:media3-datasource-okhttp:1.6.1"
+    implementation "io.coil-kt.coil3:coil-compose:3.2.0"
+    implementation "io.coil-kt.coil3:coil-network-okhttp:3.2.0"
+    implementation "io.coil-kt.coil3:coil-gif:3.2.0"
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
+
+    testImplementation composeBom
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.robolectric:robolectric:4.14.1"
+    testImplementation "androidx.compose.ui:ui-test-junit4"
+    testImplementation "io.github.takahirom.roborazzi:roborazzi:1.43.0"
+    testImplementation "io.github.takahirom.roborazzi:roborazzi-compose:1.43.0"
+    debugImplementation "androidx.compose.ui:ui-test-manifest"
+    debugImplementation "androidx.compose.ui:ui-tooling"
+}

@@ -1,0 +1,417 @@
+{
+  "version": "1",
+  "fps": 30,
+  "bpm": 120,
+  "cuts": {
+    "full": {
+      "duration": 80,
+      "captions": [
+        {
+          "start": 4.5,
+          "end": 6.25,
+          "key": "intro.afterDark",
+          "style": "stack",
+          "lines": [
+            "THE INTERNET",
+            "AFTER DARK."
+          ]
+        },
+        {
+          "start": 12.0,
+          "end": 14.6,
+          "key": "intro.tagline",
+          "style": "tag",
+          "lines": [
+            "Your world. Your identity. Your night."
+          ]
+        },
+        {
+          "start": 16.0,
+          "end": 19.6,
+          "key": "intro.notJustAFeed",
+          "style": "title",
+          "lines": [
+            "NOT JUST",
+            "ANOTHER FEED."
+          ]
+        },
+        {
+          "start": 21.0,
+          "end": 24.6,
+          "key": "intro.makeItYours",
+          "style": "title",
+          "lines": [
+            "A PLACE TO",
+            "MAKE IT YOURS."
+          ]
+        },
+        {
+          "start": 25.5,
+          "end": 34.6,
+          "key": "intro.yourRules",
+          "style": "build",
+          "lines": [
+            "YOUR PROFILE.",
+            "YOUR AESTHETIC.",
+            "YOUR RULES."
+          ],
+          "beats": [
+            25.5,
+            28.0,
+            30.5
+          ]
+        },
+        {
+          "start": 35.5,
+          "end": 38.0,
+          "key": "intro.findPeople",
+          "style": "title",
+          "lines": [
+            "FIND YOUR",
+            "PEOPLE."
+          ]
+        },
+        {
+          "start": 38.5,
+          "end": 41.0,
+          "key": "intro.followInterests",
+          "style": "title",
+          "lines": [
+            "FOLLOW YOUR",
+            "INTERESTS."
+          ]
+        },
+        {
+          "start": 41.5,
+          "end": 44.6,
+          "key": "intro.atHome",
+          "style": "title",
+          "lines": [
+            "MAKE YOURSELF",
+            "AT HOME."
+          ]
+        },
+        {
+          "start": 46.0,
+          "end": 49.6,
+          "key": "intro.expression",
+          "style": "title",
+          "lines": [
+            "BUILT FOR",
+            "EXPRESSION."
+          ]
+        },
+        {
+          "start": 50.5,
+          "end": 54.6,
+          "key": "intro.yourWorld",
+          "style": "title",
+          "lines": [
+            "DESIGNED FOR",
+            "YOUR WORLD."
+          ]
+        },
+        {
+          "start": 55.5,
+          "end": 61.0,
+          "key": "intro.proSoon",
+          "style": "pro",
+          "lines": [
+            "COMING SOON",
+            "YORU PRO"
+          ]
+        },
+        {
+          "start": 61.5,
+          "end": 65.4,
+          "key": "intro.proMore",
+          "style": "title",
+          "lines": [
+            "MORE WAYS TO",
+            "MAKE IT YOURS."
+          ]
+        },
+        {
+          "start": 65.5,
+          "end": 67.8,
+          "key": "intro.proFree",
+          "style": "tag",
+          "lines": [
+            "The social part stays free for everyone."
+          ]
+        },
+        {
+          "start": 73.0,
+          "end": 76.0,
+          "key": "intro.afterDark",
+          "style": "stack",
+          "lines": [
+            "THE INTERNET",
+            "AFTER DARK."
+          ]
+        },
+        {
+          "start": 76.2,
+          "end": 80.0,
+          "key": "intro.finalLine",
+          "style": "end",
+          "lines": [
+            "YOUR WORLD. YOUR IDENTITY. YOUR NIGHT."
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "start": 15.2,
+          "end": 19.0,
+          "text": "HOME"
+        },
+        {
+          "start": 19.0,
+          "end": 21.5,
+          "text": "DISCOVER"
+        },
+        {
+          "start": 21.5,
+          "end": 25.0,
+          "text": "PROFILE"
+        },
+        {
+          "start": 25.0,
+          "end": 30.0,
+          "text": "BANNERS · FRAMES"
+        },
+        {
+          "start": 30.0,
+          "end": 32.5,
+          "text": "APP COLOUR"
+        },
+        {
+          "start": 32.5,
+          "end": 35.0,
+          "text": "SAVED LOOKS"
+        },
+        {
+          "start": 35.0,
+          "end": 38.0,
+          "text": "DISCOVER"
+        },
+        {
+          "start": 38.0,
+          "end": 41.0,
+          "text": "GROUP CHATS"
+        },
+        {
+          "start": 41.0,
+          "end": 45.0,
+          "text": "COLLECTIONS"
+        },
+        {
+          "start": 45.0,
+          "end": 48.5,
+          "text": "GHOST MODE"
+        },
+        {
+          "start": 48.5,
+          "end": 52.0,
+          "text": "16 LANGUAGES"
+        },
+        {
+          "start": 52.0,
+          "end": 55.0,
+          "text": "CREATOR SHOWCASE"
+        },
+        {
+          "start": 55.0,
+          "end": 68.0,
+          "text": "IN DEVELOPMENT"
+        }
+      ],
+      "hits": [
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        5.5,
+        8.0,
+        11.0,
+        15.0,
+        19.0,
+        21.5,
+        25.0,
+        26.0,
+        27.0,
+        28.0,
+        29.0,
+        30.0,
+        32.5,
+        35.0,
+        38.0,
+        41.0,
+        45.0,
+        47.0,
+        48.5,
+        49.7,
+        50.8,
+        52.0,
+        55.0,
+        68.0,
+        69.0,
+        70.0,
+        70.5,
+        71.0,
+        71.5,
+        72.5
+      ]
+    },
+    "short": {
+      "duration": 26,
+      "captions": [
+        {
+          "start": 1.2,
+          "end": 3.0,
+          "key": "intro.afterDark",
+          "style": "stack",
+          "lines": [
+            "THE INTERNET",
+            "AFTER DARK."
+          ]
+        },
+        {
+          "start": 5.0,
+          "end": 7.0,
+          "key": "intro.tagline",
+          "style": "tag",
+          "lines": [
+            "Your world. Your identity. Your night."
+          ]
+        },
+        {
+          "start": 7.3,
+          "end": 10.0,
+          "key": "intro.notJustAFeed",
+          "style": "title",
+          "lines": [
+            "NOT JUST",
+            "ANOTHER FEED."
+          ]
+        },
+        {
+          "start": 10.3,
+          "end": 13.0,
+          "key": "intro.profileRules",
+          "style": "title",
+          "lines": [
+            "YOUR PROFILE.",
+            "YOUR RULES."
+          ]
+        },
+        {
+          "start": 13.3,
+          "end": 16.0,
+          "key": "intro.findPeople",
+          "style": "title",
+          "lines": [
+            "FIND YOUR",
+            "PEOPLE."
+          ]
+        },
+        {
+          "start": 16.3,
+          "end": 18.8,
+          "key": "intro.yourWorld",
+          "style": "title",
+          "lines": [
+            "DESIGNED FOR",
+            "YOUR WORLD."
+          ]
+        },
+        {
+          "start": 19.2,
+          "end": 22.0,
+          "key": "intro.proSoon",
+          "style": "pro",
+          "lines": [
+            "COMING SOON",
+            "YORU PRO"
+          ]
+        },
+        {
+          "start": 23.0,
+          "end": 26.0,
+          "key": "intro.finalLine",
+          "style": "end",
+          "lines": [
+            "YOUR WORLD. YOUR IDENTITY. YOUR NIGHT."
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "start": 7.0,
+          "end": 8.5,
+          "text": "HOME"
+        },
+        {
+          "start": 8.5,
+          "end": 10.0,
+          "text": "DISCOVER"
+        },
+        {
+          "start": 10.0,
+          "end": 11.5,
+          "text": "PROFILE"
+        },
+        {
+          "start": 11.5,
+          "end": 13.0,
+          "text": "APP COLOUR"
+        },
+        {
+          "start": 13.0,
+          "end": 14.5,
+          "text": "GROUP CHATS"
+        },
+        {
+          "start": 14.5,
+          "end": 16.0,
+          "text": "COLLECTIONS"
+        },
+        {
+          "start": 16.0,
+          "end": 17.5,
+          "text": "GHOST MODE"
+        },
+        {
+          "start": 17.5,
+          "end": 19.0,
+          "text": "16 LANGUAGES"
+        },
+        {
+          "start": 19.0,
+          "end": 22.0,
+          "text": "IN DEVELOPMENT"
+        }
+      ],
+      "hits": [
+        1.0,
+        1.5,
+        2.0,
+        3.5,
+        7.0,
+        8.5,
+        10.0,
+        11.5,
+        13.0,
+        14.5,
+        16.0,
+        17.5,
+        19.0,
+        22.0,
+        22.5
+      ]
+    }
+  }
+}

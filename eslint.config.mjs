@@ -12,11 +12,17 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Jesse's ATLAS desktop app (Electron, CommonJS; its own project).
+    "atlas-desktop/**",
     // Standalone trailer project (browser + Node render scripts).
     "trailer/**",
     "teaser-002/**",
     "break-the-feed/**",
     "promo-03/**",
+    // Welcome film project (capture, canvas composition, render scripts).
+    "welcome/**",
+    // Remotion reel project (its own package, lint and tsconfig).
+    "reels/**",
   ]),
 ]);
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { Bot, Download, Flame, Globe, MessagesSquare, Palette, Plus, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
+import { Bot, CalendarClock, Download, Flame, Globe, Languages, MessagesSquare, Palette, Plus, ShieldCheck, Smartphone, Sparkles, Wand2 } from "lucide-react";
 import clsx from "clsx";
 import { FAQ } from "@/lib/faq";
 import { APK_META, APK_URL, GlowButton } from "./GlowButton";
@@ -14,6 +14,9 @@ const FEATURES = [
   { icon: MessagesSquare, title: "Group chats & DMs", jp: "話", body: "Realtime chats with typing dots, replies, reactions and media. Make a group for every fandom." },
   { icon: Flame, title: "Levels & night streaks", jp: "昇", body: "Earn XP and check in every night. Climb from 新人 Newcomer to 夜の王 Night Sovereign." },
   { icon: Palette, title: "Make it yours", jp: "色", body: "Slide to recolor the whole app. Ambient stars, sakura, rain or fireflies behind your feed." },
+  { icon: Wand2, title: "Animated profiles", jp: "動", body: "Rings that move around your avatar, living banners, nameplates, badges and themes. 115 free for everyone." },
+  { icon: CalendarClock, title: "Drafts & scheduled posts", jp: "予", body: "Keep private drafts, start from templates and schedule posts for later. Your own analytics, from real activity only." },
+  { icon: Languages, title: "16 languages & Discover", jp: "縁", body: "Use YORU in 16 languages, add your interests and find people who share them, anywhere in the world." },
   { icon: Bot, title: "The AI Menace", jp: "笑", body: "An opt-in AI comedian that roasts posts, rates takes and crashes the group chat." },
   { icon: ShieldCheck, title: "Safe by design", jp: "守", body: "Members-only content, report and block everywhere, real moderation. No ads, no tracking." },
 ];

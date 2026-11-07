@@ -1,0 +1,6 @@
+{
+  "name": "yoru-welcome-film",
+  "private": true,
+  "type": "module",
+  "description": "YORU welcome film: capture, composition, soundtrack and render pipeline"
+}

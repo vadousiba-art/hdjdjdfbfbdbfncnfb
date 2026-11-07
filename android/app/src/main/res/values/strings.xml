@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">YORU</string>
+    <string name="welcome_title">Set up YORU</string>
+    <string name="welcome_body">Choose what YORU can use on this phone. You can change any of these later in Settings.</string>
+    <string name="perm_notifications">Notifications</string>
+    <string name="perm_notifications_body">Likes, replies, mentions and messages, even when YORU is closed.</string>
+    <string name="perm_mic">Microphone</string>
+    <string name="perm_mic_body">Talk to Atlas with your voice. Only used while you\'re recording.</string>
+    <string name="perm_camera">Camera</string>
+    <string name="perm_camera_body">Take photos and videos for posts, stories and chats, only when you tap to.</string>
+    <string name="allow">Continue</string>
+    <string name="not_now">Not now</string>
+    <string name="channel_messages">Messages</string>
+    <string name="channel_messages_body">Direct and group messages</string>
+    <string name="channel_activity">Activity</string>
+    <string name="channel_activity_body">Likes, comments, follows, mentions and YORU updates</string>
+    <string name="blocked_title">%1$s is off for YORU</string>
+    <string name="blocked_body">To use it, open Settings → Permissions and allow %1$s.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="cancel">Not now</string>
+    <string name="choose_media">Add a photo or video</string>
+    <string name="test_title">Notifications are on</string>
+    <string name="test_body">This is how YORU will reach you. 🌙</string>
 </resources>

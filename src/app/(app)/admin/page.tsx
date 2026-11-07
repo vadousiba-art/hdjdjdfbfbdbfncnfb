@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Ban, Check, Copy, Shield, SlidersHorizontal, Trash2, X } from "lucide-react";
+import { Ban, Check, Copy, Shield, SlidersHorizontal, TowerControl, Trash2, X } from "lucide-react";
 import clsx from "clsx";
 import { useRpc } from "@/lib/client/hooks";
 import { rpc } from "@/lib/client/api";
@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button, ChaosLoader, Empty, PageTitle, TimeAgo } from "@/components/ui/bits";
 import { AdminOverviewPanel } from "@/components/admin/Overview";
 import { SiteControls } from "@/components/admin/SiteControls";
+import { MoonriseControls } from "@/components/admin/MoonriseControls";
 import { AuditLog } from "@/components/admin/AuditLog";
 import { SupportInbox } from "@/components/admin/SupportInbox";
 import { MemberToolsDialog } from "@/components/admin/MemberTools";
@@ -21,25 +22,91 @@ import type { AdminOverview, MemberExtras, ProfileLite } from "@/lib/types";
 import { useOpenGates } from "@/lib/client/gates";
 import { AdminCreators, AdminPro } from "@/components/admin/OpenGatesAdmin";
 import en from "@/lib/i18n/messages/en";
+import { isStaff } from "@/components/shell/navItems";
+import { NwDashboardPanel } from "@/components/admin/watchtower/Dashboard";
+import { NwQueue } from "@/components/admin/watchtower/Queue";
+import { NwAppeals } from "@/components/admin/watchtower/Appeals";
+import { NwRules } from "@/components/admin/watchtower/Rules";
+import { NwMembers } from "@/components/admin/watchtower/MemberFile";
+import { AdminPayments } from "@/components/admin/Payments";
+import { useETransfer } from "@/lib/client/etransfer";
 
-type Tab = "overview" | "controls" | "members" | "invites" | "reports" | "creators" | "pro" | "inbox" | "log";
+type Tab = "nw" | "queue" | "appeals" | "people" | "rules" | "overview" | "controls" | "members" | "invites" | "reports" | "creators" | "pro" | "payments" | "inbox" | "log";
 type ReportFlag = { category: string; escalated: boolean; same_target: number };
 
 export default function AdminPage() {
   const { me } = useShell();
   const { toast, toastError } = useApp();
-  const { data, error, mutate } = useRpc<AdminOverview>(me.role === "member" ? null : "admin_overview");
-  const [tab, setTab] = useState<Tab>("overview");
+  const isAdmin = me.role === "owner" || me.role === "admin";
+  const { data, error, mutate } = useRpc<AdminOverview>(isAdmin ? "admin_overview" : null);
+  const [tab, setTab] = useState<Tab>("nw");
+  const [person, setPerson] = useState<string | null>(null);
+  const openPerson = (id: string) => {
+    setPerson(id);
+    setTab("people");
+  };
   const [tools, setTools] = useState<ProfileLite | null>(null);
-  const { data: extras } = useRpc<Record<string, MemberExtras>>(me.role === "member" ? null : "admin_member_extras");
+  const { data: extras } = useRpc<Record<string, MemberExtras>>(isAdmin ? "admin_member_extras" : null);
   const [maxUses, setMaxUses] = useState(5);
   const [hours, setHours] = useState(168);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const { available: gates } = useOpenGates();
-  const { data: flags, mutate: mutateFlags } = useRpc<Record<string, ReportFlag>>(gates && me.role !== "member" ? "admin_report_flags" : null);
+  // e-Transfer payments (migration 0016): the owner's money, so the owner's tab
+  const { available: payments } = useETransfer();
+  const showPayments = payments && me.role === "owner";
+  const { data: flags, mutate: mutateFlags } = useRpc<Record<string, ReportFlag>>(gates && isAdmin ? "admin_report_flags" : null);
 
-  if (me.role === "member") return <Empty emoji="🛂" text="Admins only. Nice try, intern." />;
+  if (!isStaff(me.role)) return <Empty text="Watchtower is for the YORU team." />;
+  const nwTabs: [Tab, string][] = [
+    ["nw", "Night Watch"],
+    ["queue", "Queue"],
+    ["appeals", "Appeals"],
+    ["people", "Members"],
+    ["rules", "Rules"],
+  ];
+  const nwView = (
+    <>
+      {tab === "nw" && <NwDashboardPanel onGoto={setTab} onMember={openPerson} />}
+      {tab === "queue" && <NwQueue onMember={openPerson} />}
+      {tab === "appeals" && <NwAppeals onMember={openPerson} />}
+      {tab === "people" && <NwMembers selected={person} onSelect={setPerson} />}
+      {tab === "rules" && <NwRules canEdit={isAdmin} />}
+    </>
+  );
+  const header = (
+    <div className="pt-1">
+      <h1 className="flex items-center gap-2 text-[24px] font-bold tracking-tight">
+        <TowerControl size={24} /> Watchtower
+      </h1>
+      <p className="mt-0.5 text-[13.5px] text-muted">Night Watch moderation{isAdmin ? ", site controls, members and the audit log" : ""}.</p>
+    </div>
+  );
+  const tabButton = ([id, label]: readonly [Tab, string]) => (
+    <button
+      key={id}
+      role="tab"
+      aria-selected={tab === id}
+      onClick={() => setTab(id)}
+      className={clsx(
+        "relative shrink-0 rounded-full px-3.5 py-1.5 text-[13.5px] transition-colors duration-150",
+        tab === id ? "bg-ink font-semibold text-bg" : "text-ink-2 hover:bg-card-2",
+      )}
+    >
+      {label}
+    </button>
+  );
+  if (!isAdmin) {
+    return (
+      <div className="space-y-4">
+        {header}
+        <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1" role="tablist">
+          {nwTabs.map(tabButton)}
+        </div>
+        {nwView}
+      </div>
+    );
+  }
   if (error) return <Empty emoji="🛂" text={error.message} />;
   if (!data) return <ChaosLoader />;
 
@@ -75,39 +142,33 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-4">
-      <PageTitle sub="Run the night: stats, site controls, members, invites, reports and the audit log.">
-        Admin
-      </PageTitle>
-      <div className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1" role="tablist">
+      {header}
+      <div className="no-scrollbar -mx-1 flex items-center gap-1 overflow-x-auto px-1" role="tablist">
+        {nwTabs.map(tabButton)}
+        <span className="mx-1.5 h-5 w-px shrink-0 bg-line" aria-hidden />
         {(
           [
-            ["overview", "Overview"],
+            ["overview", "Stats"],
             ["controls", "Controls"],
             ["members", `Members (${data.members.length})`],
             ["invites", "Invites"],
             ["reports", `Reports${openReports ? ` (${openReports})` : ""}`],
             ...(gates ? ([["creators", "Creators"], ["pro", "Pro"]] as const) : []),
-            ["inbox", "Inbox"],
+            ...(showPayments ? ([["payments", "Payments"]] as const) : []),
+            ["inbox", "Support"],
             ["log", "Audit log"],
           ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            role="tab"
-            aria-selected={tab === id}
-            onClick={() => setTab(id)}
-            className={clsx(
-              "relative shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors duration-150",
-              tab === id ? "border-brand bg-brand text-white" : "border-line bg-card text-muted hover:text-ink",
-            )}
-          >
-            {label}
-          </button>
-        ))}
+        ).map(tabButton)}
       </div>
+      {nwView}
 
       {tab === "overview" && <AdminOverviewPanel onGoto={setTab} />}
-      {tab === "controls" && <SiteControls />}
+      {tab === "controls" && (
+        <>
+          <MoonriseControls />
+          <SiteControls />
+        </>
+      )}
       {tab === "log" && <AuditLog />}
       {tab === "inbox" && <SupportInbox />}
 
@@ -340,6 +401,7 @@ export default function AdminPage() {
       )}
       {tab === "creators" && gates && <AdminCreators />}
       {tab === "pro" && gates && <AdminPro members={data.members} />}
+      {tab === "payments" && showPayments && <AdminPayments />}
       <MemberToolsDialog
         key={tools?.id ?? "none"}
         member={tools}

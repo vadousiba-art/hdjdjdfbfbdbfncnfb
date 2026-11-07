@@ -1,6 +1,6 @@
 # Seven Supabase projects
 
-Status 2026-10-27: code built, tested, and live-checked against the real projects. **Nothing in production has been changed.** The steps that switch it on are at the end, and they need you.
+Status 2026-10-27: **live-update spreading is ON in production for projects 2–6 plus the original (7).** Migrations 0005 and 0006 were applied to the original project (data backed up first; all counts unchanged, RLS on every table), the project settings and `CRON_SECRET` were added in Vercel, and `/api/health` reports `"realtime":"sharded"` with no warnings. Still off: project 1 (no valid key) and spreading new uploads (no secret keys). Steps for those are at the end.
 
 ## What runs where
 
@@ -77,9 +77,11 @@ These are allowances, not a promise of how many people YORU can hold. Supabase c
 - All 15 Playwright flows passed with live updates spread over projects 2–6, using demo logins, random secret topics and no production data.
 - A direct probe showed the receiving browser connected only to projects 5 and 6 (its live-update project and the chat's typing project). The message appeared about 1.4 s after it was sent, including the screen refresh.
 
+**After switching on (production, 2026-10-27):** `/api/health` lists projects 2–7 with no warnings; the daily keep-alive job reached all six projects from Vercel; `/api/live/topics` refuses signed-out requests (401). All 22 Playwright flows passed locally with live updates on the real projects 2–6. Note for local runs: a demo server has no service key, so set `REALTIME_TOPIC_SECRET` or live updates won't start (production derives it from the service key).
+
 **Not live-tested:**
 - Media sharding: no secret keys were provided. It is covered by unit tests.
-- The outbox drain against the real original database: that needs migration 0006 there. It is covered by SQL tests on PGlite.
+- The outbox drain on the real original database runs on the first write by a member (the app's presence heartbeat on page load counts), so it is exercised by normal use rather than by a test write into production data.
 
 ## Account note
 

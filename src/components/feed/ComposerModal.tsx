@@ -15,6 +15,7 @@ import { byFn, refreshFeeds, useSite } from "@/lib/client/hooks";
 import { CATEGORIES, pickLine, SUCCESS_TOASTS, todaysChallenge } from "@/lib/jokes";
 import { burst } from "@/components/ui/EmojiBurst";
 import { playSound } from "@/lib/client/sounds";
+import { AtlasAssist } from "@/components/atlas/AtlasAssist";
 
 export type ComposerTab = "text" | "media" | "poll" | "link";
 
@@ -168,6 +169,9 @@ export function ComposerModal({
             aria-label="Post text"
             dir="auto"
           />
+          <div className="-mt-1 mb-1 flex justify-end">
+            <AtlasAssist value={body} onUse={(t) => setBody(t.slice(0, 2000))} tasks={tab === "media" ? ["caption", "post", "rewrite"] : ["post", "rewrite"]} align="end" />
+          </div>
           <AnimatePresence mode="wait">
             {tab === "media" && (
               <motion.div key="media" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { appMode, uploadConfig } from "@/lib/config";
+import { appMode, supabaseAnonKey, supabaseUrl, uploadConfig } from "@/lib/config";
 import { getUserDb } from "@/lib/server/db";
 import { AppError, assertWritable, handle } from "@/lib/server/errors";
 import { newMediaLocation, storageFor } from "@/lib/server/storage";
@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
       const { bucket, objectPath } = storageFor(where.path);
       const { data, error } = await bucket.createSignedUploadUrl(objectPath);
       if (error || !data) throw new AppError("INTERNAL", "Storage refused the upload. Is the media bucket set up?", 500);
+      // signedUrl/apikey let the Android app upload with a plain PUT (the
+      // browser uses supabase-js with the same token).
+      const base = where.project ? where.project.url : supabaseUrl()!;
       return {
         mode: "supabase",
         path: where.path,
@@ -47,6 +50,8 @@ export async function POST(req: NextRequest) {
         token: data.token,
         kind,
         project: where.project ? { n: where.project.n, url: where.project.url, key: where.project.publishableKey } : null,
+        signedUrl: `${base.replace(/\/$/, "")}/storage/v1/object/upload/sign/media/${objectPath}?token=${encodeURIComponent(data.token)}`,
+        apikey: where.project ? where.project.publishableKey : supabaseAnonKey(),
       };
     }
     const exp = Date.now() + 10 * 60_000;

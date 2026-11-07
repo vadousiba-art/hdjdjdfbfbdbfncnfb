@@ -10,6 +10,7 @@ import { useApp } from "@/components/providers/AppProvider";
 import { rpc, uploadFile } from "@/lib/client/api";
 import { byFn } from "@/lib/client/hooks";
 import type { Me } from "@/lib/types";
+import { AtlasAssist } from "@/components/atlas/AtlasAssist";
 
 const BADGES = ["", "👑", "⚔️", "🥷", "🐈", "😁", "💀", "🔥", "🧢", "🤡", "🫡", "🗿", "🐸", "🦅", "🧠", "🍕"];
 
@@ -102,6 +103,9 @@ export function EditProfileDialog({ me, open, onClose }: { me: Me; open: boolean
           onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
         />
       </label>
+      <div className="mt-1 flex justify-end">
+        <AtlasAssist value={form.bio} onUse={(t) => setForm((f) => ({ ...f, bio: t.slice(0, 280) }))} tasks={["bio", "rewrite"]} align="end" />
+      </div>
       <div className="mt-3">
         <div className="text-xs font-bold text-muted">Flair</div>
         <div className="mt-1 flex flex-wrap gap-1">

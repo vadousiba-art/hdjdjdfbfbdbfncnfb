@@ -8,9 +8,10 @@ import { pgQuery, pgRpc } from "./postgres";
 import { ensureDemoSeeded } from "./demo/seed";
 import { READ_RPCS, type RpcName } from "./rpc-registry";
 import { scheduleDrain } from "./realtime/outbox";
+import { mayNotify, schedulePush } from "./push";
 
 // Server-side functions that write (and so may produce live events).
-const SERVICE_WRITES = /^(bot_|delete_account$|submit_support$)/;
+const SERVICE_WRITES = /^(bot_|nw_|delete_account$|submit_support$|pro_publish_due$)/;
 
 export const DEMO_COOKIE = "itn_demo_uid";
 
@@ -85,7 +86,10 @@ function rpcVia(userId: string, call: (fn: string, args: Record<string, unknown>
     userId,
     rpc: async <T,>(fn: string, args?: Record<string, unknown>) => {
       try {
-        return (await call(fn, args ?? {})) as T;
+        const out = (await call(fn, args ?? {})) as T;
+        // A write may have created notifications: send any pushes in the background.
+        if (!READ_RPCS.has(fn as RpcName) && mayNotify(fn)) schedulePush();
+        return out;
       } catch (err) {
         throw toAppError(err);
       }
@@ -121,11 +125,16 @@ export async function serviceRpc<T = unknown>(fn: string, args: Record<string, u
   requireConfigured();
   try {
     const backend = dataBackend();
-    if (backend === "pglite") return await demoRpc<T>(null, fn, args);
-    if (backend === "postgres") return await pgRpc<T>(null, fn, args);
+    const pushAfter = SERVICE_WRITES.test(fn) && !fn.startsWith("push_");
+    if (backend === "pglite" || backend === "postgres") {
+      const out = backend === "pglite" ? await demoRpc<T>(null, fn, args) : await pgRpc<T>(null, fn, args);
+      if (pushAfter) schedulePush();
+      return out;
+    }
     const { data, error } = await supabaseAdmin().rpc(fn, args);
     if (error) throw error;
     if (SERVICE_WRITES.test(fn)) scheduleDrain();
+    if (pushAfter) schedulePush();
     return data as T;
   } catch (err) {
     throw toAppError(err);

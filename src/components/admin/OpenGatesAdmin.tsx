@@ -101,8 +101,8 @@ export function AdminPro({ members }: { members: ProfileLite[] }) {
   return (
     <div className="space-y-3">
       <div className="card p-3 text-xs text-muted">
-        No payment provider is connected, so nobody can buy Pro yet. Complimentary grants here are for testing and early supporters; each one is
-        recorded in the audit log.
+        Members buy Pro by Interac e-Transfer; the owner confirms those payments in the Payments tab. Complimentary grants here are for testing and
+        early supporters; each one is recorded in the audit log.
       </div>
       <form
         className="card flex flex-wrap items-end gap-2 p-3"

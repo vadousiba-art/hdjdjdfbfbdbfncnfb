@@ -47,7 +47,7 @@ an external audit or penetration test. No certifications are claimed.
 | 4 | Ghost Mode does not hide the "is typing…" indicator inside a chat. | Low | Documented; the setting text does not promise it. |
 | 5 | No daily XP cap; XP can be farmed by posting at the rate limit. XP has no money value, so impact is leaderboard fairness only. | Low | Open; documented in open-gates.md. |
 | 6 | Supabase Free has no automatic backups. | Medium (data loss) | Process: manual `pg_dump` weekly and before every migration, per [rollback.md](rollback.md). |
-| 7 | Account age: sign-up has a terms checkbox but no age gate. | Medium (legal) | Open: decide a minimum age (13+ is common; check Quebec and app-store rules) and add it to sign-up and Terms. Needs founder and legal input. |
+| 7 | Minimum age: sign-up requires ticking "I'm 16 or older and I agree to the Terms and Privacy Policy", and the FAQ states the 16+ rule. This is a self-declaration, not verification. | Low | By design for now. (An earlier version of this review wrongly said there was no age check.) |
 
 ## Privacy and data lifecycle
 

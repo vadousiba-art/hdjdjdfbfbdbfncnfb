@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Bell, Menu as MenuIcon, Search } from "lucide-react";
+import { Heart, Menu as MenuIcon, Search } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Logo, Tagline } from "@/components/ui/Logo";
+import { Logo } from "@/components/ui/Logo";
 import { NIGHT_MODE_EVENT } from "@/lib/progress";
 import { useMe } from "@/lib/client/hooks";
 import { useShell } from "./AppShell";
 
+// Phone top bar: wordmark on the left; search, activity and menu on the right.
+// Laptops use the side rail instead, so this hides from lg up.
 export function Header() {
   const { openDrawer } = useShell();
   const { data: me } = useMe();
   const unread = me?.unread_notifications ?? 0;
-  const anyUnread = unread + (me?.unread_messages ?? 0) > 0;
   // Publish the header's height so sticky sub-headers (chat) sit right below it.
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -37,48 +38,34 @@ export function Header() {
     }
   };
 
+  const btn = "relative flex h-10 w-10 items-center justify-center rounded-full text-ink transition-colors duration-150 hover:bg-card-2";
   return (
-    <header ref={headerRef} className="sticky top-0 z-30 bg-bg/90 px-3 pb-2.5 pt-3 backdrop-blur-xl sm:px-4">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={openDrawer}
-          className="relative -ml-1 rounded-full p-2 text-ink transition-colors duration-150 hover:bg-card-2 lg:hidden"
-          aria-label={`Open menu${anyUnread ? " (new activity)" : ""}`}
-        >
-          <MenuIcon size={26} strokeWidth={2} />
-          {anyUnread && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand" aria-hidden />}
-        </button>
-        <Link href="/" onClick={onLogoTap} aria-label="YORU home" className="ml-1 flex flex-col items-start gap-1 lg:ml-0">
-          <Logo width={146} />
-          <Tagline className="pl-px" />
+    <header ref={headerRef} className="sticky top-0 z-30 border-b border-line/60 bg-bg px-3 lg:hidden">
+      <div className="flex h-[54px] items-center gap-1">
+        <Link href="/" onClick={onLogoTap} aria-label="YORU home" className="ms-1 flex items-center">
+          <Logo width={96} />
         </Link>
-        <div className="ml-auto flex items-center">
-          <Link
-            href="/explore"
-            className="rounded-full p-2 text-ink transition-colors duration-150 hover:bg-card-2"
-            aria-label="Search"
-          >
-            <Search size={24} strokeWidth={2} />
+        <div className="ms-auto flex items-center">
+          <Link href="/explore" className={btn} aria-label="Search">
+            <Search size={23} strokeWidth={2} />
           </Link>
-          <span className="mx-1 h-6 w-px bg-line" aria-hidden />
-          <Link
-            href="/notifications"
-            className="relative rounded-full p-2 text-ink transition-colors duration-150 hover:bg-card-2"
-            aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
-          >
-            <Bell size={24} strokeWidth={2} />
+          <Link href="/notifications" className={btn} aria-label={`Activity${unread ? `, ${unread} unread` : ""}`}>
+            <Heart size={24} strokeWidth={2} />
             {unread > 0 && (
               <motion.span
                 key={unread}
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.18 }}
-                className="absolute right-0.5 top-0.5 flex h-[19px] min-w-[19px] items-center justify-center rounded-full bg-brand px-1 text-[10.5px] font-bold text-white"
+                className="absolute end-1 top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-white ring-2 ring-bg"
               >
                 {unread > 99 ? "99+" : unread}
               </motion.span>
             )}
           </Link>
+          <button onClick={openDrawer} className={btn} aria-label="Menu">
+            <MenuIcon size={24} strokeWidth={2} />
+          </button>
         </div>
       </div>
     </header>

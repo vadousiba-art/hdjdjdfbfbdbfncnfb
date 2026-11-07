@@ -98,7 +98,7 @@ function LoginInner() {
       }}
     >
       <h1 className="text-xl font-bold">Welcome back</h1>
-      <p className="mt-1 text-sm text-muted">Private network. Members only. Your next conversation starts here.</p>
+      <p className="mt-1 text-sm text-muted">Log in to pick up where you left off. Your next conversation starts here.</p>
       {error && <p className="mt-3 rounded-xl bg-hot/15 p-2 text-sm font-semibold text-hot">{error}</p>}
       <label className="mt-4 block text-sm font-semibold">
         Email

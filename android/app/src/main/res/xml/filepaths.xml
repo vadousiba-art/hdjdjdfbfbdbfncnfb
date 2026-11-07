@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Photos and videos taken with the camera for a post or message. -->
+    <cache-path name="camera" path="camera/" />
+</paths>

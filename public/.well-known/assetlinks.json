@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.yoru.social",
+      "sha256_cert_fingerprints": ["5A:4C:56:A8:B1:60:17:E1:43:27:41:65:D1:BB:3F:B3:2F:1C:42:96:63:1A:A1:DD:7F:AF:3E:7A:F3:1C:9F:52"]
+    }
+  }
+]

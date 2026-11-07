@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { sfx } from "./sfx";
 
 export const APK_URL = "/download/yoru.apk";
-export const APK_META = "v1.3.0 · 150 KB · Android 7+";
+export const APK_META = "v2.4.0 · 877 KB · Android 7+";
 
 // Call-to-action button with a slowly spinning gradient border.
 export function GlowButton({ href, label, sub, icon, ghost, download }: { href: string; label: string; sub?: string; icon: React.ReactNode; ghost?: boolean; download?: boolean }) {

@@ -2,6 +2,8 @@
 
 import clsx from "clsx";
 import { mediaSrc } from "@/lib/client/api";
+import { item, type RingP } from "@/lib/pro/catalog";
+import { RingOverlay } from "@/components/pro/art/Ring";
 
 // Initials avatars use shades of the app color so they match the theme.
 const GRADIENTS = [
@@ -26,9 +28,12 @@ type Props = {
   ring?: "none" | "gradient" | "brand" | "story" | "seen";
   online?: boolean;
   className?: string;
+  // YORU Pro ring (item id). Small avatars draw it without motion.
+  proRing?: string | null;
 };
 
-export function Avatar({ src, name, size = 44, ring = "none", online, className }: Props) {
+export function Avatar({ src, name, size = 44, ring = "none", online, className, proRing }: Props) {
+  const pro = item<RingP>(proRing);
   const initials = name
     .split(/\s+/)
     .map((p) => p[0])
@@ -76,6 +81,7 @@ export function Avatar({ src, name, size = 44, ring = "none", online, className 
           <div className="h-full w-full rounded-full bg-bg p-[2px]">{image}</div>
         </div>
       )}
+      {pro?.cat === "ring" && <RingOverlay p={pro.p} size={size} still={size < 64} />}
       {online && (
         <span
           className="absolute rounded-full border-[2.5px] border-bg bg-online"

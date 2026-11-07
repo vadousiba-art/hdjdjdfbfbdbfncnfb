@@ -4,7 +4,8 @@ import { use, useCallback, useEffect, useLayoutEffect, useRef, useState } from "
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Bot, Copy, Flag, ImageIcon, Loader2, LogOut, MoreHorizontal, Reply, Send, SmilePlus, Trash2, UserPlus, Users, X } from "lucide-react";
+import { ArrowLeft, Bot, Copy, Flag, ImageIcon, Loader2, LogOut, MoreHorizontal, Reply, Send, ShieldCheck, SmilePlus, Trash2, UserPlus, Users, X } from "lucide-react";
+import { OFFICIAL_ID } from "@/lib/nightwatch";
 import clsx from "clsx";
 import { useSWRConfig } from "swr";
 import { byFn, useRpc } from "@/lib/client/hooks";
@@ -14,6 +15,9 @@ import { useApp } from "@/components/providers/AppProvider";
 import { useLive } from "@/components/providers/LiveProvider";
 import { useShell } from "@/components/shell/AppShell";
 import { Avatar } from "@/components/ui/Avatar";
+import { item, type ChatP } from "@/lib/pro/catalog";
+import { useMyPro, useTryOn } from "@/lib/client/pro";
+import { chatBackground } from "@/components/pro/ItemPreview";
 import { ChaosLoader, Empty, NameLink, timeAgo } from "@/components/ui/bits";
 import { RichText } from "@/components/ui/RichText";
 import { Menu } from "@/components/ui/Menu";
@@ -21,6 +25,7 @@ import { Modal } from "@/components/ui/Modal";
 import { ReportDialog } from "@/components/feed/ReportDialog";
 import { EMPTY_LINES } from "@/lib/jokes";
 import type { ChannelDetail, Message, ProfileLite } from "@/lib/types";
+import { AtlasAssist } from "@/components/atlas/AtlasAssist";
 
 const QUICK = ["💀", "😭", "🔥", "🫡", "🤡", "❤️", "W", "L"];
 
@@ -40,7 +45,19 @@ function Bubble({
   const { me } = useShell();
   const { toastError, toast } = useApp();
   const [quick, setQuick] = useState(false);
+  // the quick-reaction bar opens above the bubble unless that would put it under the sticky chat header
+  const [quickBelow, setQuickBelow] = useState(false);
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const [reporting, setReporting] = useState(false);
+
+  function openQuick(open: boolean) {
+    if (open) {
+      const top = bubbleRef.current?.getBoundingClientRect().top ?? Infinity;
+      const header = document.querySelector("[data-chat-header]")?.getBoundingClientRect().bottom ?? 0;
+      setQuickBelow(top - header < 56);
+    }
+    setQuick(open);
+  }
 
   async function react(emoji: string) {
     setQuick(false);
@@ -68,7 +85,7 @@ function Bubble({
       initial={{ opacity: 0, y: 12, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 32 }}
-      className={clsx("group flex gap-2", mine ? "flex-row-reverse" : "flex-row", showHeader ? "mt-3" : "mt-0.5")}
+      className={clsx("group flex gap-2", mine ? "flex-row-reverse" : "flex-row", showHeader ? "mt-3" : "mt-0.5", quick && "relative z-30")}
     >
       <div className="w-8 shrink-0">
         {!mine && showHeader && (
@@ -87,17 +104,21 @@ function Bubble({
             <span className="text-muted">{timeAgo(m.created_at)}</span>
           </div>
         )}
-        <div className="relative">
+        <div className="relative" ref={bubbleRef}>
           <div
             className={clsx(
               "rounded-3xl px-3.5 py-2 text-[15px] leading-snug",
               m.deleted && "italic text-muted",
-              !m.deleted && mine && "rounded-br-lg bg-brand text-white",
-              !m.deleted && !mine && !m.is_ai && "rounded-bl-lg bg-card-2 text-ink",
+              !m.deleted && mine && "chat-me rounded-br-lg bg-brand text-white",
+              !m.deleted && !mine && !m.is_ai && "chat-them rounded-bl-lg bg-card-2 text-ink",
               !m.deleted && m.is_ai && "rounded-bl-lg border border-roast/50 bg-gradient-to-br from-roast/20 to-volt/20 text-ink",
               m.deleted && "border border-dashed border-line",
             )}
-            onDoubleClick={() => !m.deleted && react("❤️")}
+            onDoubleClick={() => {
+              if (m.deleted) return;
+              window.getSelection()?.removeAllRanges(); // a double-tap heart shouldn't also highlight the word
+              react("❤️");
+            }}
           >
             {m.reply_to && !m.deleted && (
               <div className={clsx("mb-1.5 rounded-xl border-l-2 px-2 py-1 text-xs", mine ? "border-white/70 bg-white/15" : "border-brand bg-black/10")}>
@@ -120,28 +141,17 @@ function Bubble({
               </>
             )}
           </div>
-          {!m.deleted && (
-            <div
-              className={clsx(
-                "absolute top-1/2 hidden -translate-y-1/2 items-center gap-0.5 group-hover:flex",
-                mine ? "right-full mr-1" : "left-full ml-1",
-              )}
-            >
-              <button onClick={() => setQuick((q) => !q)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="React">
-                <SmilePlus size={16} />
-              </button>
-              <button onClick={() => onReply(m)} className="rounded-full p-1 text-muted hover:bg-card-2" aria-label="Reply">
-                <Reply size={16} />
-              </button>
-            </div>
-          )}
           <AnimatePresence>
             {quick && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.6, y: 6 }}
+                initial={{ opacity: 0, scale: 0.6, y: quickBelow ? -6 : 6 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.7 }}
-                className={clsx("absolute -top-11 z-20 flex gap-0.5 rounded-full border border-line bg-card p-1 shadow-xl", mine ? "right-0" : "left-0")}
+                className={clsx(
+                  "absolute z-20 flex gap-0.5 rounded-full border border-line bg-card p-1 shadow-xl",
+                  quickBelow ? "top-full mt-2" : "-top-11",
+                  mine ? "right-0" : "left-0",
+                )}
               >
                 {QUICK.map((e) => (
                   <motion.button key={e} whileHover={{ scale: 1.35, y: -4 }} onClick={() => react(e)} className="rounded-full px-1.5 text-lg font-bold">
@@ -153,44 +163,61 @@ function Bubble({
           </AnimatePresence>
         </div>
         {m.reactions.length > 0 && (
-          <div className={clsx("-mt-1.5 flex flex-wrap gap-1 px-2", mine ? "justify-end" : "justify-start")}>
+          // tucked under the bubble's edge and drawn above it (the bubble is positioned, so the
+          // row needs its own stacking order); solid fills so it reads over any bubble or theme
+          <div className={clsx("relative z-10 -mt-1.5 flex flex-wrap gap-1 px-2", mine ? "justify-end" : "justify-start")}>
             {m.reactions.map((r) => (
               <motion.button
                 key={r.emoji}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 onClick={() => react(r.emoji)}
+                aria-label={`${r.emoji} ${r.count}${r.mine ? ", you reacted" : ""}`}
                 className={clsx(
-                  "rounded-full border px-1.5 text-xs font-bold",
-                  r.mine ? "border-brand bg-brand/20" : "border-line bg-card",
+                  "inline-flex items-center gap-1 rounded-full border bg-card px-1.5 py-0.5 text-xs font-bold leading-none shadow-sm",
+                  r.mine ? "border-brand text-brand" : "border-line text-ink",
                 )}
               >
-                {r.emoji} {r.count > 1 ? r.count : ""}
+                <span className="text-[13px] leading-none">{r.emoji}</span>
+                {r.count > 1 ? <span className="tabular-nums">{r.count}</span> : null}
               </motion.button>
             ))}
           </div>
         )}
       </div>
       {!m.deleted && (
-        <div className="self-center opacity-0 transition group-hover:opacity-100 max-sm:opacity-100">
-          <Menu
-            trigger={<MoreHorizontal size={16} />}
-            align={mine ? "right" : "left"}
-            items={[
-              { label: "Reply", icon: <Reply size={14} />, onSelect: () => onReply(m) },
-              { label: "React", icon: <SmilePlus size={14} />, onSelect: () => setQuick(true) },
-              {
-                label: "Copy text",
-                icon: <Copy size={14} />,
-                onSelect: async () => {
-                  await navigator.clipboard?.writeText(m.body).catch(() => null);
-                  toast("Copied.", "success", "📋");
+        // one toolbar beside the bubble, in the row's flow: react and reply (hover only, so only on
+        // devices that can hover), then the ⋯ menu. Mirrored for your own messages. Laid out side by
+        // side, nothing can sit on top of anything else.
+        <div className={clsx("flex shrink-0 items-center gap-0.5 self-center", mine && "flex-row-reverse")}>
+          <div className={clsx("hidden items-center gap-0.5 group-hover:flex", mine && "flex-row-reverse")}>
+            <button onClick={() => openQuick(!quick)} className="rounded-full p-1 text-muted hover:bg-card-2 hover:text-ink" aria-label="React">
+              <SmilePlus size={16} />
+            </button>
+            <button onClick={() => onReply(m)} className="rounded-full p-1 text-muted hover:bg-card-2 hover:text-ink" aria-label="Reply">
+              <Reply size={16} />
+            </button>
+          </div>
+          <div className="opacity-0 transition group-hover:opacity-100 max-sm:opacity-100">
+            <Menu
+              trigger={<MoreHorizontal size={16} />}
+              align={mine ? "right" : "left"}
+              items={[
+                { label: "Reply", icon: <Reply size={14} />, onSelect: () => onReply(m) },
+                { label: "React", icon: <SmilePlus size={14} />, onSelect: () => openQuick(true) },
+                {
+                  label: "Copy text",
+                  icon: <Copy size={14} />,
+                  onSelect: async () => {
+                    await navigator.clipboard?.writeText(m.body).catch(() => null);
+                    toast("Copied.", "success", "📋");
+                  },
                 },
-              },
-              { label: "Report", icon: <Flag size={14} />, onSelect: () => setReporting(true), hidden: mine },
-              { label: "Unsend", icon: <Trash2 size={14} />, onSelect: remove, hidden: !(mine || me.role !== "member"), danger: true },
-            ]}
-          />
+                { label: "Report", icon: <Flag size={14} />, onSelect: () => setReporting(true), hidden: mine },
+                { label: "Unsend", icon: <Trash2 size={14} />, onSelect: remove, hidden: !(mine || me.role !== "member"), danger: true },
+              ]}
+            />
+          </div>
         </div>
       )}
       <ReportDialog open={reporting} onClose={() => setReporting(false)} targetType="message" targetId={m.id} />
@@ -269,6 +296,19 @@ function MembersDialog({ channel, open, onClose, onChanged }: { channel: Channel
 export default function ChatRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { me } = useShell();
+  // Chat Personalization: only changes how this conversation looks to you.
+  const { data: pro } = useMyPro();
+  const tryingChat = useTryOn().chat;
+  const chatItem = item<ChatP>(tryingChat !== undefined ? tryingChat : pro?.equips.chat?.active ? pro.equips.chat.item : null);
+  const chatThemeProps = chatItem?.cat === "chat"
+    ? {
+        "data-chat-theme": chatItem.id,
+        style: {
+          background: chatBackground(chatItem.p),
+          "--chat-me": chatItem.p.me, "--chat-me-ink": chatItem.p.meInk, "--chat-them": chatItem.p.them, "--chat-them-ink": chatItem.p.themInk,
+        } as React.CSSProperties,
+      }
+    : null;
   const { toastError, toast, supabase } = useApp();
   const router = useRouter();
   const { mutate: mutateAll } = useSWRConfig();
@@ -409,6 +449,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
 
   const title = channel.kind === "dm" ? (channel.members.find((m) => m.id !== me.id)?.display_name ?? "DM") : channel.name;
   const dmUser = channel.kind === "dm" ? channel.members.find((m) => m.id !== me.id) : null;
+  const official = dmUser?.id === OFFICIAL_ID;
   const mentionOptions =
     mentionQ !== null
       ? channel.members.filter((m) => m.id !== me.id && m.username.toLowerCase().startsWith(mentionQ)).slice(0, 5)
@@ -416,7 +457,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div>
-      <div className="sticky top-[var(--header-h,76px)] z-20 -mx-3 mb-2 flex items-center gap-3 border-b border-line bg-bg/90 px-3 py-2 backdrop-blur sm:-mx-4 sm:px-4">
+      <div data-chat-header className="sticky top-[var(--header-h,76px)] z-20 -mx-3 mb-2 flex items-center gap-3 border-b border-line bg-bg/90 px-3 py-2 backdrop-blur sm:-mx-4 sm:px-4">
         <button onClick={() => router.push("/chat")} className="rounded-full p-1.5 hover:bg-card-2" aria-label="Back to chats">
           <ArrowLeft size={20} />
         </button>
@@ -435,6 +476,8 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
                   ...
                 </motion.span>
               </span>
+            ) : official ? (
+              "Official notices from the YORU team"
             ) : dmUser ? (
               dmUser.online ? "online" : "offline (touching grass)"
             ) : (
@@ -454,7 +497,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
       )}
       {!messages && <ChaosLoader />}
       {messages && messages.length === 0 && <Empty emoji="🪦" text={EMPTY_LINES.messages} />}
-      <div>
+      <div {...chatThemeProps} className={chatThemeProps ? "-mx-3 rounded-3xl px-3 py-2 sm:mx-0" : undefined}>
         {messages?.map((m, i) => {
           const prev = messages[i - 1];
           const showHeader =
@@ -475,7 +518,18 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
         })}
       </div>
 
-      <div className="sticky bottom-[calc(84px+env(safe-area-inset-bottom))] z-30 mt-4 lg:bottom-4">
+      {official ? (
+        <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 mt-4 lg:bottom-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-line bg-card p-3 shadow-2xl">
+            <ShieldCheck size={22} className="shrink-0 text-[#5865f2]" />
+            <p className="min-w-0 flex-1 text-[13px] text-ink-2">This channel only sends notices, so replies aren&apos;t read. To appeal a decision, use Account Standing.</p>
+            <Link href="/standing" className="shrink-0 rounded-full bg-ink px-3.5 py-2 text-[13px] font-semibold text-bg">
+              Account Standing
+            </Link>
+          </div>
+        </div>
+      ) : (
+      <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 mt-4 lg:bottom-4">
         <div>
           <AnimatePresence>
             {mentionOptions.length > 0 && (
@@ -538,6 +592,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
               >
                 <Bot size={22} />
               </button>
+              <AtlasAssist value={text} onUse={(t) => onChangeText(t.slice(0, 2000))} tasks={["message", "rewrite"]} className="self-center" />
               <textarea
                 ref={inputRef}
                 value={text}
@@ -570,6 +625,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
       </div>
+      )}
       <input
         ref={fileRef}
         type="file"

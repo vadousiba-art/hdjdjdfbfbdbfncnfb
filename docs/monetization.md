@@ -1,9 +1,11 @@
 # Monetization: research, recommendation, architecture
 
-**Nothing in YORU can charge anyone today.** No payment provider is
-connected, no keys exist, and the "Get Pro" button is disabled with the text
-"Not available yet". Turning payments on needs founder approval and the
-steps at the end of this page.
+**Update (2026-11-05): Pro is paid by Interac e-Transfer only.** CAD $5.99
+buys one month per payment and nothing renews; donations go the same way.
+The owner confirms each payment in Watchtower → Payments. See
+[etransfer.md](etransfer.md). The PayPal checkout that was built on
+2026-11-03 was removed before it ever went live. The research below is
+kept for reference.
 
 Research checked on 2026-10-27 against each provider's own pages (links
 below). Fees and terms change; re-check before signing up. This is not

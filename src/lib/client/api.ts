@@ -79,7 +79,7 @@ type SignResult =
 // videos and small PNG/WebP images are sent untouched, and any failure falls
 // back to the original file.
 const MAX_SIDE = 2048;
-async function optimizeImage(file: File): Promise<File> {
+export async function optimizeImage(file: File): Promise<File> {
   const jpeg = file.type === "image/jpeg";
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || (!jpeg && file.size < 600 * 1024)) return file;
   try {

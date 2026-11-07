@@ -11,9 +11,17 @@ const mediaUrl = z.string().max(300).nullable().optional();
 const mediaType = z.enum(["image", "video", "gif"]).nullable().optional();
 const none = z.object({});
 const offset = z.number().int().min(-840).max(840).optional();
+const itemId = z.string().regex(/^[a-z]+\.[a-z0-9_]{1,40}$/);
+const slot = z.enum(["ring", "banner", "nameplate", "badge", "layout", "milestone", "theme", "effect", "reaction", "chat", "sound", "feed", "dashboard", "insight"]);
+const day = z.iso.date();
 
 export const REACTIONS = ["heart", "skull", "fire", "clown", "cap", "crying", "salute", "w", "l"] as const;
 export const AWARDS = ["menace", "war_crime", "touch_grass", "galaxy_brain", "skill_issue", "ratio"] as const;
+// The notification switches in Settings (set_notification_prefs, migration 0017).
+export const NOTIFICATION_KEYS = [
+  "likes", "comments", "mentions", "reposts", "messages", "awards", "friend_posts",
+  "following_posts", "follows", "top_posts", "moonrise",
+] as const;
 
 export const RPC_SCHEMAS = {
   // reads
@@ -149,7 +157,7 @@ export const RPC_SCHEMAS = {
     p_note: text(80).optional(),
   }),
   admin_revoke_invite: z.object({ p_code: text(40) }),
-  admin_set_role: z.object({ p_user_id: id, p_role: z.enum(["admin", "member"]) }),
+  admin_set_role: z.object({ p_user_id: id, p_role: z.enum(["admin", "moderator", "member"]) }),
   admin_set_banned: z.object({ p_user_id: id, p_banned: z.boolean() }),
   admin_set_verified: z.object({ p_user_id: id, p_verified: z.boolean() }),
   admin_resolve_report: z.object({ p_report_id: id, p_action: z.enum(["dismiss", "delete", "ban"]) }),
@@ -177,6 +185,8 @@ export const RPC_SCHEMAS = {
   // Open Gates (migration 0007)
   open_gates_version: none,
   get_my_identity: none,
+  get_welcome_state: none,
+  mark_welcome_seen: z.object({ p_version: z.string().regex(/^[0-9]{1,4}(\.[0-9]{1,3})?$/) }),
   update_my_identity: z.object({
     p: z
       .object({
@@ -232,6 +242,157 @@ export const RPC_SCHEMAS = {
   admin_pro_members: none,
   admin_report_flags: none,
   admin_escalate_report: z.object({ p_report_id: id, p_escalated: z.boolean() }),
+
+  // Pro Universe (migration 0009)
+  pro_universe_version: none,
+  get_my_pro: none,
+  pro_equip: z.object({ p_slot: slot, p_item: itemId.nullable().optional() }),
+  pro_equip_many: z.object({ p: z.partialRecord(slot, itemId) }),
+  pro_reset_look: none,
+  pro_wishlist_toggle: z.object({ p_item: itemId }),
+  pro_save_settings: z.object({
+    p: z
+      .object({
+        labs: z.array(itemId).max(20).optional(),
+        sound_volume: z.number().int().min(0).max(100).optional(),
+        sounds_on: z.boolean().optional(),
+        show_timeline: z.boolean().optional(),
+        effects_on: z.boolean().optional(),
+        ring_motion: z.boolean().optional(),
+        layout_order: z.array(z.string().regex(/^[a-z_]{2,20}$/)).max(10).optional(),
+        dashboard_widgets: z.array(z.string().regex(/^[a-z_]{2,20}$/)).max(12).optional(),
+        insight_widgets: z.array(z.string().regex(/^[a-z_]{2,20}$/)).max(12).optional(),
+        muted_words: z.array(text(40)).max(50).optional(),
+        hub_tags: z.array(text(30)).max(12).optional(),
+        pinned_hubs: z.array(itemId).max(8).optional(),
+        feed_custom: z
+          .object({
+            sort: z.enum(["latest", "top"]).optional(),
+            media: z.enum(["any", "image", "video", "text"]).optional(),
+            tags: z.array(text(30)).max(12).optional(),
+            kinds: z.array(z.enum(["post", "poll", "repost", "news", "roast"])).max(5).optional(),
+            days: z.number().int().min(1).max(90).nullable().optional(),
+            muted: z.boolean().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict(),
+  }),
+  pro_get_drafts: none,
+  pro_save_draft: z.object({
+    p_id: id.nullable(),
+    p: z
+      .object({
+        template: itemId.nullable().optional(),
+        folder: text(40).optional(),
+        kind: z.enum(["post", "poll"]).optional(),
+        body: text(2000).optional(),
+        media_url: mediaUrl,
+        media_type: mediaType,
+        link_url: text(500).nullable().optional(),
+        poll_options: z.array(text(80)).max(6).nullable().optional(),
+        plan: text(80).nullable().optional(),
+      })
+      .strict(),
+  }),
+  pro_delete_draft: z.object({ p_id: id }),
+  pro_schedule_draft: z.object({ p_id: id, p_at: ts, p_timezone: text(64).nullable().optional() }),
+  pro_record_profile_view: z.object({ p_username: text(20) }),
+  get_creator_analytics: z.object({ p_from: day.nullable().optional(), p_to: day.nullable().optional() }),
+  get_feed_preset: z.object({
+    p_preset: itemId,
+    p_offset: z.number().int().min(0).max(2000).optional(),
+    p_limit: z.number().int().min(1).max(50).optional(),
+    p_preview: z.boolean().optional(),
+  }),
+  get_hub: z.object({ p_hub: itemId, p_before: ts, p_limit: z.number().int().min(1).max(50).optional() }),
+  pro_style_collection: z.object({
+    p_id: id,
+    p_template: z.union([itemId, z.literal("")]).nullable().optional(),
+    p_sort: z.enum(["added_desc", "added_asc", "popular"]).nullable().optional(),
+  }),
+  get_collection_page: z.object({ p_id: id, p_offset: z.number().int().min(0).max(2000).optional(), p_limit: z.number().int().min(1).max(50).optional() }),
+
+  // Night Watch (migration 0011)
+  night_watch_version: none,
+  get_watch: z.object({
+    p_mode: z.enum(["for_you", "latest"]).optional(),
+    p_offset: z.number().int().min(0).max(2000).optional(),
+    p_limit: z.number().int().min(1).max(20).optional(),
+  }),
+  get_interest_feed: z.object({ p_before: ts, p_limit: z.number().int().min(1).max(50).optional() }),
+  get_my_standing: none,
+  submit_appeal: z.object({ p_event_id: id, p_body: text(1000) }),
+  nw_dashboard: none,
+  nw_queue: z.object({
+    p_view: z.enum(["open", "held", "reports", "auto", "reviewed", "all"]).optional(),
+    p_limit: z.number().int().min(1).max(200).optional(),
+  }),
+  nw_review: z.object({ p_event_id: id, p_decision: z.enum(["remove", "restore", "dismiss"]), p_strike: z.boolean().optional(), p_note: z.string().max(500).optional() }),
+  nw_appeals: z.object({ p_status: z.enum(["open", "granted", "denied", "all"]).optional() }),
+  nw_decide_appeal: z.object({ p_appeal_id: id, p_grant: z.boolean(), p_note: z.string().max(500).optional() }),
+  nw_revoke_strike: z.object({ p_strike_id: id }),
+  nw_mute: z.object({ p_user_id: id, p_minutes: z.number().int().min(0).max(43200) }),
+  nw_member_file: z.object({ p_user_id: id }),
+  nw_get_config: none,
+  nw_set_config: z.object({ p: z.record(z.string(), z.unknown()) }),
+  nw_test: z.object({ p_text: z.string().min(1).max(2000) }),
+
+  // Pro and donations by Interac e-Transfer (migration 0016)
+  etransfer_config: none,
+  etransfer_start: z.object({ p_kind: z.enum(["pro", "donation"]), p_amount_cents: z.number().int().min(200).max(50000).nullable().optional() }),
+  etransfer_mark_sent: z.object({ p_id: id, p_sender_name: text(80).optional() }),
+  etransfer_cancel: z.object({ p_id: id }),
+  etransfer_my_orders: none,
+  etransfer_admin_orders: z.object({ p_since: ts }),
+  etransfer_confirm: z.object({ p_ids: z.array(id).min(1).max(100), p_day: day.nullable().optional() }),
+  etransfer_reject: z.object({ p_id: id, p_note: text(200).optional() }),
+  etransfer_undo: z.object({ p_id: id }),
+  etransfer_set_day: z.object({ p_day: day, p_total_cents: z.number().int().min(0).max(10_000_000), p_note: text(200).optional() }),
+  etransfer_days: z.object({ p_limit: z.number().int().min(1).max(366).optional() }),
+
+  // Following, notifications and Moonrise (migration 0017, docs/MOONRISE.md)
+  get_follow_state: z.object({ p_user: id }),
+  follow_user: z.object({ p_user: id }),
+  unfollow_user: z.object({ p_user: id }),
+  list_follows: z.object({ p_user: id, p_kind: z.enum(["followers", "following"]).optional(), p_limit: z.number().int().min(1).max(200).optional() }),
+  set_notification_prefs: z.object({ p: z.record(z.enum(NOTIFICATION_KEYS), z.boolean()) }),
+  get_for_you: z.object({
+    p_seen: z.array(id).max(300).optional(),
+    p_limit: z.number().int().min(5).max(30).optional(),
+    p_hour: z.number().int().min(0).max(23).nullable().optional(),
+  }),
+  get_moonrise: none,
+  get_moon_status: z.object({ p_post: id }),
+  mark_not_interested: z.object({ p_post: id }),
+  undo_not_interested: z.object({ p_post: id }),
+  admin_get_moonrise: none,
+  admin_set_moonrise: z.object({
+    p: z
+      .object({
+        enabled: z.boolean().optional(),
+        sizes: z.array(z.number().int().min(2).max(100_000)).length(3).optional(),
+        quotas: z.array(z.number().gt(0).max(1)).length(4).optional(),
+        second_night: z.boolean().optional(),
+        slots: z.number().int().min(0).max(4).optional(),
+      })
+      .strict(),
+  }),
+  // Night Crew (migration 0018)
+  admin_get_crew: none,
+  admin_set_crew: z.object({
+    p: z
+      .object({
+        enabled: z.boolean().optional(),
+        max_likes: z.number().int().min(1).max(50).optional(),
+        follows: z.number().int().min(0).max(50).optional(),
+        chance: z.number().min(0.05).max(1).optional(),
+      })
+      .strict(),
+  }),
+  admin_set_crew_member: z.object({ p_id: id, p_active: z.boolean() }),
+  admin_unleash_crew: none,
 } as const;
 
 export type RpcName = keyof typeof RPC_SCHEMAS;
@@ -251,5 +412,10 @@ export const READ_RPCS: ReadonlySet<RpcName> = new Set<RpcName>([
   "admin_stats", "admin_audit", "admin_member_extras", "admin_support_inbox",
   "open_gates_version", "get_my_identity", "get_profile_identity", "get_discover", "get_my_collections",
   "get_collection", "get_my_themes", "get_my_creator_application", "admin_creator_queue", "admin_pro_members",
-  "admin_report_flags",
+  "admin_report_flags", "get_welcome_state",
+  "pro_universe_version", "pro_get_drafts", "get_creator_analytics", "get_feed_preset", "get_hub", "get_collection_page",
+  "night_watch_version", "get_watch", "get_interest_feed", "get_my_standing", "nw_dashboard", "nw_queue", "nw_appeals",
+  "nw_member_file", "nw_get_config", "nw_test",
+  "etransfer_config", "etransfer_my_orders", "etransfer_admin_orders", "etransfer_days",
+  "get_follow_state", "list_follows", "get_moonrise", "get_moon_status", "admin_get_moonrise", "admin_get_crew",
 ]);

@@ -1,7 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/cleanup-uploads", "schedule": "17 4 * * *" },
-    { "path": "/api/cron/shards", "schedule": "43 5 * * *" }
+    {
+      "path": "/api/cron/cleanup-uploads",
+      "schedule": "17 4 * * *"
+    },
+    {
+      "path": "/api/cron/shards",
+      "schedule": "43 5 * * *"
+    },
+    {
+      "path": "/api/cron/moderate",
+      "schedule": "29 6 * * *"
+    }
   ]
 }

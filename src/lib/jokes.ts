@@ -132,9 +132,14 @@ export const NOTIFICATION_TEXT: Record<string, string> = {
   award: "gave your post an award",
   message: "sent you a message",
   friend_post: "posted something",
+  new_post: "posted",
+  follow: "started following you",
+  top_post: "has a top post right now",
   roast: "roasted you",
   announcement: "posted an announcement",
   system: "sent you a notice",
+  moderation: "· Night Watch",
+  report_update: "· update on your report",
 };
 
 export const ERROR_TITLES = ["Something went wrong.", "Lost in the dark.", "That didn't load."];

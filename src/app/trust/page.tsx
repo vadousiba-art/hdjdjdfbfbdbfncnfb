@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function TrustPage() {
   return (
     <PublicShell>
-      <LegalDoc title="Trust Center" updated="October 27, 2026">
+      <LegalDoc title="Trust Center" updated="October 28, 2026">
         <p>
           This page explains, in plain words, the safety and privacy tools YORU has today and how moderation works. It describes the
           real product; when something is not available yet, we say so. YORU has not had an independent security audit or certification.
@@ -45,6 +45,29 @@ export default function TrustPage() {
           </li>
         </ul>
 
+        <h2>Profile cosmetics and YORU Pro</h2>
+        <ul>
+          <li>
+            <b>Ownership is checked on the server.</b> When you equip a ring, banner, nameplate or any other cosmetic, the database checks that you
+            own it. If you don&apos;t (for example Pro ended), other members see the default look instead.
+          </li>
+          <li>
+            <b>Try-ons never unlock anything.</b> Previewing a cosmetic happens only on your device and is never saved or shown to others.
+          </li>
+          <li>
+            <b>Staff cosmetics are role-checked.</b> Founder and YORU Staff cosmetics only show on accounts that currently hold that role, so a
+            Founder or Staff nameplate on a profile is a real signal. Copying them to pretend to be staff breaks the <Link href="/terms">Terms</Link>.
+          </li>
+          <li>
+            <b>Profile visits stay private.</b> You see daily totals of profile visits, never who visited. The short-lived key used to count each
+            visitor once a day is deleted after about two days.
+          </li>
+          <li>
+            <b>No pay-to-win.</b> Pro never changes who sees your posts or how moderation treats you. Rarity labels are cosmetic, there are no
+            loot boxes or countdown timers, and Pro can&apos;t be bought yet.
+          </li>
+        </ul>
+
         <h2>Reporting</h2>
         <p>
           Every post, comment, story, message and profile has a Report option in its ••• menu. You choose a category (harassment, hate,
@@ -54,11 +77,24 @@ export default function TrustPage() {
 
         <h2>How moderation works</h2>
         <ul>
-          <li>Admins review every report in a private queue and can dismiss it, remove the content, mute the account (up to 30 days) or ban it.</li>
           <li>
-            Automatic help is limited and transparent: when three or more different members report the same thing, or a report says someone
-            may be at risk, it is flagged as escalated so admins look at it first. Nothing is removed and no one is punished automatically.
+            <b>Night Watch</b> checks every new post, comment and story. Its rules run in the database itself, so they can&apos;t be skipped. It
+            refuses clear breaks (slurs however they&apos;re spelled, scams, spam floods), holds unclear ones for a person, and puts a screen over
+            graphic content. When AI review is turned on, an AI model also checks text and images against the same rules.
           </li>
+          <li>
+            Breaking a rule can earn a strike: a warning, then mutes of 24 hours, 7 days and 30 days. Strikes expire after 90 days. Every decision
+            is explained in a notice from the official YORU account and listed in Account Standing, where you can appeal it once.
+          </li>
+          <li><b>Bans are never automatic.</b> Watchtower, the team&apos;s moderation console, recommends a ban review; a person decides.</li>
+          <li>
+            Reports are triaged automatically: clear-cut cases are handled right away and the reporter is told. Reports about someone at risk,
+            reports on staff, and bursts of reports from new accounts (possible pile-ons) always go to a person.
+          </li>
+          <li>Direct and group messages are only checked when someone reports them.</li>
+          <li>When a post suggests someone may be at risk, Night Watch sends them free helplines privately instead of punishing them.</li>
+          <li>Removed files are fingerprinted so the same file can&apos;t be posted again.</li>
+          <li>Admins and moderators review held content, reports and appeals in a private queue. Moderators can mute for up to 7 days; only admins can ban.</li>
           <li>A word filter set by admins masks listed words in new posts (✱✱✱). Admins can pause member posting (quiet mode) or slow it down during incidents.</li>
           <li>Every admin action is written to an audit log that admins can review.</li>
           <li>Creator labels are given only after an admin reviews an application with a link to the applicant&apos;s own work. The label is a community recognition, not a partnership with YORU.</li>
@@ -66,8 +102,9 @@ export default function TrustPage() {
 
         <h2>Appeals</h2>
         <p>
-          If you think a moderation decision was wrong, use the <Link href="/support">Support</Link> form (topic “Safety”) and tell us what
-          happened. An admin reviews it and replies. There is no automated appeals system yet.
+          Open <Link href="/standing">Account Standing</Link> to see every decision about your content and appeal any of them once, within 30
+          days. Some appeals get an automated second look; anything unclear goes to a person, and you get a notice either way. For anything else,
+          use the <Link href="/support">Support</Link> form (topic “Safety”).
         </p>
 
         <h2>Account security</h2>

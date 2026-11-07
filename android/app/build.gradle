@@ -2,14 +2,20 @@ plugins {
     id "com.android.application"
 }
 
-// The web app this shell opens. Override with: gradle assembleRelease -PitnUrl=https://...
-def itnUrl = project.findProperty("itnUrl") ?: "https://yoru-social.vercel.app"
-
-// Release signing comes from android/keystore.properties (never committed):
+// YORU for Android: the live web app in a full-screen WebView, with the
+// phone's own permissions (asked once, on first launch) and notifications in
+// the notification shade. Firebase is optional and configured from the server
+// at runtime (see docs/notifications.md); without it the app checks for new
+// notifications in the background.
+//
+// Override the site with: gradle assembleRelease -PitnUrl=https://...
+// Release signing reads android/keystore.properties (never committed):
 //   storeFile=/path/to/release.jks
 //   storePassword=...
 //   keyAlias=...
 //   keyPassword=...
+
+def itnUrl = project.findProperty("itnUrl") ?: "https://yoru-social.vercel.app"
 def keystoreProps = new Properties()
 def keystoreFile = rootProject.file("keystore.properties")
 if (keystoreFile.exists()) {
@@ -24,9 +30,10 @@ android {
         applicationId "com.yoru.social"
         minSdk 24
         targetSdk 36
-        versionCode 4
-        versionName "1.3.0"
+        versionCode 7
+        versionName "2.4.0"
         buildConfigField "String", "APP_URL", "\"${itnUrl}\""
+        manifestPlaceholders = [hostName: new URI(itnUrl).host]
     }
 
     buildFeatures {
@@ -41,8 +48,6 @@ android {
                 keyAlias keystoreProps["keyAlias"]
                 keyPassword keystoreProps["keyPassword"]
             }
-            // Sign with both schemes: v1 (JAR) for store upload checkers and
-            // older tools, v2 for modern Android.
             enableV1Signing true
             enableV2Signing true
         }
@@ -50,10 +55,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            if (keystoreFile.exists()) {
-                signingConfig signingConfigs.release
-            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            if (keystoreFile.exists()) signingConfig signingConfigs.release
         }
     }
 
@@ -61,4 +66,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation "androidx.core:core:1.17.0"
+    implementation "androidx.work:work-runtime:2.10.5"
+    implementation platform("com.google.firebase:firebase-bom:34.4.0")
+    implementation "com.google.firebase:firebase-messaging"
 }

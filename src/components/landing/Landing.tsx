@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
-import { ChevronDown, Download, Globe, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, Download, Globe, Play, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { Logo, TAGLINE, TAGLINE_JP } from "@/components/ui/Logo";
 import { LegalLinks } from "@/components/public/LegalLinks";
@@ -12,8 +12,11 @@ import { NightSky } from "./NightSky";
 import { Showcase, Promo } from "./Showcase";
 import { Demos } from "./Demos";
 import { FeatureGrid, Install, Faq } from "./Sections";
+import { ProUniverse } from "./ProUniverse";
 import { setSoundEnabled, sfx, soundEnabled, unlockAudio } from "./sfx";
 import { APK_META, APK_URL, GlowButton } from "./GlowButton";
+import { WelcomePlayer } from "@/components/welcome/WelcomePlayer";
+import { WELCOME } from "@/lib/welcome/config";
 
 const WORDS = ["anime", "manga", "Vocaloid", "gaming", "art", "music", "late nights"];
 
@@ -22,6 +25,7 @@ export function Landing({ qrSvg, deleted }: { qrSvg: string; deleted: boolean })
   const [inApp, setInApp] = useState(false);
   const [sound, setSound] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [intro, setIntro] = useState(false);
   const { scrollY } = useScroll();
   const kanjiY = useTransform(scrollY, [0, 800], [0, 220]);
   const heroFade = useTransform(scrollY, [0, 500], [1, 0]);
@@ -71,6 +75,7 @@ export function Landing({ qrSvg, deleted }: { qrSvg: string; deleted: boolean })
           <div className="ml-6 hidden items-center gap-1 text-sm text-ink-2 md:flex">
             {[
               ["#features", "Features"],
+              ["#pro", "Pro"],
               ["#try", "Try it"],
               ["#install", "Get the app"],
               ["#faq", "FAQ"],
@@ -156,7 +161,7 @@ export function Landing({ qrSvg, deleted }: { qrSvg: string; deleted: boolean })
             transition={{ delay: 1.4, duration: 0.6 }}
             className="mt-5 max-w-xl text-base text-ink-2 sm:text-lg"
           >
-            A free social network for anime, manga, music, Vocaloid, gaming and art fans. Post, chat, level up every night. No ads. No tracking.
+            A free social network for anime, manga, music, Vocaloid, gaming and art fans. Post, chat, level up every night, and make your profile move. No ads. No tracking.
           </motion.p>
 
           <motion.div
@@ -172,6 +177,21 @@ export function Landing({ qrSvg, deleted }: { qrSvg: string; deleted: boolean })
               <GlowButton href={APK_URL} download icon={<Download size={20} />} label="Download for Android" sub={APK_META} ghost />
             )}
           </motion.div>
+          {WELCOME && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.8 }}
+              onClick={() => setIntro(true)}
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-4 py-2 text-sm font-semibold text-ink hover:border-brand/60"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
+                <Play size={12} fill="currentColor" />
+              </span>
+              Watch the {Math.round(WELCOME.full.duration)}-second intro
+            </motion.button>
+          )}
+          {intro && WELCOME && <WelcomePlayer config={WELCOME} cut="full" enterHref="/join" onClose={() => setIntro(false)} />}
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.9 }} className="mt-4 text-sm text-muted">
             Already a member?{" "}
             <Link href="/login" className="text-brand-2 underline-offset-4 hover:underline">
@@ -194,6 +214,7 @@ export function Landing({ qrSvg, deleted }: { qrSvg: string; deleted: boolean })
       <Marquee />
       <Promo />
       <FeatureGrid />
+      <ProUniverse />
       <Showcase />
       <Demos />
       <Install qrSvg={qrSvg} inApp={inApp} />

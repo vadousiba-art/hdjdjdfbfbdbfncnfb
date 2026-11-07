@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
@@ -19,6 +19,7 @@ type Props = {
 // Bottom sheet on phones, centered dialog on larger screens.
 export function Modal({ open, onClose, title, children, className, wide, bare }: Props) {
   const panel = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     if (!open) return;
@@ -71,6 +72,7 @@ export function Modal({ open, onClose, title, children, className, wide, bare }:
             ref={panel}
             role="dialog"
             aria-modal="true"
+            aria-labelledby={!bare && title ? titleId : undefined}
             tabIndex={-1}
             initial={{ y: "100%", opacity: 0.6, scale: 0.98 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -86,7 +88,9 @@ export function Modal({ open, onClose, title, children, className, wide, bare }:
             {!bare && <div className="mx-auto -mt-1 mb-3 h-1.5 w-12 rounded-full bg-line sm:hidden" aria-hidden />}
             {!bare && (
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-lg font-extrabold tracking-tight">{title}</h2>
+                <h2 id={titleId} className="text-lg font-extrabold tracking-tight">
+                  {title}
+                </h2>
                 <button
                   onClick={onClose}
                   className="rounded-full p-2 text-muted transition hover:bg-card-2 hover:text-ink"

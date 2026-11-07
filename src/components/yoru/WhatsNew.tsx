@@ -8,17 +8,14 @@ import { X } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "@/components/ui/Logo";
 import { useI18n } from "@/components/providers/I18nProvider";
-import { useOpenGates } from "@/lib/client/gates";
-import { CURRENT_RELEASE, RELEASE_SEEN_KEY, WHATS_NEW_EVENT } from "@/lib/releases";
+import { CURRENT_RELEASE, RELEASE_SEEN_KEY } from "@/lib/releases";
 
-// "What's new in YORU". Opens once per release version (remembered on this
-// device), can be skipped at any point, replayed from the menu or Settings,
-// closes with Escape, and never plays sound. Motion follows the reduced-motion
-// preference through the app's MotionConfig.
-export function WhatsNew() {
-  const { available } = useOpenGates();
+// "What's new in YORU": the release notes as slides. Opened from the welcome
+// experience ("Read what's new"), and the readable alternative to the welcome
+// film. Skippable at any point, closes with Escape, never plays sound. Motion
+// follows the reduced-motion preference through the app's MotionConfig.
+export function WhatsNew({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const panel = useRef<HTMLDivElement>(null);
   const rel = CURRENT_RELEASE;
@@ -26,36 +23,17 @@ export function WhatsNew() {
   const last = i === rel.slides.length - 1;
 
   const close = useCallback(() => {
-    setOpen(false);
+    onClose();
     try {
       localStorage.setItem(RELEASE_SEEN_KEY, rel.version);
     } catch {
-      /* storage blocked: it may show again next visit */
+      /* storage blocked */
     }
-  }, [rel.version]);
+  }, [onClose, rel.version]);
 
   useEffect(() => {
-    if (!available) return;
-    let seen: string | null = null;
-    try {
-      seen = localStorage.getItem(RELEASE_SEEN_KEY);
-    } catch {
-      seen = rel.version; // no storage: never auto-open, avoid nagging
-    }
-    const timer = seen === rel.version ? undefined : setTimeout(() => {
-      setI(0);
-      setOpen(true);
-    }, 900);
-    const replay = () => {
-      setI(0);
-      setOpen(true);
-    };
-    window.addEventListener(WHATS_NEW_EVENT, replay);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener(WHATS_NEW_EVENT, replay);
-    };
-  }, [available, rel.version]);
+    if (open) setI(0); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

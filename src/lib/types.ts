@@ -1,6 +1,6 @@
 // Shapes returned by the Postgres RPCs (see supabase/migrations/0001_core.sql).
 
-export type Role = "owner" | "admin" | "member";
+export type Role = "owner" | "admin" | "moderator" | "member";
 
 export interface ProfileLite {
   id: string;
@@ -17,6 +17,14 @@ export interface ProfileLite {
   level?: number;
   accent_hue?: number;
   flair?: string;
+  // Pro Universe (migration 0009): the public look, effective items only.
+  look?: PublicLook | null;
+}
+
+export interface PublicLook {
+  ring?: string;
+  nameplate?: string;
+  badge?: string;
 }
 
 export type CurrentlyKind = "watching" | "reading" | "listening" | "playing";
@@ -117,6 +125,11 @@ export interface NotificationPrefs {
   messages: boolean;
   awards: boolean;
   friend_posts: boolean;
+  // migration 0017 (on unless turned off)
+  following_posts?: boolean;
+  follows?: boolean;
+  top_posts?: boolean;
+  moonrise?: boolean;
 }
 
 export interface Me extends ProfileLite {
@@ -168,6 +181,43 @@ export interface PostCore {
 
 export interface Post extends PostCore {
   repost_of: PostCore | null;
+  // Night Watch: "label" = behind a sensitive screen, "held" = under review.
+  mod?: { state: "label" | "held"; label: string | null } | null;
+  // Moonrise (docs/MOONRISE.md): the public badge (3 Full Moon, 4 Blood Moon),
+  // and for the author only, where the post is in its climb.
+  moon?: 3 | 4 | null;
+  moon_mine?: MoonMine | null;
+  // For You only: why this post is on the page, and which lane it came from.
+  why?: string;
+  lane?: "interests" | "circle" | "trending" | "moonrise";
+}
+
+export type MoonPhase = 0 | 1 | 2 | 3 | 4;
+export interface MoonMine {
+  phase: MoonPhase;
+  state: "testing" | "waiting" | "done";
+  round: 1 | 2;
+  // a finished climb: a test said no, nobody was left to ask, or it reached the top
+  ended: "failed" | "exhausted" | "top" | null;
+}
+export interface MoonStatus extends MoonMine {
+  name: string;
+  emoji: string;
+  target: number;
+  shown: number;
+  loved: number;
+  rate: number | null;
+  score: number;
+  bar: number | null;
+  quota: number | null;
+  resumes_at: string | null;
+  history: { phase: MoonPhase; name: string; round: 1 | 2; shown: number; loved: number; score: number; bar: number; result: "up" | "stay" | "retry"; decided_at: string }[];
+}
+export interface FollowState {
+  followers: number;
+  following: number;
+  i_follow: boolean;
+  follows_me: boolean;
 }
 
 export interface Comment {

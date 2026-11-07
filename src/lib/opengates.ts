@@ -31,6 +31,8 @@ export type CollectionSummary = {
   cover: string | null;
   is_mine: boolean;
   has_post?: boolean;
+  template?: string | null;
+  sort?: "added_desc" | "added_asc" | "popular";
   updated_at: string;
   owner: { username: string; display_name: string };
 };
@@ -45,4 +47,7 @@ export type ProfileIdentity = {
   pro: boolean;
   ghost_mode: boolean | null;
   collections: CollectionSummary[];
+  // Pro Universe (migration 0009): effective public slots and the milestone timeline.
+  look?: { ring?: string; banner?: string; nameplate?: string; badge?: string; layout?: string; milestone?: string; layout_order?: string[] };
+  timeline?: { key: string; earned_at: string }[];
 };

@@ -50,6 +50,16 @@ async function open(): Promise<PGlite> {
       .catch(() => {});
   });
 
+  // Demo mode has no pg_cron, so this process runs once a minute what pg_cron
+  // runs on Supabase: the Post Planner's due drafts and Moonrise's decisions.
+  const tick = async () => {
+    await db.query("select public.pro_publish_due(50, 'demo')").catch(() => {});
+    await db.query("select public.moon_tick(500)").catch(() => {});
+    await db.query("select public.crew_tick(0.35)").catch(() => {});
+  };
+  void tick();
+  setInterval(tick, 60_000).unref?.();
+
   const humans = await db.query<{ n: number }>("select count(*)::int as n from public.profiles where not is_bot");
   if (humans.rows[0].n === 0) {
     await seedDemo(db);

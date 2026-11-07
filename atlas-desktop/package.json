@@ -1,0 +1,42 @@
+{
+  "name": "atlas-assistant",
+  "version": "1.1.0",
+  "description": "ATLAS - AI Assistant for YORU",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "author": "Jesse (YORU co-founder)",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "social.yoru.atlas",
+    "productName": "ATLAS",
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "ATLAS listens when you tap the microphone so you can talk to it.",
+        "NSCameraUsageDescription": "ATLAS uses the camera only in its local interface, when you turn it on."
+      }
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    }
+  }
+}

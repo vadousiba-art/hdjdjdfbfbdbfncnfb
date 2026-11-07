@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
+import clsx from "clsx";
 import { useMe } from "@/lib/client/hooks";
 import { ApiError } from "@/lib/client/api";
 import { LiveProvider } from "@/components/providers/LiveProvider";
@@ -20,9 +21,11 @@ import { Ambience } from "@/components/fx/Ambience";
 import { Celebrations } from "@/components/fx/Celebrations";
 import { CommandPalette } from "@/components/fx/CommandPalette";
 import { AccentStyle, AnnouncementBanner } from "@/components/yoru/Progression";
-import { WhatsNew } from "@/components/yoru/WhatsNew";
+import { WelcomeExperience } from "@/components/welcome/WelcomeExperience";
+import { ProRuntime } from "@/components/pro/ProRuntime";
 import { LocaleSync } from "@/components/yoru/LocaleSync";
 import type { Me } from "@/lib/types";
+import { syncPush } from "@/lib/client/push";
 
 type ComposerOpts = { tab?: ComposerTab; file?: File | null; text?: string };
 type ShellCtx = {
@@ -54,6 +57,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [error, router, pathname]);
 
+  // Push: keep this device linked to whoever is signed in, clear the app badge.
+  const signedIn = Boolean(me?.id);
+  useEffect(() => {
+    if (signedIn) syncPush().catch(() => {});
+  }, [signedIn]);
+
+  // Watchtower and the inbox use the extra width instead of the right rail.
+  const wide = pathname.startsWith("/admin");
   const openComposer = useCallback((opts?: ComposerOpts) => setComposer(opts ?? {}), []);
   const openStoryComposer = useCallback(() => setStoryOpen(true), []);
   const openDrawer = useCallback(() => setDrawer(true), []);
@@ -79,6 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <LiveProvider userId={me.id}>
         <AccentStyle />
         <Ambience mode={ambience} />
+        <ProRuntime />
         {config.mode === "demo" && (
           <div className="relative z-30 border-b border-line bg-bg-2 px-3 py-1 text-center text-[11px] font-medium tracking-wide text-muted">
             DEMO MODE · local test login · anyone can log in as anyone ·{" "}
@@ -87,9 +99,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </a>
           </div>
         )}
-        <div className="relative z-[1] mx-auto flex w-full max-w-[1280px] justify-center gap-6 lg:px-4">
+        <div className="relative z-[1] mx-auto flex w-full max-w-[1320px] justify-center gap-6 lg:px-4 xl:gap-10">
           <SideNav />
-          <div className="w-full min-w-0 max-w-[640px]">
+          <div className={clsx("w-full min-w-0", wide ? "max-w-[1040px]" : "max-w-[620px]")}>
             <Header />
             <div className="px-3 sm:px-4">
               <AnnouncementBanner />
@@ -101,13 +113,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18 }}
-                className="px-3 pb-32 sm:px-4 lg:pb-12"
+                className="px-3 pb-28 sm:px-4 lg:pb-12 lg:pt-5"
               >
                 {children}
               </motion.main>
             </AnimatePresence>
           </div>
-          <RightRail />
+          {!wide && <RightRail />}
         </div>
         <BottomNav />
         <Drawer open={drawer} onClose={() => setDrawer(false)} />
@@ -122,7 +134,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <EmojiBurstLayer />
         <Celebrations />
         <CommandPalette />
-        <WhatsNew />
+        <WelcomeExperience />
         <LocaleSync />
       </LiveProvider>
     </Ctx.Provider>

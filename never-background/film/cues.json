@@ -1,0 +1,83 @@
+{
+  "_comment": "YORU — You were never a background character. v2: 34.5 s, 30 fps. Picture (main.js) and sound (audio/synth.py) both read this file. Times in seconds.",
+  "fps": 30,
+  "duration": 34.5,
+  "bpm": 84,
+
+  "hook": [0.0, 5.05],
+  "crowdPush": [0.0, 3.25],
+  "blinkCrowd": 1.7,
+  "eyeIn": [2.75, 3.25],
+  "line1": 0.3,
+  "line2": [2.15, 2.75, 3.35],
+  "crimsonLine": 3.95,
+  "piano1": 3.95,
+  "eyeToScreen": [4.55, 5.05],
+
+  "scroll": [5.0, 7.3],
+  "loved": [5.45, 9.15],
+  "favCard": 5.7,
+  "favHold": [5.7, 6.35],
+  "trendWave": [6.35, 7.1],
+  "noteRise": [6.9, 7.35],
+  "interests": [7.3, 7.85, 8.4],
+
+  "typing": [9.3, 11.45],
+  "slideUp": [9.3, 9.62],
+  "understood": [9.5, 11.35],
+  "typeText": [9.75, 10.5],
+  "hesitate": [10.5, 10.9],
+  "deleteText": [10.9, 11.35],
+
+  "group": [11.45, 12.6],
+  "slideDown": [11.45, 11.75],
+  "sometimes": [11.7, 13.25],
+  "send": [12.55, 13.5],
+  "slideUp2": [12.55, 12.82],
+  "sendTap": 12.9,
+  "sink": [12.98, 13.4],
+  "ink1": [13.05, 13.7],
+
+  "alone": [13.5, 15.55],
+  "nobody": [13.75, 15.2],
+  "hush": [14.95, 15.45],
+
+  "close": [15.3, 16.1],
+  "blink": [15.5, 15.95],
+  "heartbeat": 15.62,
+  "impact": 16.1,
+  "shatter": [16.15, 17.0],
+  "silhouettes": 16.35,
+  "individuals": [16.8, 17.0, 17.2, 17.4, 17.6, 17.8],
+
+  "lookUp": [18.0, 20.85],
+  "gridOut": [18.0, 18.45],
+  "eyesUp": 18.5,
+  "eyesOpen": 18.9,
+  "smile": 19.45,
+  "bloom": [18.95, 20.15],
+
+  "share": [20.5, 22.3],
+  "replies": [20.95, 21.25, 21.55],
+  "boring": [20.75, 22.7],
+  "toPhone": [21.85, 22.3],
+
+  "ui": [22.1, 25.15],
+  "uiShots": [22.1, 23.0, 23.7, 24.3],
+  "yourPeople": [23.0, 25.0],
+
+  "logo": [25.1, 26.95],
+  "logoLines": [25.1, 25.6],
+  "logoIn": 25.55,
+
+  "final": [26.7, 30.3],
+  "frameDraw": [27.0, 28.1],
+  "someone": [27.1, 29.85],
+  "ink2": [29.6, 30.3],
+
+  "question": [30.2, 33.0],
+  "questionIn": 30.35,
+  "questionHold": [30.75, 32.85],
+  "end": [33.0, 34.5],
+  "tagline": 33.45
+}

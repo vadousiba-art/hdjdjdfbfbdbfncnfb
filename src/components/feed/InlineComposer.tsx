@@ -19,7 +19,7 @@ export function InlineComposer() {
   };
 
   return (
-    <div className="card flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:px-4">
+    <div className="flex items-center gap-2.5 rounded-2xl border border-line px-3 py-2.5 sm:gap-3 sm:px-4">
       <Avatar src={me.avatar_url} name={me.display_name} size={40} />
       <button
         onClick={() => openComposer({ tab: "text" })}

@@ -4,7 +4,8 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  // Microphone for YORU's own pages only (Atlas voice); camera and location stay off.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=()" },
 ];
 
 const nextConfig: NextConfig = {
@@ -26,6 +27,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      // Welcome film files live under a versioned folder (/welcome/v1/...),
+      // so they never change in place and can be cached for a year.
+      { source: "/welcome/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       // Serve the APK as a plain file download (stores fetch it from this URL).
       {
         source: "/download/:file*",

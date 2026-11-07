@@ -3,4 +3,8 @@
     <color name="bg">#080808</color>
     <color name="bar">#080808</color>
     <color name="brand">#f20d2f</color>
+    <color name="card">#141416</color>
+    <color name="line">#26262a</color>
+    <color name="ink">#f5f5f5</color>
+    <color name="muted">#9a9aa2</color>
 </resources>

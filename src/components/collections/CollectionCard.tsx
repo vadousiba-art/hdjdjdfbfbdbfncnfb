@@ -5,17 +5,21 @@ import { Lock, Users } from "lucide-react";
 import { mediaSrc } from "@/lib/client/api";
 import { useT } from "@/components/providers/I18nProvider";
 import type { CollectionSummary } from "@/lib/opengates";
+import { item, type CollectionP } from "@/lib/pro/catalog";
+import { coverBackground } from "@/components/pro/art/Marks";
 
 /* eslint-disable @next/next/no-img-element */
 export function CollectionCard({ c, showOwner = false }: { c: CollectionSummary; showOwner?: boolean }) {
   const t = useT();
+  // Collections+ template cover (shown when there's no image to use).
+  const tpl = item<CollectionP>(c.template);
   return (
     <Link href={`/collections/${c.id}`} className="card group block overflow-hidden transition-colors duration-150 hover:border-brand/60">
       <div className="relative aspect-[16/9] overflow-hidden bg-card-2">
         {c.cover ? (
           <img src={mediaSrc(c.cover)} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl" aria-hidden>
+          <div className="flex h-full items-center justify-center text-4xl" aria-hidden style={tpl?.cat === "collection" ? { background: coverBackground(tpl.p) } : undefined}>
             {c.emoji}
           </div>
         )}

@@ -13,11 +13,13 @@ export function CollectionForm({
   onClose,
   onSave,
   initial,
+  fresh,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (v: Values) => Promise<void>;
   initial?: Partial<Values>;
+  fresh?: boolean; // prefilled from a template, but still a new collection
 }) {
   const t = useT();
   const [v, setV] = useState<Values>({ p_name: "", p_description: "", p_emoji: "📁", p_visibility: "private", ...initial });
@@ -25,7 +27,7 @@ export function CollectionForm({
   const field = "w-full rounded-xl border border-line bg-card-2 px-3 py-2 text-sm outline-none focus:border-brand";
 
   return (
-    <Modal open={open} onClose={onClose} title={initial ? t("common.edit") : t("col.new")}>
+    <Modal open={open} onClose={onClose} title={initial && !fresh ? t("common.edit") : t("col.new")}>
       <form
         className="space-y-3"
         onSubmit={async (e) => {

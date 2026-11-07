@@ -3,15 +3,24 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import { appMode, supabaseAnonKey, supabaseUrl, realtimeTransport } from "@/lib/config";
 import { AppProvider } from "@/components/providers/AppProvider";
+import { brandDir } from "@/lib/season";
 
 // Config is read per request (env can differ between build and runtime).
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: { default: "YORU — 夜", template: "%s · YORU" },
-  description: "The internet after dark. A private, Japanese-inspired network for anime, manga, Vocaloid, gaming and art fans.",
-  robots: { index: false, follow: false },
-};
+export function generateMetadata(): Metadata {
+  const dir = brandDir();
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://yoru-social.vercel.app"),
+    title: { default: "YORU — 夜", template: "%s · YORU" },
+    description: "The internet after dark. A free, Japanese-inspired social network for anime, manga, Vocaloid, gaming and art fans.",
+    robots: { index: false, follow: false },
+    icons: {
+      icon: { url: `${dir}/favicon-512.png`, sizes: "512x512", type: "image/png" },
+      apple: { url: `${dir}/apple-icon.png`, sizes: "180x180", type: "image/png" },
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

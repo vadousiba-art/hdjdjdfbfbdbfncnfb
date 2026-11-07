@@ -1,0 +1,15 @@
+# personal: family photos, the story text and the rendered video stay local
+photos/
+out/
+SCRIPT.md
+film/cues.json
+film/audio/story.wav
+__pycache__/
+carousel/slides.json
+carousel/audio/song.wav
+carousel/slides-part2.json
+carousel/audio/song-part2.wav
+PART2.md
+RECORDING-GUIDE.md
+reel/*/
+!reel/scores/

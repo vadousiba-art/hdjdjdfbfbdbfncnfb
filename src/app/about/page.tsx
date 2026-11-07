@@ -3,14 +3,16 @@ import QRCode from "qrcode";
 import { Landing } from "@/components/landing/Landing";
 
 export const metadata: Metadata = {
-  title: "YORU — The internet after dark",
+  title: { absolute: "YORU — The internet after dark" },
   description:
-    "YORU (夜) is a free social network for anime, manga, music, Vocaloid, gaming and art fans. Posts, stories, group chats, nightly streaks and an AI comedian. Use it on the web or download the Android app.",
+    "YORU (夜) is a free social network for anime, manga, music, Vocaloid, gaming and art fans. Posts, stories, group chats, nightly streaks, animated profile cosmetics, scheduled posts and an AI comedian. Use it on the web or download the Android app.",
   robots: { index: true, follow: true },
   openGraph: {
     title: "YORU — The internet after dark",
     description: "Find your people. A free social network for anime, manga, Vocaloid, gaming and art fans.",
-    images: [{ url: "/brand/yoru/feature-graphic.png", width: 1024, height: 500, alt: "YORU" }],
+    images: [{ url: "/welcome/v1/og.jpg", width: 1200, height: 630, alt: "YORU 夜 — Your world. Your identity. Your night." }],
+    url: "/about",
+    type: "website",
   },
   twitter: { card: "summary_large_image", images: ["/brand/yoru/feature-graphic.png"] },
 };

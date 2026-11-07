@@ -65,16 +65,19 @@ export function ChaosLoader({ className, label }: { className?: string; label?: 
 
 export function PostSkeleton() {
   return (
-    <div className="card p-4" aria-hidden>
-      <div className="flex gap-3">
-        <div className="skeleton h-12 w-12 rounded-full" />
-        <div className="flex-1 space-y-2">
-          <div className="skeleton h-4 w-40" />
-          <div className="skeleton h-4 w-full" />
-          <div className="skeleton h-4 w-2/3" />
+    <div className="border-b border-line/70 py-3.5" aria-hidden>
+      <div className="flex items-center gap-2.5">
+        <div className="skeleton h-[38px] w-[38px] rounded-full" />
+        <div className="space-y-1.5">
+          <div className="skeleton h-3.5 w-32" />
+          <div className="skeleton h-3 w-20" />
         </div>
       </div>
-      <div className="skeleton mt-4 h-40 w-full" />
+      <div className="mt-3 space-y-2">
+        <div className="skeleton h-3.5 w-full" />
+        <div className="skeleton h-3.5 w-2/3" />
+      </div>
+      <div className="skeleton mt-3 h-56 w-full rounded-xl" />
     </div>
   );
 }
